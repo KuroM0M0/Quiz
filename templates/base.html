@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de" class="theme-dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>{% block title %}Gaming Quiz{% endblock %}</title>
+</head>
+<body>
+    {% block content %}
+    <!-- Inhalt in der Mitte -->
+    <section class="hero is-fullheight">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title">Willkommen zum Gaming Quiz 2025!</h1>
+                {% if username %}
+                    <p class="subtitle">Hallo, {{ username }} 👋</p>
+                    <p>Du bist bereits eingeloggt.</p>
+                {% else %}
+                <p class="subtitle">Gib deinen Namen ein, um einen Raum zu erstellen oder beizutreten!</p>
+                <!--Drücke den Buzzer, wenn du bereit bist. Hier Effekt einfügen wenn der Button gedrückt wird und danach Textfeld für namen anzeigen-->
+                <form method="POST">
+                        <div class="field has-addons has-addons-centered">
+                            <div class="control">
+                                <input class="input" type="text"
+                                       name="name" placeholder="Dein Name">
+                            </div>
+                            <div class="control">
+                                <button class="button is-primary" type="submit">
+                                    Beitreten
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
+                <a href="/join">Weiter</a>
+            </div>
+        </div>
+    </section>
+    {% endblock %}
+</body>
+</html>
