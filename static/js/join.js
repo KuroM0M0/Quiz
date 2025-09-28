@@ -23,7 +23,6 @@ function createRoom() {
 function hostRoom() {
     loadPage('host');
     setTimeout(() => createRoom(), 200);
-    createRoom();
 }
 
 
