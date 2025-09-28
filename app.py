@@ -1,20 +1,11 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from datetime import timedelta
+import secrets
 
 app = Flask(__name__)
 app.secret_key = "geheimes-passwort"
 app.permanent_session_lifetime = timedelta(hours=8)
-
-#@app.before_request
-#def beforeRequest():
-#    getDB()
-
-
-#@app.teardown_appcontext
-#def teardownRequest(exception=None):
-#    closeDB(exception)
-
-
+rooms = {}
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -22,18 +13,51 @@ def index():
         name = request.form.get("name")
         session.permanent = True
         session["username"] = name
-        return redirect(url_for("index"))
+        return redirect(url_for("join"))
 
     username = session.get("username")
     return render_template("base.html", username=username)
 
-@app.route('/join')
+
+@app.route('/join', methods=["GET"])
 def join():
-    return render_template("join.html")
+    username = session.get("username")
+    return render_template("join.html", username=username)
+
 
 @app.route('/host')
 def host():
     return render_template("host.html")
+
+
+@app.route('/play')
+def play():
+    return render_template("play.html")
+
+
+@app.route("/create_room", methods=["GET", "POST"])
+def create_room():
+    print("create_room")
+    username = session.get("username")
+    print(username)
+
+    if not username:
+        return jsonify({"error": "Username required"}), 400
+    roomID = secrets.token_hex(3).upper()  # z. B. "A1B2C3"
+
+    rooms[roomID] = {
+        "host": username,
+        "players": [username]
+    }
+
+    session["roomID"] = roomID
+    return jsonify({"roomID": roomID, "host": username})
+
+
+@app.route("/get_rooms")
+def get_rooms():
+    return jsonify(rooms)
+
 
 
 if __name__ == '__main__':

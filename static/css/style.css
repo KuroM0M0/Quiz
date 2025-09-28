@@ -9,10 +9,25 @@
     display: none;
 }
 .überschrift {
-    background-color: black;
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 20px;
     margin-right: 20px;
     text-align: center;
+}
+.abstand {
+    margin-top: 30px;
+}
+.buttonJoin {
+    height: 100px;
+    width: 200px;
+}
+.roomInput {
+    max-width: 300px;
+}
+.black {
+    background-color: black;
+}
+.roomCode {
+    padding-right: 400px;
 }
