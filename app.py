@@ -32,7 +32,8 @@ def host():
 
 @app.route('/play')
 def play():
-    return render_template("play.html")
+    username = session.get("username")
+    return render_template("play.html", username=username)
 
 
 @app.route("/create_room", methods=["GET", "POST"])
