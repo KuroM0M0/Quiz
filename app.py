@@ -13,16 +13,16 @@ def index():
         name = request.form.get("name")
         session.permanent = True
         session["username"] = name
-        return redirect(url_for("join"))
+        return redirect(url_for("lobby"))
 
     username = session.get("username")
     return render_template("base.html", username=username)
 
 
-@app.route('/join', methods=["GET"])
-def join():
+@app.route('/lobby', methods=["GET"])
+def lobby():
     username = session.get("username")
-    return render_template("join.html", username=username)
+    return render_template("lobby.html", username=username)
 
 
 @app.route('/host')
@@ -40,7 +40,6 @@ def play():
 def create_room():
     print("create_room")
     username = session.get("username")
-    print(username)
 
     if not username:
         return jsonify({"error": "Username required"}), 400
