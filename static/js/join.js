@@ -27,7 +27,7 @@ function hostRoom() {
 
 
 
-function joinRoom() {
+function joinButton() {
     const input = document.getElementById("roomIDInput")
     const inputText = input.value
     const joinButton = document.getElementById("joinButton")
@@ -42,4 +42,20 @@ function joinRoom() {
             joinButton.setAttribute('disabled', true)
         }
     })
+}
+
+
+async function joinRoom() {
+    const roomID = document.getElementById("roomIDInput").value;
+    const res = await fetch("/join_room", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({roomID})
+    });
+    const data = await res.json();
+    if (data.success) {
+        window.location.href = "/play"; // ins Spielfenster wechseln
+    } else {
+        ShowErrorAlert("Fehler", data.error);
+    }
 }
