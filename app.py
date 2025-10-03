@@ -1,13 +1,17 @@
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from datetime import timedelta
+import time
+import json
 import secrets
 
 app = Flask(__name__)
 app.secret_key = "geheimes-passwort"
 app.permanent_session_lifetime = timedelta(hours=8)
+socketio = SocketIO(app, cors_allowed_origins="*")  # erlaubt auch lokale Tests
 rooms = {}
 
-@app.route("/", methods=["GET", "POST"])
+@app.route('/', methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         name = request.form.get("name")
@@ -36,9 +40,28 @@ def play():
     return render_template("play.html", username=username)
 
 
-@app.route("/create_room", methods=["GET", "POST"])
-def create_room():
-    print("create_room")
+@app.route('/join', methods=["POST"])
+def join():
+    username = session.get("username")
+    roomID = request.json.get("roomID")  # client schickt z.B. {"roomID": "ABC123"}
+
+    if not username:
+        return jsonify({"error": "Username required"}), 400
+    if not roomID or roomID not in rooms:
+        return jsonify({"error": "Room not found"}), 404
+
+    room = rooms[roomID]
+    # Spieler hinzufügen, wenn er noch nicht drin ist
+    if username not in room["players"]:
+        room["players"].append(username)
+
+    session["roomID"] = roomID
+    return jsonify({"success": True, "roomID": roomID, "players": room["players"]})
+
+
+@app.route('/create', methods=["GET", "POST"])
+def create():
+    print("create")
     username = session.get("username")
 
     if not username:
@@ -47,18 +70,89 @@ def create_room():
 
     rooms[roomID] = {
         "host": username,
-        "players": [username]
+        "players": [username],
+        "buzzer_active": True,
+        "only_first": False,
+        "buzzed_by": None
     }
 
     session["roomID"] = roomID
     return jsonify({"roomID": roomID, "host": username})
 
 
-@app.route("/get_rooms")
+@app.route('/get_rooms')
 def get_rooms():
     return jsonify(rooms)
 
 
+@app.route('/buzz', methods=["POST"])
+def buzz():
+    roomID = session.get("roomID")
+    room = rooms[roomID]
+    username = session.get("username")
+    print(roomID)
+    if roomID is None:
+        return jsonify({"error": "No roomID found"}), 400
+    if not room["buzzer_active"]:
+        return jsonify({"error": "Buzzer locked"}), 400
+    
+    room["buzzed_by"] = username
+
+    if rooms[roomID]["only_first"]:
+        rooms[roomID]["buzzer_active"] = False
+
+    return jsonify({"success": True})
+
+
+@app.route('/stream/<roomID>')
+def stream(roomID):
+    def eventStream():
+        lastState = None
+        while True:
+            room = rooms.get(roomID)
+            if room and room != lastState:
+                yield f"data: {json.dumps(room)}\n\n"
+                lastState = room.copy()
+            time.sleep(0.1)
+    return Response(eventStream(), mimetype="text/event-stream")
+
+
+#Spieler joint
+@socketio.on('join_room')
+def on_join_room(data):
+    roomID = data['roomID']
+    username = data['username']
+
+    if roomID not in rooms:
+        rooms[roomID] = {
+            "host": username,
+            "players": [],
+            "buzzer_active": True,
+            "only_first": False,
+            "buzzed_by": None
+        }
+
+    if username not in rooms[roomID]["players"]:
+        rooms[roomID]["players"].append(username)
+
+    join_room(roomID)
+
+    # schickt aktuelle Raum Daten an ALLE im Raum
+    socketio.emit("room_update", rooms[roomID], room=roomID)
+
+
+#Spieler leavt
+@socketio.on('leave_room')
+def on_leave_room(data):
+    roomID = data['roomID']
+    username = data['username']
+
+    if roomID in rooms and username in rooms[roomID]["players"]:
+        rooms[roomID]["players"].remove(username)
+
+    leave_room(roomID)
+    socketio.emit("room_update", rooms[roomID], room=roomID)
+
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5500, threaded=False)
+    app.run(debug=True, host='0.0.0.0', port=5500, threaded=True)

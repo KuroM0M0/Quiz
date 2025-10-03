@@ -11,9 +11,9 @@
 <div class="zentriert">
     <a class="button abstand buttonJoin" onclick="hostRoom()">Create Room</a>
     <br><br><br><br><br><br>
-    <input class="input abstand roomInput" type="text" placeholder="RoomID" id="roomIDInput" oninput="joinRoom()">
+    <input class="input abstand roomInput" type="text" placeholder="RoomID" id="roomIDInput" oninput="joinButton()">
     <br><br>
-    <a class="button buttonJoin" href="/play" id="joinButton" disabled>Join Room</a>
+    <a class="button buttonJoin" onclick="joinRoom()" id="joinButton" disabled>Join Room</a>
 </div>
 
 
