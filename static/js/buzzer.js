@@ -14,19 +14,3 @@ function onBuzzerClick() {
             }
         });
 }
-
-
-// Verbindung aufbauen
-const source = new EventSource(`/stream/${roomID}`);
-
-// Wenn der Server neue Daten sendet:
-source.onmessage = (e) => {
-    const room = JSON.parse(e.data);
-    console.log("Update:", room);
-
-    document.getElementById("status").innerText =
-        room.buzzed_by ? `${room.buzzed_by} hat gedrückt!` : "Noch niemand";
-
-    // Button sperren, wenn Buzzer aus
-    document.getElementById("buzzer").disabled = !room.buzzer_active;
-};

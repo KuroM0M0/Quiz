@@ -4,6 +4,9 @@ from datetime import timedelta
 import time
 import json
 import secrets
+import eventlet
+
+eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.secret_key = "geheimes-passwort"
@@ -25,6 +28,7 @@ def index():
 
 @app.route('/lobby', methods=["GET"])
 def lobby():
+    print(rooms)
     username = session.get("username")
     return render_template("lobby.html", username=username)
 
@@ -61,7 +65,6 @@ def join():
 
 @app.route('/create', methods=["GET", "POST"])
 def create():
-    print("create")
     username = session.get("username")
 
     if not username:
@@ -70,18 +73,32 @@ def create():
 
     rooms[roomID] = {
         "host": username,
-        "players": [username],
+        "players": {},
         "buzzer_active": True,
         "only_first": False,
         "buzzed_by": None
     }
 
+    # Add host as first player
+    rooms[roomID]["players"][username] = {
+        "textField": "",
+        "buzzerPressed": False,
+        "buzzerTime": None,
+        "buzzerOrder": None
+    }
+
     session["roomID"] = roomID
+    print(f"Raum erstellt: {roomID} (Host: {username})")
+
+    # hier direkt allen Clients Bescheid sagen (z. B. Lobby-Ansicht)
+    socketio.emit("room_created", {"roomID": roomID, "host": username})
+
     return jsonify({"roomID": roomID, "host": username})
 
 
 @app.route('/get_rooms')
 def get_rooms():
+    print(rooms)
     return jsonify(rooms)
 
 
@@ -103,18 +120,6 @@ def buzz():
 
     return jsonify({"success": True})
 
-
-@app.route('/stream/<roomID>')
-def stream(roomID):
-    def eventStream():
-        lastState = None
-        while True:
-            room = rooms.get(roomID)
-            if room and room != lastState:
-                yield f"data: {json.dumps(room)}\n\n"
-                lastState = room.copy()
-            time.sleep(0.1)
-    return Response(eventStream(), mimetype="text/event-stream")
 
 
 #Spieler joint
@@ -155,4 +160,4 @@ def on_leave_room(data):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5500, threaded=True)
+    socketio.run(app, host='0.0.0.0', port=5500, debug=True)
