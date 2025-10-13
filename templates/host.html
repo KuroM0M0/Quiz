@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Join / Create Room {% endblock %}
+{% block title %} Gaming Quiz 2025 {% endblock %}
 {% block content %}
 <div class="columns black">
     <div class="column is-one-fifth überschrift">
@@ -15,8 +15,8 @@
 
 <button class="button">Reset Buzzer</button>
 <button class="button">Clear Text</button>
-<button class="button">Lock Buzzer</button>
-<button class="button">Only first Buzz</button>
+<button class="button" onclick="buttonActiveToggle(this)">Lock Buzzer</button>
+<button id="firstBuzz" class="button" onclick="buttonActiveToggle(this)">Only first Buzz</button>
 
 
 <div id="card" class="columns is-multiline is-narrow-tablet">
@@ -26,7 +26,7 @@
 
 <script> 
 window.addEventListener('DOMContentLoaded', () => {
-    createRoom();
+    createRoom(); //Beim seiten neuladen wird neuer Raum erstellt
 });
 </script>
 
