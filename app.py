@@ -47,6 +47,7 @@ def play():
 @app.route('/join', methods=["POST"])
 def join():
     username = session.get("username")
+    print(username, "\x1b[33m Halloooooooo \x1b[0m")
     roomID = request.json.get("roomID")  # client schickt z.B. {"roomID": "ABC123"}
 
     if not username:
@@ -57,10 +58,10 @@ def join():
     room = rooms[roomID]
     # Spieler hinzufügen, wenn er noch nicht drin ist
     if username not in room["players"]:
-        room["players"].append(username)
+        room["players"].update({username: {"textFeld": "", "buzzerPressed": False, "buzzerTime": None, "buzzerOrder": None}})
 
     session["roomID"] = roomID
-    return jsonify({"success": True, "roomID": roomID, "players": room["players"]})
+    return jsonify({"success": True, "roomID": roomID, "players": room["players"], "player": username})
 
 
 @app.route('/create', methods=["GET", "POST"])
@@ -81,7 +82,7 @@ def create():
 
     # Add host as first player
     rooms[roomID]["players"][username] = {
-        "textField": "",
+        "textFeld": "",
         "buzzerPressed": False,
         "buzzerTime": None,
         "buzzerOrder": None
@@ -90,8 +91,8 @@ def create():
     session["roomID"] = roomID
     print(f"Raum erstellt: {roomID} (Host: {username})")
 
-    # hier direkt allen Clients Bescheid sagen (z. B. Lobby-Ansicht)
-    socketio.emit("room_created", {"roomID": roomID, "host": username})
+    #schickt an alle verbundenen Clients eine Nachricht, dass der Raum erstellt wurde
+    #socketio.emit("room_created", {"roomID": roomID, "host": username})
 
     return jsonify({"roomID": roomID, "host": username})
 
@@ -107,7 +108,7 @@ def buzz():
     roomID = session.get("roomID")
     room = rooms[roomID]
     username = session.get("username")
-    print(roomID)
+    print(room)
     if roomID is None:
         return jsonify({"error": "No roomID found"}), 400
     if not room["buzzer_active"]:
@@ -118,7 +119,7 @@ def buzz():
     if rooms[roomID]["only_first"]:
         rooms[roomID]["buzzer_active"] = False
 
-    return jsonify({"success": True})
+    return jsonify({"success": True, "buzzed_by": username})
 
 
 
@@ -126,24 +127,20 @@ def buzz():
 @socketio.on('join_room')
 def on_join_room(data):
     roomID = data['roomID']
-    username = data['username']
-
-    if roomID not in rooms:
-        rooms[roomID] = {
-            "host": username,
-            "players": [],
-            "buzzer_active": True,
-            "only_first": False,
-            "buzzed_by": None
-        }
+    username = data.get('username') or data.get('host')
+    print(username)
 
     if username not in rooms[roomID]["players"]:
-        rooms[roomID]["players"].append(username)
+        rooms[roomID]["players"].update({username: {"textFeld": "", "buzzerPressed": False, "buzzerTime": None, "buzzerOrder": None}})
 
     join_room(roomID)
-
+    print(f"\x1b[32m User {username} joined room {roomID}\x1b[0m python")
     # schickt aktuelle Raum Daten an ALLE im Raum
     socketio.emit("room_update", rooms[roomID], room=roomID)
+    print(f"\x1b[32m{data.get('username')}\x1b[0m")
+    if data.get('username') is not None:
+        print(f"\x1b[35m{username}\x1b[0m")
+        socketio.emit("cards_update", {"username": username})
 
 
 #Spieler leavt
@@ -156,6 +153,13 @@ def on_leave_room(data):
         rooms[roomID]["players"].remove(username)
 
     leave_room(roomID)
+    socketio.emit("room_update", rooms[roomID], room=roomID)
+
+@socketio.on("firstBuzz")
+def firstBuzz(data):
+    roomID = data.get("roomID")
+    only_first = data["firstBuzz"]
+    rooms[roomID]["only_first"] = only_first
     socketio.emit("room_update", rooms[roomID], room=roomID)
 
 

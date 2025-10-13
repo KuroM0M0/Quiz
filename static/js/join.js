@@ -11,9 +11,11 @@ function createRoom() {
             return;
         }
         console.log("Raum erstellt:", data);
-        // Optional: direkt den Raumcode anzeigen
+
         const roomCodeDiv = document.getElementById('roomCode');
         roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${data.roomID}</h1>`;
+
+        socket.emit('join_room', {roomID: data.roomID, host: data.host}); //Host tritt direkt neu erstellten Raum bei
     })
     .catch(error => console.error('Fehler beim Erstellen vom Raum:', error));
 }
@@ -45,17 +47,21 @@ function joinButton() {
 }
 
 
-async function joinRoom() {
+function joinRoom() {
     const roomID = document.getElementById("roomIDInput").value;
-    const res = await fetch("/join_room", {
+    idk = fetch("/join", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({roomID})
-    });
-    const data = await res.json();
-    if (data.success) {
-        window.location.href = "/play"; // ins Spielfenster wechseln
-    } else {
-        ShowErrorAlert("Fehler", data.error);
-    }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            socket.emit('join_room', {roomID: data.roomID, username: data.player});
+            // Kurze Verzögerung, damit das Event gesendet werden kann
+            setTimeout(() => { window.location.href = "/play"; }, 100);
+        } else {
+            ShowErrorAlert("Fehler", data.error);
+        }
+    })
 }

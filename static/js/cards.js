@@ -1,39 +1,33 @@
-function createCard() {
+socket.on("cards_update", function(data) {
+    //const roomID = data.roomID;
+    console.log(data.username);
+    console.log(data);
+    const username = data.username;
     const cards = document.getElementById('card');
-    const roomID = sessionStorage.getItem('roomID')
-    rooms = fetch('/get_rooms')
-        .then(response => response.json())
-        .then(rooms => {
-            cards.innerHTML = '';
-            rooms[roomID].players.forEach(player => {
-                const card = document.createElement('div');
-                card.classList.add('column');
-                card.innerHTML = `
-                    <div class="card">
-                        <header class="card-header">
-                            <p class="zentriert card-header-title"><span title="SlotID">${player}</span> | ${player}</p>
-                        </header>
-                        <div class="card-content">
-                            <div class="content">
-                                <span title="Raum">🚪</span> ${player} <br>
-                                <span title="Regal">📥</span> ${player} <br>
-                                <span title="Fach">📦</span> ${player} <br>
-                                <span title="Typ">${player}</span>
-                            </div>
+    const card = document.createElement('div');
+            card.classList.add('column');
+            card.innerHTML = `
+                <div class="card">
+                    <header class="card-header">
+                        <p class="zentriert card-header-title"><span title="SlotID">${username}</span> | ${username}</p>
+                    </header>
+                    <div class="card-content">
+                        <div class="content">
+                            <span title="Raum">🚪</span> ${username} <br>
+                            <span title="Regal">📥</span> ${username} <br>
+                            <span title="Fach">📦</span> ${username} <br>
+                            <span title="Typ">${username}</span>
                         </div>
-                    <footer class="card-footer">
-                    
-                            <p class="card-footer-item">
-                                <span title="Menge">${player}</span>
-                                <button class="button is-success is-small abstandMedium" onclick="addCount(${player})"><i class="fas fa-plus"></i></button>
-                                <button class="button is-danger is-small abstandSmall" onclick="decreaseCount(${player}, ${player})"><i class="fas fa-minus"></i></button>    
-                            </p>
-                        </footer>
                     </div>
-                `
-                cards.appendChild(card);
-            });
-        })
-    
-}
-window.onload = createCard();
+                <footer class="card-footer">
+                
+                        <p class="card-footer-item">
+                            <span title="Menge">${username}</span>
+                            <button class="button is-success is-small abstandMedium" onclick="addCount(${username})"><i class="fas fa-plus"></i></button>
+                            <button class="button is-danger is-small abstandSmall" onclick="decreaseCount(${username}, ${username})"><i class="fas fa-minus"></i></button>    
+                        </p>
+                    </footer>
+                </div>
+            `
+            cards.appendChild(card);
+})
