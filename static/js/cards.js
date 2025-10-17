@@ -15,7 +15,7 @@ socket.on("cards_update", function(data) {
                     </header>
                     <div class="card-content">
                         <div class="content">
-                            <input class="input" type="text" placeholder="Textfeld" id="${username}Input">
+                            <input class="input" type="text" placeholder="Textfeld" id="${username}Input" oninput="onTextChange('${username}')">
                         </div>
                     </div>
                 <footer class="card-footer">
