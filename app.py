@@ -162,6 +162,10 @@ def firstBuzz(data):
     rooms[roomID]["only_first"] = only_first
     socketio.emit("room_update", rooms[roomID], room=roomID)
 
+@socketio.on("text_update")
+def text_update(data):
+    print("\x1b[33m", data, "\x1b[0m")
+    socketio.emit('text_update', data, room=data['room'])
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5500, debug=True)

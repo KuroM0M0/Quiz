@@ -3,9 +3,11 @@ socket.on("cards_update", function(data) {
     console.log(data.username);
     console.log(data);
     const username = data.username;
+    const userCard = username + "Card";
     const cards = document.getElementById('card');
     const card = document.createElement('div');
             card.classList.add('column');
+            card.setAttribute('id', userCard);
             card.innerHTML = `
                 <div class="card">
                     <header class="card-header">
@@ -13,7 +15,7 @@ socket.on("cards_update", function(data) {
                     </header>
                     <div class="card-content">
                         <div class="content">
-                            <input class="input" type="text" placeholder="Textfeld">
+                            <input class="input" type="text" placeholder="Textfeld" id="${username}Input">
                         </div>
                     </div>
                 <footer class="card-footer">
@@ -25,4 +27,10 @@ socket.on("cards_update", function(data) {
                 </div>
             `
             cards.appendChild(card);
-})
+});
+
+socket.on('text_update', function(data) {
+    const updateField = document.getElementById(data.username + "Input");
+    console.log(data);
+    updateField.value = data.text;
+});

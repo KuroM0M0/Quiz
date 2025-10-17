@@ -25,9 +25,12 @@
     
 
 <script> 
-window.addEventListener('DOMContentLoaded', () => {
-    createRoom(); //Beim seiten neuladen wird neuer Raum erstellt
-});
+    window.addEventListener('DOMContentLoaded', () => {
+        createRoom(); //Beim seiten neuladen wird neuer Raum erstellt
+    });
+
+    const roomID = "{{ session['roomID'] }}";
+    const username = "{{ session['username'] }}";
 </script>
 
 {% endblock %}

@@ -19,12 +19,13 @@
 </div>
 
 <div class="zentriert">
-    <input class="input answerInput" type="text" placeholder="Deine Antwort">
+    <input class="input answerInput" type="text" placeholder="Deine Antwort" id="antwortInput" oninput="onTextChange()">
 </div>
 
 <script>
     const roomCodeDiv = document.getElementById('roomCode');
-    roomID = "{{ session['roomID'] }}"
+    const roomID = "{{ session['roomID'] }}";
+    const username = "{{ session['username'] }}";
     roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${roomID}</h1>`;
 </script>
 
