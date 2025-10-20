@@ -28,10 +28,10 @@
                     <form method="POST">
                         <div class="field has-addons has-addons-centered">
                             <div class="control">
-                                <input class="input" type="text" name="name" placeholder="Dein Name">
+                                <input id="username" class="input" type="text" name="name" placeholder="Dein Name">
                             </div>
                             <div class="control">
-                                <button class="button is-primary" type="submit">
+                                <button class="button is-primary" type="submit" onclick="CheckNameExists(document.getElementById('username').value)">
                                     Weiter
                                 </button>
                             </div>
