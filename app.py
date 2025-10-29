@@ -161,12 +161,28 @@ def text_update(data):
 
 @socketio.on("buzzer")
 def buzzer(data):
-    print("\x1b[33m", data, "\x1b[0m")
-    print("\x1b[32m", data['room'], "\x1b[0m")
+    #print("\x1b[33m", data, "\x1b[0m")
+    #print("\x1b[32m", data['room'], "\x1b[0m")
+
+    rooms[data['room']]["buzzer_active"] = False
+    rooms[data['room']]["buzzed_by"] = data['username']
+
     socketio.emit('buzzer', data, room=data['room'])
 
 
+@socketio.on("playLoaded")
+def playLoaded(data):
+    buzzerStatus = rooms[data['roomID']]["buzzer_active"]
+    buzzed_by = rooms[data['roomID']]["buzzed_by"]
 
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by}, room=data['roomID'])
+
+
+@socketio.on("buzzerReset")
+def buzzerReset(data):
+    rooms[data['roomID']]["buzzer_active"] = True
+    print("\x1b[33m", "Resettet", "\x1b[0m")
+    socketio.emit("buzzerReset")
 
 
 if __name__ == '__main__':
