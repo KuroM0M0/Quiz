@@ -28,6 +28,7 @@
     const roomID = "{{ session['roomID'] }}";
     const username = "{{ session['username'] }}";
     roomCodeDiv.innerHTML = `<h1 class="title roomCode" id="roomCode">Room Code: ${roomID}</h1>`;
+    socket.emit('join_room', {roomID: roomID, username: username});
 </script>
 
 {% endblock %}
