@@ -7,7 +7,7 @@ function createRoom() {
     .then(response => response.json())
     .then(data => {
         if (data.error) {
-            console.error(data.error);
+            ShowErrorAlert("Fehler", data.error);
             return;
         }
         console.log("Raum erstellt:", data);

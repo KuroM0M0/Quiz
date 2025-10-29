@@ -28,8 +28,13 @@
     window.addEventListener('DOMContentLoaded', () => {
         createRoom(); //Beim seiten neuladen wird neuer Raum erstellt
     });
+    let roomID = null;
 
-    const roomID = "{{ session['roomID'] }}";
+    setTimeout(() => {
+        roomID = document.getElementById("roomCode").textContent.split("Room Code:")[1].trim();
+        console.log(roomID);
+    }, 5000);
+    
     const username = "{{ session['username'] }}";
 </script>
 

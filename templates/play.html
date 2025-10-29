@@ -8,13 +8,14 @@
         <h1 class="title"><a href="/">Gaming Quiz 2025</a></h1>
     </div>
     <div class="column">
-        <div class="überschrift" id="roomCode"> 
+        <div class="überschrift" id="roomCodeDiv"> 
             
         </div>
     </div>
 </div>
 
 <div class="buzzer-container">
+    <p id="whoBuzzed"></p>
     <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
 </div>
 
@@ -23,10 +24,10 @@
 </div>
 
 <script>
-    const roomCodeDiv = document.getElementById('roomCode');
+    const roomCodeDiv = document.getElementById('roomCodeDiv');
     const roomID = "{{ session['roomID'] }}";
     const username = "{{ session['username'] }}";
-    roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${roomID}</h1>`;
+    roomCodeDiv.innerHTML = `<h1 class="title roomCode" id="roomCode">Room Code: ${roomID}</h1>`;
 </script>
 
 {% endblock %}
