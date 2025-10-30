@@ -75,3 +75,9 @@ function ShowWarningAlert(title, text) {
         theme: 'dark'
     })
 }
+
+
+socket.on("ShowErrorAlert", function(data) {
+    console.log("HALLOOO")
+    ShowErrorAlert(data.title, data.text);
+});

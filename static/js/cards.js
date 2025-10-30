@@ -1,39 +1,40 @@
-function createCard() {
+socket.on("cards_update", function(data) {
+    //const roomID = data.roomID;
+    console.log(data.username);
+    console.log(data);
+    const username = data.username;
+    const userCard = username + "Card";
     const cards = document.getElementById('card');
-    const roomID = sessionStorage.getItem('roomID')
-    rooms = fetch('/get_rooms')
-        .then(response => response.json())
-        .then(rooms => {
-            cards.innerHTML = '';
-            rooms[roomID].players.forEach(player => {
-                const card = document.createElement('div');
-                card.classList.add('column');
-                card.innerHTML = `
-                    <div class="card">
-                        <header class="card-header">
-                            <p class="zentriert card-header-title"><span title="SlotID">${player}</span> | ${player}</p>
-                        </header>
-                        <div class="card-content">
-                            <div class="content">
-                                <span title="Raum">🚪</span> ${player} <br>
-                                <span title="Regal">📥</span> ${player} <br>
-                                <span title="Fach">📦</span> ${player} <br>
-                                <span title="Typ">${player}</span>
-                            </div>
-                        </div>
-                    <footer class="card-footer">
-                    
-                            <p class="card-footer-item">
-                                <span title="Menge">${player}</span>
-                                <button class="button is-success is-small abstandMedium" onclick="addCount(${player})"><i class="fas fa-plus"></i></button>
-                                <button class="button is-danger is-small abstandSmall" onclick="decreaseCount(${player}, ${player})"><i class="fas fa-minus"></i></button>    
-                            </p>
-                        </footer>
+    const cardExists = document.getElementById(userCard);
+
+    if(cardExists == null) {
+        const card = document.createElement('div');
+        card.classList.add('column');
+        card.setAttribute('id', userCard);
+        card.innerHTML = `
+            <div class="card">
+                <header class="card-header">
+                    <p class="zentriert card-header-title"><span title="Username">${username}</span></p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <input class="input" type="text" placeholder="Textfeld" id="${username}Input" oninput="onTextChange('${username}')">
                     </div>
-                `
-                cards.appendChild(card);
-            });
-        })
-    
-}
-window.onload = createCard();
+                </div>
+            <footer class="card-footer">
+                    <p class="card-footer-item">
+                        <button class="button is-success is-small abstandMedium"><i class="fas fa-plus"></i></button>
+                        <button class="button is-danger is-small abstandSmall"><i class="fas fa-minus"></i></button>    
+                    </p>
+                </footer>
+            </div>
+        `
+        cards.appendChild(card);
+    }
+});
+
+socket.on('text_update', function(data) {
+    const updateField = document.getElementById(data.username + "Input");
+    console.log(data);
+    updateField.value = data.text;
+});

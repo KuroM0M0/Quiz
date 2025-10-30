@@ -1,32 +1,51 @@
-const roomID = "{{ session['roomID'] }}";
-
+//Wird ausgeführt wenn Buzzer gedrückt wird
 function onBuzzerClick() {
-    const buzzer = document.getElementById("buzzer");
-    buzzer.setAttribute("disabled", true);
-    fetch('/buzz', { method: "POST" })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                console.log(`${data.buzzed_by} hat gebuzzert!`);
-            } else {
-                console.log(`Schon gebuzzert von ${data.buzzed_by}`);
-                ShowErrorAlert("Zu Langsam!", `${data.buzzed_by} war wohl schneller als du.`)
-            }
-        });
+    //const buzzer = document.getElementById("buzzer");
+    //buzzer.setAttribute("disabled", true);
+    const roomID = document.getElementById("roomCode").textContent.split("Room Code:")[1].trim();
+    console.log("Hier krasse roomID im buzzer.js: " + roomID + " von " + username);
+    
+    socket.emit("buzzer", {"username": username, "room": roomID});
 }
 
+//Wird ausgeführt wenn Buzzer gedrückt wird
+socket.on("buzzer", function(data) {
+    const buzzer = document.getElementById("buzzer");
+    const whoBuzzed = document.getElementById("whoBuzzed");
+    const username = data.username;
+    whoBuzzed.innerHTML = username + " hat gedrückt";
+    console.log(buzzer + whoBuzzed + username);
+    buzzer.setAttribute("disabled", true);
+})
 
-// Verbindung aufbauen
-const source = new EventSource(`/stream/${roomID}`);
+function onBuzzerReset() {
+    console.log(roomID);
+    console.log("Buzzerrrrreset");
+    socket.emit("buzzerReset", {"roomID": roomID});
+}
 
-// Wenn der Server neue Daten sendet:
-source.onmessage = (e) => {
-    const room = JSON.parse(e.data);
-    console.log("Update:", room);
+socket.on("buzzerReset", function() {
+    const buzzer = document.getElementById("buzzer");
+    const whoBuzzed = document.getElementById("whoBuzzed");
+    buzzer.removeAttribute("disabled");
+    whoBuzzed.innerHTML = "";
+})
 
-    document.getElementById("status").innerText =
-        room.buzzed_by ? `${room.buzzed_by} hat gedrückt!` : "Noch niemand";
 
-    // Button sperren, wenn Buzzer aus
-    document.getElementById("buzzer").disabled = !room.buzzer_active;
-};
+
+//Wird ausgeführt wenn der User die Seite geladen hat, um den Status des Buzzers abzufragen
+socket.on("playLoaded", function(data) {
+    const buzzer = document.getElementById("buzzer");
+
+    //Prüft ob Buzzer im Raum an oder aus ist
+    if(data.buzzerStatus == true) {
+        buzzer.removeAttribute("disabled");
+    } else {
+        buzzer.setAttribute("disabled", true);
+
+        //Prüft wer gebuzzert hat
+        const whoBuzzed = document.getElementById("whoBuzzed");
+        const username = data.buzzed_by;
+        whoBuzzed.innerHTML = username + " hat gedrückt";
+    }
+})

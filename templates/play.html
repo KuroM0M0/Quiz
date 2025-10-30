@@ -3,10 +3,36 @@
 {% block title %} KuroBuzz {% endblock %}
 {% block content %}
 
-<h1 class="title"> {{ username }} </h1>
+<div class="columns black">
+    <div class="column is-one-fifth überschrift">
+        <h1 class="title"><a href="/">Gaming Quiz 2025</a></h1>
+    </div>
+    <div class="column">
+        <div class="überschrift" id="roomCodeDiv"> 
+            
+        </div>
+    </div>
+</div>
 
 <div class="buzzer-container">
+    <p id="whoBuzzed"></p>
     <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
 </div>
+
+<div class="zentriert">
+    <input class="input answerInput" type="text" placeholder="Deine Antwort" id="{{ username }}Input" oninput="onTextChange(username)">
+</div>
+
+<script>
+    const roomCodeDiv = document.getElementById('roomCodeDiv');
+    const roomID = "{{ session['roomID'] }}";
+    const username = "{{ session['username'] }}";
+    roomCodeDiv.innerHTML = `<h1 class="title roomCode" id="roomCode">Room Code: ${roomID}</h1>`;
+    socket.emit('join_room', {roomID: roomID, username: username});
+
+    window.addEventListener('DOMContentLoaded', () => {
+        socket.emit("playLoaded", {roomID: roomID})
+    });
+</script>
 
 {% endblock %}

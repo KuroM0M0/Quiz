@@ -39,7 +39,7 @@
     font-size: 2rem;          /* großer Text */
     background-color: crimson;
     color: rgb(16, 10, 56);
-    box-shadow: 0px 0px 100px rgba(87, 87, 87, 0.5);
+    box-shadow: 0px 0px 50px rgba(87, 87, 87, 0.5);
 }
 .buzzer:active {
     transform: scale(0.99);       /* etwas kleiner gedrückt */
@@ -54,7 +54,7 @@
     display: flex;
     justify-content: center;  /* horizontal zentrieren */
     align-items: center;      /* vertikal zentrieren */
-    height: 100vh;            /* volle Höhe des Bildschirms */
+    height: 500px;            /* volle Höhe des Bildschirms */
 }
 
 .cardDash {
@@ -65,4 +65,10 @@
     max-width: 250px;
     max-height: 265px;
     background-color: rgb(17, 17, 17);
+}
+
+.answerInput {
+    min-height: 100px;
+    max-width: 1000px;
+    text-align: center;
 }

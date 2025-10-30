@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>    const socket = io();    </script>
     <title>{% block title %}Gaming Quiz{% endblock %}</title>
 </head>
 <body>
@@ -24,18 +26,17 @@
                     <p class="subtitle">Gib deinen Namen ein, um einen Raum beizutreten!</p>
                     <!--Drücke den Buzzer, wenn du bereit bist. Hier Effekt einfügen wenn der Button gedrückt wird und danach Textfeld für namen anzeigen-->
                     <form method="POST">
-                            <div class="field has-addons has-addons-centered">
-                                <div class="control">
-                                    <input class="input" type="text"
-                                        name="name" placeholder="Dein Name">
-                                </div>
-                                <div class="control">
-                                    <button class="button is-primary" type="submit">
-                                        Beitreten
-                                    </button>
-                                </div>
+                        <div class="field has-addons has-addons-centered">
+                            <div class="control">
+                                <input id="username" class="input" type="text" name="name" placeholder="Dein Name">
                             </div>
-                        </form>
+                            <div class="control">
+                                <button class="button is-primary" type="submit" onclick="CheckNameExists(document.getElementById('username').value)">
+                                    Weiter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                     {% endif %}
                 </div>
             </div>
@@ -46,6 +47,8 @@
     <script src="{{ url_for('static', filename='js/join.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script src="{{ url_for('static', filename='js/buzzer.js') }}"></script>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/text.js') }}"></script>
 </body>
 </html>
