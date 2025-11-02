@@ -138,6 +138,7 @@ def on_join_room(data):
     #socketio.emit("room_update", rooms[roomID], room=roomID)
     if data.get('username') is not None:
         socketio.emit("cards_update", {"username": username})
+        socketio.emit("playerList", {"player": username}, room=roomID)
 
 
 #Spieler leavt

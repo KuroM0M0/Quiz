@@ -14,14 +14,36 @@
     </div>
 </div>
 
-<div class="buzzer-container">
-    <p id="whoBuzzed"></p>
-    <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
+<div class="columns">
+    <div class="column">
+        <table class="table playerList is-striped is-hoverable is-bordered">
+            <tbody id="playerList">
+                <tr>
+                    <th>Spielerliste</th>
+                    <th>Punkte</th>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+    <div class="column">
+        <div class="buzzer-container">
+            <p id="whoBuzzed"></p>
+            <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
+        </div>
+    </div>
+    <div class="column">
+
+    </div>
 </div>
+
+
 
 <div class="zentriert">
     <input class="input answerInput" type="text" placeholder="Deine Antwort" id="{{ username }}Input" oninput="onTextChange(username)">
 </div>
+
+
 
 <script>
     const roomCodeDiv = document.getElementById('roomCodeDiv');

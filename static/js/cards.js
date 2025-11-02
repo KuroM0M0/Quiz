@@ -23,8 +23,9 @@ socket.on("cards_update", function(data) {
                 </div>
             <footer class="card-footer">
                     <p class="card-footer-item">
-                        <button class="button is-success is-small abstandMedium"><i class="fas fa-plus"></i></button>
-                        <button class="button is-danger is-small abstandSmall"><i class="fas fa-minus"></i></button>    
+                        
+                        <button class="button is-success is-small abstand"><i class="fas fa-plus"></i></button>
+                        <button class="button is-danger is-small abstand"><i class="fas fa-minus"></i></button>    
                     </p>
                 </footer>
             </div>
@@ -40,4 +41,19 @@ socket.on('text_update', function(data) {
     const updateField = document.getElementById(data.username + "Input");
     console.log(data);
     updateField.value = data.text;
+});
+
+
+//Spielerliste nur bei Spielern nicht bei Host
+socket.on('playerList', function(data) {
+    const playerList = document.getElementById('playerList');
+    
+    //Verhindert Fehlermeldung beim Host
+    if(playerList != null) {
+        const newRow = document.createElement('tr');
+        newRow.insertCell().innerHTML = data.player;
+        newRow.insertCell().innerHTML = 0;
+        playerList.appendChild(newRow);
+    }
+    
 });
