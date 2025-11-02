@@ -71,7 +71,7 @@ def join():
     room = rooms[roomID]
     # Spieler hinzufügen, wenn er noch nicht drin ist
     if username not in room["players"]:
-        room["players"].update({username: {"textFeld": "", "buzzerOrder": None}})
+        room["players"].update({username: {"textFeld": "", "buzzerOrder": 0}})
 
     session["roomID"] = roomID
     return jsonify({"success": True, "roomID": roomID, "players": room["players"], "player": username})
@@ -93,10 +93,10 @@ def create():
         "buzzed_by": None
     }
 
-    # Add host as first player
+    # Add host as first player, könnte sein dass es unnötig ist
     rooms[roomID]["players"][username] = {
         "textFeld": "",
-        "buzzerOrder": None
+        "buzzerOrder": 0
     }
 
     session["roomID"] = roomID
@@ -116,6 +116,12 @@ def get_rooms():
 
 
 
+
+
+
+
+
+
 #Spieler joint
 @socketio.on('join_room')
 def on_join_room(data):
@@ -124,7 +130,7 @@ def on_join_room(data):
     #print(username)
 
     if username not in rooms[roomID]["players"]:
-        rooms[roomID]["players"].update({username: {"textFeld": "", "buzzerOrder": None}})
+        rooms[roomID]["players"].update({username: {"textFeld": "", "buzzerOrder": 0}})
 
     join_room(roomID)
     print(f"\x1b[32m User {username} joined room {roomID}\x1b[0m python")
@@ -166,6 +172,13 @@ def buzzer(data):
 
     rooms[data['room']]["buzzer_active"] = False
     rooms[data['room']]["buzzed_by"] = data['username']
+
+    #Setze BuzzerOrder +1
+    buzzerOrder = rooms[data['room']]["players"][data['username']]["buzzerOrder"] + 1
+    rooms[data['room']]["players"][data['username']]["buzzerOrder"] = buzzerOrder
+
+    #Füge buzzerOrder in data hinzu
+    data['buzzerOrder'] = buzzerOrder
 
     socketio.emit('buzzer', data, room=data['room'])
 

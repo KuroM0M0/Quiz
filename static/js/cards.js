@@ -14,7 +14,7 @@ socket.on("cards_update", function(data) {
         card.innerHTML = `
             <div class="card">
                 <header class="card-header">
-                    <p class="zentriert card-header-title"><span title="Username">${username}</span></p>
+                    <p class="zentriert card-header-title" id="${username}BuzzerOrder"></p>
                 </header>
                 <div class="card-content">
                     <div class="content">
@@ -30,6 +30,9 @@ socket.on("cards_update", function(data) {
             </div>
         `
         cards.appendChild(card);
+        const BuzzerOrder = document.getElementById(`${username}BuzzerOrder`);
+        BuzzerOrder.innerHTML = `${username}`;
+        //TODO Buzzernummer hier zuweisen
     }
 });
 
