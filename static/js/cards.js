@@ -7,14 +7,13 @@ socket.on("cards_update", function(data) {
     const cards = document.getElementById('card');
     const cardExists = document.getElementById(userCard);
 
-    if(cardExists == null) {
+    if(cardExists == null && cards != null) {
         const card = document.createElement('div');
         card.classList.add('column');
-        card.setAttribute('id', userCard);
         card.innerHTML = `
-            <div class="card">
+            <div class="card" id="${userCard}">
                 <header class="card-header">
-                    <p class="zentriert card-header-title" id="${username}BuzzerOrder"></p>
+                    <p class="zentriert card-header-title"><span id="${username}BuzzerOrder"></span> ${username}</p>
                 </header>
                 <div class="card-content">
                     <div class="content">
@@ -31,9 +30,6 @@ socket.on("cards_update", function(data) {
             </div>
         `
         cards.appendChild(card);
-        const BuzzerOrder = document.getElementById(`${username}BuzzerOrder`);
-        BuzzerOrder.innerHTML = `${username}`;
-        //TODO Buzzernummer hier zuweisen
     }
 });
 
@@ -55,5 +51,4 @@ socket.on('playerList', function(data) {
         newRow.insertCell().innerHTML = 0;
         playerList.appendChild(newRow);
     }
-    
 });

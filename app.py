@@ -71,7 +71,7 @@ def join():
     room = rooms[roomID]
     # Spieler hinzufügen, wenn er noch nicht drin ist
     if username not in room["players"]:
-        room["players"].update({username: {"textFeld": "", "buzzerOrder": 0}})
+        room["players"].update({username: {"textFeld": ""}})
 
     session["roomID"] = roomID
     return jsonify({"success": True, "roomID": roomID, "players": room["players"], "player": username})
@@ -90,13 +90,13 @@ def create():
         "players": {},
         "buzzer_active": True,
         "only_first": False,
-        "buzzed_by": None
+        "buzzed_by": None,
+        "buzzerOrder": 0
     }
 
     # Add host as first player, könnte sein dass es unnötig ist
     rooms[roomID]["players"][username] = {
-        "textFeld": "",
-        "buzzerOrder": 0
+        "textFeld": ""
     }
 
     session["roomID"] = roomID
@@ -130,7 +130,7 @@ def on_join_room(data):
     #print(username)
 
     if username not in rooms[roomID]["players"]:
-        rooms[roomID]["players"].update({username: {"textFeld": "", "buzzerOrder": 0}})
+        rooms[roomID]["players"].update({username: {"textFeld": ""}})
 
     join_room(roomID)
     print(f"\x1b[32m User {username} joined room {roomID}\x1b[0m python")
@@ -175,11 +175,13 @@ def buzzer(data):
     rooms[data['room']]["buzzed_by"] = data['username']
 
     #Setze BuzzerOrder +1
-    buzzerOrder = rooms[data['room']]["players"][data['username']]["buzzerOrder"] + 1
-    rooms[data['room']]["players"][data['username']]["buzzerOrder"] = buzzerOrder
+    buzzerOrder = rooms[data['room']]["buzzerOrder"] + 1
+    rooms[data['room']]["buzzerOrder"] = buzzerOrder
 
-    #Füge buzzerOrder in data hinzu
+    #Füge Dinge in data hinzu
     data['buzzerOrder'] = buzzerOrder
+    data['players'] = rooms[data['room']]["players"]
+    print(data['players'])
 
     socketio.emit('buzzer', data, room=data['room'])
 
@@ -195,8 +197,16 @@ def playLoaded(data):
 @socketio.on("buzzerReset")
 def buzzerReset(data):
     rooms[data['roomID']]["buzzer_active"] = True
+    rooms[data['roomID']]["buzzerOrder"] = 0
     print("\x1b[33m", "Resettet", "\x1b[0m")
-    socketio.emit("buzzerReset")
+    data['players'] = rooms[data['roomID']]["players"]
+    socketio.emit("buzzerReset", data, room=data['roomID'])
+
+
+@socketio.on("clearText")
+def clearText(data):
+    print("Textclear ist python")
+    socketio.emit("clearText", data, room=data['roomID'])
 
 
 if __name__ == '__main__':
