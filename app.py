@@ -71,7 +71,7 @@ def join():
     room = rooms[roomID]
     # Spieler hinzufügen, wenn er noch nicht drin ist
     if username not in room["players"]:
-        room["players"].update({username: {"textFeld": "", "buzzerOrder": None}})
+        room["players"].update({username: {"textFeld": "", "points": 0}})
 
     session["roomID"] = roomID
     return jsonify({"success": True, "roomID": roomID, "players": room["players"], "player": username})
@@ -90,21 +90,21 @@ def create():
         "players": {},
         "buzzer_active": True,
         "only_first": False,
-        "buzzed_by": None
+        "buzzed_by": None,
+        "buzzerOrder": 0
     }
 
-    # Add host as first player
-    rooms[roomID]["players"][username] = {
-        "textFeld": "",
-        "buzzerOrder": None
-    }
+    # Add host as first player, unnötig, weil durch Vue er sonst auch in der Spielerliste erscheint
+    #rooms[roomID]["players"][username] = {
+    #    "textFeld": "",
+    #    "points": 0
+    #}
 
     session["roomID"] = roomID
     print(f"Raum erstellt: {roomID} (Host: {username})")
 
     #schickt an alle verbundenen Clients eine Nachricht, dass der Raum erstellt wurde
     #socketio.emit("room_created", {"roomID": roomID, "host": username})
-
 
     return jsonify({"roomID": roomID, "host": username})
 
@@ -116,22 +116,29 @@ def get_rooms():
 
 
 
+
+
+
+
+
+
 #Spieler joint
 @socketio.on('join_room')
 def on_join_room(data):
     roomID = data['roomID']
     username = data.get('username') or data.get('host')
-    #print(username)
 
-    if username not in rooms[roomID]["players"]:
-        rooms[roomID]["players"].update({username: {"textFeld": "", "buzzerOrder": None}})
+    if username not in rooms[roomID]["players"] and username not in rooms[roomID]["host"]:
+        rooms[roomID]["players"].update({username: {"textFeld": "", "points": 0}})
 
     join_room(roomID)
     print(f"\x1b[32m User {username} joined room {roomID}\x1b[0m python")
     # schickt aktuelle Raum Daten an ALLE im Raum
     #socketio.emit("room_update", rooms[roomID], room=roomID)
     if data.get('username') is not None:
+        print(rooms[roomID]["players"])
         socketio.emit("cards_update", {"username": username})
+        socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
 #Spieler leavt
@@ -167,6 +174,15 @@ def buzzer(data):
     rooms[data['room']]["buzzer_active"] = False
     rooms[data['room']]["buzzed_by"] = data['username']
 
+    #Setze BuzzerOrder +1
+    buzzerOrder = rooms[data['room']]["buzzerOrder"] + 1
+    rooms[data['room']]["buzzerOrder"] = buzzerOrder
+
+    #Füge Dinge in data hinzu
+    data['buzzerOrder'] = buzzerOrder
+    data['players'] = rooms[data['room']]["players"]
+    print(data['players'])
+
     socketio.emit('buzzer', data, room=data['room'])
 
 
@@ -181,8 +197,38 @@ def playLoaded(data):
 @socketio.on("buzzerReset")
 def buzzerReset(data):
     rooms[data['roomID']]["buzzer_active"] = True
+    rooms[data['roomID']]["buzzerOrder"] = 0
     print("\x1b[33m", "Resettet", "\x1b[0m")
-    socketio.emit("buzzerReset")
+    data['players'] = rooms[data['roomID']]["players"]
+    socketio.emit("buzzerReset", data, room=data['roomID'])
+
+
+@socketio.on("clearText")
+def clearText(data):
+    print("Textclear ist python")
+    socketio.emit("clearText", data, room=data['roomID'])
+
+
+@socketio.on("addPoints")
+def addPoints(data):
+    roomID = data['roomID']
+    username = data['username']
+
+    rooms[roomID]["players"][username]["points"] += 1
+
+    #socketio.emit("addPoints", data, room=data['roomID'])
+    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+
+
+@socketio.on("decreasePoints")
+def decreasePoints(data):
+    roomID = data['roomID']
+    username = data['username']
+
+    rooms[roomID]["players"][username]["points"] -= 1
+
+    #socketio.emit("decreasePoints", data, room=data['roomID'])
+    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
 if __name__ == '__main__':

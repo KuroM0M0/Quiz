@@ -14,14 +14,42 @@
     </div>
 </div>
 
-<div class="buzzer-container">
-    <p id="whoBuzzed"></p>
-    <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
+<div class="columns">
+    <div class="column">
+        <div id="app">
+            <table class="table playerList is-striped is-hoverable is-bordered">
+                <tbody id="playerList">
+                    <tr>
+                        <th>Spieler</th>
+                        <th>Punkte</th>
+                    </tr>
+                    <tr v-for="(player, name) in players" :key="name">
+                        <th v-text="name"></th>
+                        <th v-text="player.points"></th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="column">
+        <div class="buzzer-container">
+            <p id="whoBuzzed"></p>
+            <br>
+            <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
+        </div>
+    </div>
+    <div class="column">
+
+    </div>
 </div>
+
+
 
 <div class="zentriert">
     <input class="input answerInput" type="text" placeholder="Deine Antwort" id="{{ username }}Input" oninput="onTextChange(username)">
 </div>
+
+
 
 <script>
     const roomCodeDiv = document.getElementById('roomCodeDiv');

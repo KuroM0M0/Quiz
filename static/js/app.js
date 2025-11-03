@@ -33,3 +33,26 @@ function CheckNameExists(name) {
         }
     })
 }
+
+
+//Vue funktioniert normal mit {{ }}, da das aber von Flask verwendet wird,
+//muss es mit v-text="" gemacht werden. Beispiel: <td v-text="player.points"></td>
+const { createApp } = Vue;
+
+const app = createApp({
+    delimiters: ['[[', ']]'],
+    data() {
+    return {
+        players: {}
+    };
+    },
+    mounted() {
+    socket.on('playerList', data => {
+        console.log("Empfangen:", data);
+        this.players = data.players;
+    });
+    }
+});
+
+//Vue fängt da an wo id=app gesetzt ist
+app.mount('#app');

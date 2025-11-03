@@ -12,3 +12,21 @@ function onlyFirstBuzz() {
     }
     
 }
+
+function clearText() {
+    const text = "";
+    console.log("clearText IST DAAAAAAAAAAAAAAAAA");
+    socket.emit('clearText', {text: text, roomID: roomID});
+}
+
+
+function addPoints(button) {
+    let player = button.id.split("Add")[0].trim();
+    socket.emit('addPoints', {username: player, roomID: roomID});
+}
+
+
+function decreasePoints(button) {
+    let player = button.id.split("Decrease")[0].trim();
+    socket.emit('decreasePoints', {username: player, roomID: roomID});
+}

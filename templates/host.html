@@ -14,14 +14,34 @@
 </div>
 
 <button class="button" onclick="onBuzzerReset()">Reset Buzzer</button>
-<button class="button">Clear Text</button>
+<button class="button" onclick="clearText()">Clear Text</button>
 <button class="button" onclick="buttonActiveToggle(this)">Lock Buzzer</button>
-<button id="firstBuzz" class="button" onclick="buttonActiveToggle(this)">Only first Buzz</button>
+<!--<button id="firstBuzz" class="button" onclick="buttonActiveToggle(this)">Only first Buzz</button> Button hat keine funktion -->
 
+<div class="columns">
+    <div class="column is-three-quarters">
+        <div id="card" class="columns is-multiline is-narrow-tablet">
 
-<div id="card" class="columns is-multiline is-narrow-tablet">
-
+        </div>
+    </div>
+    <div class="column">
+        <div id="app">
+            <table class="table playerList is-striped is-hoverable is-bordered">
+                <tbody id="playerList">
+                    <tr>
+                        <th>Spieler</th>
+                        <th>Punkte</th>
+                    </tr>
+                    <tr v-for="(player, name) in players" :key="name">
+                        <th v-text="name"></th>
+                        <th v-text="player.points"></th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
     
 
 <script> 
