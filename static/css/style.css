@@ -67,18 +67,25 @@
 }
 
 .cardDash {
+    margin-left: 25px;
+    margin-right: 25px;
     margin-top: 25px;
     margin-bottom: 25px;
-    min-height: 250px;
-    min-width: 250px;
-    max-width: 250px;
-    max-height: 265px;
-    background-color: rgb(17, 17, 17);
+    min-height: 200px;
+    min-width: 300px;
+    max-width: 300px;
+    max-height: 280px;
 }
 
 .answerInput {
     min-height: 100px;
     max-width: 1000px;
+    text-align: center;
+}
+
+.hostAnswerInput {
+    min-height: 100px;
+    max-width: 300px;
     text-align: center;
 }
 

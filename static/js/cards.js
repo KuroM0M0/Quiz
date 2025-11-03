@@ -9,22 +9,23 @@ socket.on("cards_update", function(data) {
 
     if(cardExists == null && cards != null) {
         const card = document.createElement('div');
+        card.classList.add('abstandOben');
         card.classList.add('column');
         card.innerHTML = `
-            <div class="card" id="${userCard}">
+            <div class="card cardDash" id="${userCard}">
                 <header class="card-header">
                     <p class="zentriert card-header-title"><span id="${username}BuzzerOrder"></span> ${username}</p>
                 </header>
                 <div class="card-content">
                     <div class="content">
-                        <input class="input" type="text" placeholder="Textfeld" id="${username}Input" oninput="onTextChange('${username}')">
+                        <input class="input hostAnswerInput" type="text" placeholder="Textfeld" id="${username}Input" oninput="onTextChange('${username}')">
                     </div>
                 </div>
             <footer class="card-footer">
                     <p class="card-footer-item">
                         
-                        <button class="button is-success is-small abstand"><i class="fas fa-plus"></i></button>
-                        <button class="button is-danger is-small abstand"><i class="fas fa-minus"></i></button>    
+                        <button class="button is-success is-small abstand" onclick="addPoints(this)" id="${username}Add"><i class="fas fa-plus"></i></button>
+                        <button class="button is-danger is-small abstand" onclick="decreasePoints(this)" id="${username}Decrease"><i class="fas fa-minus"></i></button>    
                     </p>
                 </footer>
             </div>
@@ -40,7 +41,7 @@ socket.on('text_update', function(data) {
 });
 
 
-//Spielerliste nur bei Spielern nicht bei Host
+/*//Spielerliste nur bei Spielern nicht bei Host
 socket.on('playerList', function(data) {
     const playerList = document.getElementById('playerList');
     
@@ -51,4 +52,4 @@ socket.on('playerList', function(data) {
         newRow.insertCell().innerHTML = 0;
         playerList.appendChild(newRow);
     }
-});
+});*/

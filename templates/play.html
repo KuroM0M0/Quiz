@@ -16,19 +16,25 @@
 
 <div class="columns">
     <div class="column">
-        <table class="table playerList is-striped is-hoverable is-bordered">
-            <tbody id="playerList">
-                <tr>
-                    <th>Spielerliste</th>
-                    <th>Punkte</th>
-                </tr>
-
-            </tbody>
-        </table>
+        <div id="app">
+            <table class="table playerList is-striped is-hoverable is-bordered">
+                <tbody id="playerList">
+                    <tr>
+                        <th>Spieler</th>
+                        <th>Punkte</th>
+                    </tr>
+                    <tr v-for="(player, name) in players" :key="name">
+                        <th v-text="name"></th>
+                        <th v-text="player.points"></th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="column">
         <div class="buzzer-container">
             <p id="whoBuzzed"></p>
+            <br>
             <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
         </div>
     </div>
