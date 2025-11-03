@@ -3,15 +3,15 @@
 {% block title %} Join / Create Room {% endblock %}
 {% block content %}
 
-<h1 class="title zentriert abstand">Willkommen zum Gaming Quiz 2025!</h1>
+<h1 class="title zentriert abstandOben">Willkommen zum Gaming Quiz 2025!</h1>
 <p class="subtitle zentriert">Hallo, {{ username }} 👋</p>
 
 <br><br><br><br><br>
 
 <div class="zentriert">
-    <a class="button abstand buttonJoin" href="/host">Create Room</a>
+    <a class="button abstandOben buttonJoin" href="/host">Create Room</a>
     <br><br><br><br><br><br>
-    <input class="input abstand roomInput" type="text" placeholder="RoomID" id="roomIDInput" oninput="joinButton()">
+    <input class="input abstandOben roomInput" type="text" placeholder="RoomID" id="roomIDInput" oninput="joinButton()">
     <br><br>
     <a class="button buttonJoin" onclick="joinRoom()" id="joinButton" disabled>Join Room</a>
 </div>
