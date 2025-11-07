@@ -94,3 +94,13 @@ socket.on("playLoaded", function(data) {
         }
     }
 })
+
+
+socket.on("lockBuzzer", function(data) {
+    const Buzzer = document.getElementById("buzzer");
+    if(data.lockBuzzer == true) {
+        Buzzer.setAttribute("disabled", true);
+    } else {
+        Buzzer.removeAttribute("disabled");
+    }
+})

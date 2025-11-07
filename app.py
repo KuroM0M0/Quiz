@@ -231,5 +231,13 @@ def decreasePoints(data):
     socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
+@socketio.on("lockBuzzer")
+def lockBuzzer(data):
+    roomID = data['roomID']
+    print(data)
+    rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
+    socketio.emit("lockBuzzer", data, room=data['roomID'])
+
+
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5500, debug=True)
