@@ -18,7 +18,7 @@ socket.on("cards_update", function(data) {
                 </header>
                 <div class="card-content">
                     <div class="content">
-                        <input class="input hostAnswerInput" type="text" placeholder="Textfeld" id="${username}Input" oninput="onTextChange('${username}')">
+                        <textarea class="textarea hostAnswerInput has-fixed-size" placeholder="Textfeld" id="${username}Input" oninput="onTextChange('${username}')"></textarea>
                     </div>
                 </div>
             <footer class="card-footer">
