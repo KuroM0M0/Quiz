@@ -235,9 +235,9 @@ def decreasePoints(data):
 @socketio.on("lockBuzzer")
 def lockBuzzer(data):
     roomID = data['roomID']
-    print(data)
     rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
     socketio.emit("lockBuzzer", data, room=data['roomID'])
+    socketio.emit("buzzerReset", data, room=data['roomID'])
 
 
 if __name__ == '__main__':

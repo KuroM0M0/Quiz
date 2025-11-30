@@ -48,26 +48,36 @@ function onBuzzerReset() {
 }
 
 socket.on("buzzerReset", function(data) {
-    const buzzer = document.getElementById("buzzer");
-    const whoBuzzed = document.getElementById("whoBuzzed");
-    const players = Object.keys(data.players);
-    console.log("buzzerReset");
+    if(data.lockBuzzer == true) {
+        const resetBuzzer = document.getElementById("resetBuzzer")
+        resetBuzzer.setAttribute("disabled", true);
+    } else if(data.lockBuzzer == false) {
+        const resetBuzzer = document.getElementById("resetBuzzer")
+        resetBuzzer.removeAttribute("disabled");
 
-    if(buzzer != null && whoBuzzed != null) {
-        buzzer.removeAttribute("disabled");
-        whoBuzzed.innerHTML = "";
-    }
 
-    if(players != null) {
-        for(let i = 0; i < players.length; i++) {
-            const player = players[i];
-            const hostCard = document.getElementById(player + "Card");
-            if(hostCard != null) {
-                hostCard.classList.remove("green");
-            }
-            const playerBuzzerOrder = document.getElementById(player + "BuzzerOrder");
-            if(playerBuzzerOrder != null) {
-                playerBuzzerOrder.innerHTML = "";
+    } else {
+        const buzzer = document.getElementById("buzzer");
+        const whoBuzzed = document.getElementById("whoBuzzed");
+        const players = Object.keys(data.players);
+        console.log("buzzerReset");
+
+        if(buzzer != null && whoBuzzed != null) {
+            buzzer.removeAttribute("disabled");
+            whoBuzzed.innerHTML = "";
+        }
+
+        if(players != null) {
+            for(let i = 0; i < players.length; i++) {
+                const player = players[i];
+                const hostCard = document.getElementById(player + "Card");
+                if(hostCard != null) {
+                    hostCard.classList.remove("green");
+                }
+                const playerBuzzerOrder = document.getElementById(player + "BuzzerOrder");
+                if(playerBuzzerOrder != null) {
+                    playerBuzzerOrder.innerHTML = "";
+                }
             }
         }
     }
