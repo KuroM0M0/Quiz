@@ -1,12 +1,13 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from datetime import timedelta
 import time
 import json
 import secrets
-import eventlet
 
-eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.secret_key = "geheimes-passwort"
