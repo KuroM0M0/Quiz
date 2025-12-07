@@ -30,7 +30,11 @@
                 <tbody id="playerList">
                     <tr>
                         <th>Spieler</th>
-                        <th>Punkte</th>
+                        <th @click="toggleSort()" style="cursor: pointer; user-select: none;">
+                            Punkte 
+                            <span v-if="sortDescending">⬇️</span>
+                            <span v-else>⬆️</span>
+                        </th>
                     </tr>
                     <tr v-for="(player, name) in players" :key="name">
                         <th v-text="name"></th>
