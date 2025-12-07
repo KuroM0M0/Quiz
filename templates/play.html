@@ -15,7 +15,7 @@
 </div>
 
 <div class="columns">
-    <div class="column">
+    <div class="column animiert">
         <div id="app">
             <table class="table playerList is-striped is-hoverable is-bordered">
                 <tbody id="playerList">
@@ -31,10 +31,12 @@
             </table>
         </div>
     </div>
-    <div class="column">
+    <div class="column animiert delay2">
+        <br><br>
+        <div class="zentriert">
+            <p class="subtitle is-3" id="whoBuzzed"></p>
+        </div>
         <div class="buzzer-container">
-            <p id="whoBuzzed"></p>
-            <br>
             <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
         </div>
     </div>
@@ -45,7 +47,7 @@
 
 
 
-<div class="zentriert">
+<div class="zentriert animiert delay2">
     <textarea class="input answerInput has-fixed-size" placeholder="Deine Antwort" id="{{ username }}Input" oninput="onTextChange(username)"></textarea>
 </div>
 

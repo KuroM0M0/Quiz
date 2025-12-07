@@ -102,3 +102,33 @@
     align-items: center;      /* vertikal zentrieren */
     margin-top: 50px;
 }
+
+
+
+
+
+
+/* 1. Die Definition der Bewegung */
+@keyframes einfliegen {
+    0% {
+        opacity: 0;                 /* Start: Komplett durchsichtig */
+        transform: translateY(30px); /* Start: 30 Pixel weiter unten */
+    }
+    100% {
+        opacity: 1;                 /* Ende: Sichtbar */
+        transform: translateY(0);    /* Ende: Originalposition */
+    }
+}
+
+/* 2. Die Klasse, die wir den Elementen geben */
+.animiert {
+    /* Name der Animation | Dauer | Kurve (sanftes Ende) | Zustand behalten */
+    animation: einfliegen 1s ease-out forwards;
+    opacity: 0; /* Wichtig: Element ist am Anfang unsichtbar, damit es nicht kurz aufblitzt */
+}
+
+/* 3. Verzögerungen für nacheinander erscheinende Elemente */
+.delay1 { animation-delay: 0.2s; }
+.delay2 { animation-delay: 0.4s; }
+.delay3 { animation-delay: 0.6s; }
+.delayRejoin { animation-delay: 3s; }

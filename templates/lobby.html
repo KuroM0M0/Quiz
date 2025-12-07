@@ -3,17 +3,29 @@
 {% block title %} Join / Create Room {% endblock %}
 {% block content %}
 
-<h1 class="title zentriert abstandOben">Willkommen zum Gaming Quiz 2025!</h1>
-<p class="subtitle zentriert">Hallo, {{ username }} 👋</p>
+<h1 class="title zentriert abstandOben animiert">Willkommen zum Gaming Quiz 2025!</h1>
+<p class="subtitle zentriert animiert">Hallo, {{ username }} 👋</p>
 
 <br><br><br><br><br>
 
-<div class="zentriert">
-    <a class="button abstandOben buttonJoin" href="/host">Create Room</a>
-    <br><br><br><br><br><br>
-    <input class="input abstandOben roomInput" type="text" placeholder="RoomID" id="roomIDInput" oninput="joinButton()">
-    <br><br>
-    <a class="button buttonJoin" onclick="joinRoom()" id="joinButton" disabled>Join Room</a>
+<div class="columns">
+    <div class="column animiert delayRejoin">
+        <div class="zentriert">
+            <a class="button buttonJoin" href="/play" id="rejoinButton">Rejoin</a>
+        </div>
+    </div>
+    <div class="column animiert delay2">
+        <div class="zentriert">
+            <a class="button buttonJoin" href="/host">Create Room</a>
+            <br><br><br><br><br><br>
+            <input class="input abstandOben roomInput" type="text" placeholder="RoomID" id="roomIDInput" oninput="joinButton()">
+            <br><br>
+            <a class="button buttonJoin" onclick="joinRoom()" id="joinButton" disabled>Join Room</a>
+        </div>
+    </div>
+    <div class="column">
+
+    </div>
 </div>
 
 
