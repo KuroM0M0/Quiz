@@ -41,3 +41,18 @@ function lockBuzzer(button) {
     }
     buttonActiveToggle(button);
 }
+
+
+function lockText(button) {
+    if(button.classList.contains("is-active")) {
+        socket.emit('lockText', {roomID: roomID, lockText: false});
+    } else {
+        socket.emit('lockText', {roomID: roomID, lockText: true});
+    }
+    buttonActiveToggle(button);
+}
+
+
+function pointSort(button) {
+    
+}

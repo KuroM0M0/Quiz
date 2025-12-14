@@ -88,6 +88,7 @@ socket.on("buzzerReset", function(data) {
 //Wird ausgeführt wenn der User die Seite geladen hat, um den Status des Buzzers abzufragen
 socket.on("playLoaded", function(data) {
     const buzzer = document.getElementById("buzzer");
+    const inputField = document.getElementsByName("InputField")[0];
 
     //Verhindert fehlermeldung für den Host
     if(buzzer != null) {
@@ -101,6 +102,14 @@ socket.on("playLoaded", function(data) {
             const whoBuzzed = document.getElementById("whoBuzzed");
             const username = data.buzzed_by;
             whoBuzzed.innerHTML = username + " hat gedrückt";
+        }
+    }
+
+    if(inputField != null) {
+        if(data.textLocked == true) {
+            inputField.setAttribute("disabled", true);
+        } else {
+            inputField.removeAttribute("disabled");
         }
     }
 })

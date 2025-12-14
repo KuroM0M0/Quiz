@@ -90,6 +90,7 @@ def create():
         "host": username,
         "players": {},
         "buzzer_active": True,
+        "text_locked": False,
         "only_first": False,
         "buzzed_by": None,
         "buzzerOrder": 0
@@ -191,8 +192,9 @@ def buzzer(data):
 def playLoaded(data):
     buzzerStatus = rooms[data['roomID']]["buzzer_active"]
     buzzed_by = rooms[data['roomID']]["buzzed_by"]
+    textLocked = rooms[data['roomID']]["text_locked"]
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by}, room=data['roomID'])
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked}, room=data['roomID'])
 
 
 @socketio.on("buzzerReset")
@@ -238,6 +240,15 @@ def lockBuzzer(data):
     rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
     socketio.emit("lockBuzzer", data, room=data['roomID'])
     socketio.emit("buzzerReset", data, room=data['roomID'])
+
+
+@socketio.on("lockText")
+def lockText(data):
+    data['username'] = session.get("username")
+    print(data)
+    roomID = data['roomID']
+    rooms[roomID]["text_locked"] = not rooms[roomID]["text_locked"]
+    socketio.emit("lockText", data, room=data['roomID'])
 
 
 if __name__ == '__main__':
