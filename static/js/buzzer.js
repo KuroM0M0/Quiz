@@ -39,6 +39,7 @@ socket.on("buzzer", function(data) {
         console.log(data.buzzerOrder);
         hostBuzzerOrder.innerHTML = data.buzzerOrder + ". ";
     }
+    playBuzzerSound();
 })
 
 function onBuzzerReset() {

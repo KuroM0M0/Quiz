@@ -35,6 +35,15 @@ function CheckNameExists(name) {
 }
 
 
+function playBuzzerSound() {
+    var sound = document.getElementById("buzzerKurz");
+    //var sound = new Audio("/sounds/BuzzerKurz.mp3");
+    sound.play().catch(function(error) {
+        console.error("Error playing sound:", error);
+    });
+}
+
+
 //Vue funktioniert normal mit {{ }}, da das aber von Flask verwendet wird,
 //muss es mit v-text="" gemacht werden. Beispiel: <td v-text="player.points"></td>
 const { createApp } = Vue;
