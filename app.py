@@ -1,12 +1,13 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from datetime import timedelta
 import time
 import json
 import secrets
-import eventlet
 
-eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.secret_key = "geheimes-passwort"
@@ -89,6 +90,7 @@ def create():
         "host": username,
         "players": {},
         "buzzer_active": True,
+        "text_locked": False,
         "only_first": False,
         "buzzed_by": None,
         "buzzerOrder": 0
@@ -190,8 +192,9 @@ def buzzer(data):
 def playLoaded(data):
     buzzerStatus = rooms[data['roomID']]["buzzer_active"]
     buzzed_by = rooms[data['roomID']]["buzzed_by"]
+    textLocked = rooms[data['roomID']]["text_locked"]
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by}, room=data['roomID'])
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked}, room=data['roomID'])
 
 
 @socketio.on("buzzerReset")
@@ -229,6 +232,23 @@ def decreasePoints(data):
 
     #socketio.emit("decreasePoints", data, room=data['roomID'])
     socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+
+
+@socketio.on("lockBuzzer")
+def lockBuzzer(data):
+    roomID = data['roomID']
+    rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
+    socketio.emit("lockBuzzer", data, room=data['roomID'])
+    socketio.emit("buzzerReset", data, room=data['roomID'])
+
+
+@socketio.on("lockText")
+def lockText(data):
+    data['username'] = session.get("username")
+    print(data)
+    roomID = data['roomID']
+    rooms[roomID]["text_locked"] = not rooms[roomID]["text_locked"]
+    socketio.emit("lockText", data, room=data['roomID'])
 
 
 if __name__ == '__main__':

@@ -39,6 +39,7 @@ socket.on("buzzer", function(data) {
         console.log(data.buzzerOrder);
         hostBuzzerOrder.innerHTML = data.buzzerOrder + ". ";
     }
+    playBuzzerSound();
 })
 
 function onBuzzerReset() {
@@ -48,26 +49,36 @@ function onBuzzerReset() {
 }
 
 socket.on("buzzerReset", function(data) {
-    const buzzer = document.getElementById("buzzer");
-    const whoBuzzed = document.getElementById("whoBuzzed");
-    const players = Object.keys(data.players);
-    console.log("buzzerReset");
+    if(data.lockBuzzer == true) {
+        const resetBuzzer = document.getElementById("resetBuzzer")
+        resetBuzzer.setAttribute("disabled", true);
+    } else if(data.lockBuzzer == false) {
+        const resetBuzzer = document.getElementById("resetBuzzer")
+        resetBuzzer.removeAttribute("disabled");
 
-    if(buzzer != null && whoBuzzed != null) {
-        buzzer.removeAttribute("disabled");
-        whoBuzzed.innerHTML = "";
-    }
 
-    if(players != null) {
-        for(let i = 0; i < players.length; i++) {
-            const player = players[i];
-            const hostCard = document.getElementById(player + "Card");
-            if(hostCard != null) {
-                hostCard.classList.remove("green");
-            }
-            const playerBuzzerOrder = document.getElementById(player + "BuzzerOrder");
-            if(playerBuzzerOrder != null) {
-                playerBuzzerOrder.innerHTML = "";
+    } else {
+        const buzzer = document.getElementById("buzzer");
+        const whoBuzzed = document.getElementById("whoBuzzed");
+        const players = Object.keys(data.players);
+        console.log("buzzerReset");
+
+        if(buzzer != null && whoBuzzed != null) {
+            buzzer.removeAttribute("disabled");
+            whoBuzzed.innerHTML = "";
+        }
+
+        if(players != null) {
+            for(let i = 0; i < players.length; i++) {
+                const player = players[i];
+                const hostCard = document.getElementById(player + "Card");
+                if(hostCard != null) {
+                    hostCard.classList.remove("green");
+                }
+                const playerBuzzerOrder = document.getElementById(player + "BuzzerOrder");
+                if(playerBuzzerOrder != null) {
+                    playerBuzzerOrder.innerHTML = "";
+                }
             }
         }
     }
@@ -78,6 +89,7 @@ socket.on("buzzerReset", function(data) {
 //Wird ausgeführt wenn der User die Seite geladen hat, um den Status des Buzzers abzufragen
 socket.on("playLoaded", function(data) {
     const buzzer = document.getElementById("buzzer");
+    const inputField = document.getElementsByName("InputField")[0];
 
     //Verhindert fehlermeldung für den Host
     if(buzzer != null) {
@@ -92,5 +104,23 @@ socket.on("playLoaded", function(data) {
             const username = data.buzzed_by;
             whoBuzzed.innerHTML = username + " hat gedrückt";
         }
+    }
+
+    if(inputField != null) {
+        if(data.textLocked == true) {
+            inputField.setAttribute("disabled", true);
+        } else {
+            inputField.removeAttribute("disabled");
+        }
+    }
+})
+
+
+socket.on("lockBuzzer", function(data) {
+    const Buzzer = document.getElementById("buzzer");
+    if(data.lockBuzzer == true) {
+        Buzzer.setAttribute("disabled", true);
+    } else {
+        Buzzer.removeAttribute("disabled");
     }
 })

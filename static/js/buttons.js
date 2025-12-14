@@ -2,6 +2,7 @@ function buttonActiveToggle(button) {
     button.classList.toggle('is-active');
 }
 
+//Wurde entfernt
 function onlyFirstBuzz() {
     const firstBuzzButton = document.getElementById('firstBuzz');
     roomID = "{{ session['roomID'] }}";
@@ -29,4 +30,29 @@ function addPoints(button) {
 function decreasePoints(button) {
     let player = button.id.split("Decrease")[0].trim();
     socket.emit('decreasePoints', {username: player, roomID: roomID});
+}
+
+
+function lockBuzzer(button) {
+    if(button.classList.contains("is-active")) {
+        socket.emit('lockBuzzer', {roomID: roomID, lockBuzzer: false});
+    } else {
+        socket.emit('lockBuzzer', {roomID: roomID, lockBuzzer: true});
+    }
+    buttonActiveToggle(button);
+}
+
+
+function lockText(button) {
+    if(button.classList.contains("is-active")) {
+        socket.emit('lockText', {roomID: roomID, lockText: false});
+    } else {
+        socket.emit('lockText', {roomID: roomID, lockText: true});
+    }
+    buttonActiveToggle(button);
+}
+
+
+function pointSort(button) {
+    
 }

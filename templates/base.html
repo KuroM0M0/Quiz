@@ -9,6 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <audio id="buzzerKurz" src="{{ url_for('static', filename='sounds/BuzzerKurz.mp3') }}" preload="auto"></audio>
+    <audio id="buzzerLang" src="{{ url_for('static', filename='sounds/BuzzerLang.mp3') }}" preload="auto"></audio>
     <script>    const socket = io();    </script>
     <title>{% block title %}Gaming Quiz{% endblock %}</title>
 </head>
@@ -16,7 +18,7 @@
     <div id="content">
         {% block content %}
         <!-- Inhalt in der Mitte -->
-        <section class="hero is-fullheight">
+        <section class="hero is-fullheight animiert">
             <div class="hero-body">
                 <div class="container has-text-centered">
                     <h1 class="title">Willkommen zum Gaming Quiz 2025!</h1>
@@ -34,7 +36,7 @@
                             </div>
                             <div class="control">
                                 <button class="button is-primary" type="submit" onclick="CheckNameExists(document.getElementById('username').value)">
-                                    Weiter
+                                    Anmelden
                                 </button>
                             </div>
                         </div>

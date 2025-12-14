@@ -15,26 +15,32 @@
 </div>
 
 <div class="columns">
-    <div class="column">
+    <div class="column animiert">
         <div id="app">
             <table class="table playerList is-striped is-hoverable is-bordered">
                 <tbody id="playerList">
                     <tr>
                         <th>Spieler</th>
-                        <th>Punkte</th>
+                        <th @click="toggleSort()" style="cursor: pointer; user-select: none;">
+                            Punkte 
+                            <span v-if="sortDescending">⬇️</span>
+                            <span v-else>⬆️</span>
+                        </th>
                     </tr>
-                    <tr v-for="(player, name) in players" :key="name">
-                        <th v-text="name"></th>
+                    <tr v-for="player in sortedPlayersList" :key="player.name">
+                        <th v-text="player.name"></th> 
                         <th v-text="player.points"></th>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    <div class="column">
+    <div class="column animiert delay2">
+        <br><br>
+        <div class="zentriert">
+            <p class="subtitle is-3" id="whoBuzzed"></p>
+        </div>
         <div class="buzzer-container">
-            <p id="whoBuzzed"></p>
-            <br>
             <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
         </div>
     </div>
@@ -45,8 +51,8 @@
 
 
 
-<div class="zentriert">
-    <input class="input answerInput" type="text" placeholder="Deine Antwort" id="{{ username }}Input" oninput="onTextChange(username)">
+<div class="zentriert animiert delay2">
+    <textarea class="input answerInput has-fixed-size" placeholder="Deine Antwort" name="InputField" id="{{ username }}Input" oninput="onTextChange(username)"></textarea>
 </div>
 
 
