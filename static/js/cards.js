@@ -12,7 +12,7 @@ socket.on("cards_update", function(data) {
         card.classList.add('abstandOben');
         card.classList.add('column');
         card.innerHTML = `
-            <div class="card cardDash" id="${userCard}">
+            <div name="card" class="card cardDash" id="${userCard}">
                 <header class="card-header">
                     <p class="zentriert card-header-title"><span id="${username}BuzzerOrder"></span> ${username}</p>
                 </header>
@@ -62,13 +62,16 @@ socket.on("submitAnswer", function(data) {
 })
 
 socket.on("answerInputToggle", function(data) {
-    const card = document.getElementById(data.username + "Card");
+    const card = document.getElementsByName("card");
     const inputField = document.getElementsByName("InputField")[0];
     if(card != null) {
         if(data.answerInput == false) {
-            card.classList.remove("brown");
+            for(let i = 0; i < card.length; i++) {
+                card[i].classList.remove("brown");
+            }
         }
-    } else if(inputField != null) {
+    }
+    if(inputField != null) {
         if(data.answerInput == false) {
             inputField.removeAttribute("disabled");
         }
