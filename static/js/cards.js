@@ -53,3 +53,24 @@ socket.on('playerList', function(data) {
         playerList.appendChild(newRow);
     }
 });*/
+
+socket.on("submitAnswer", function(data) {
+    const card = document.getElementById(data.username + "Card");
+    if(card != null) {
+        card.classList.add("brown");
+    }
+})
+
+socket.on("answerInputToggle", function(data) {
+    const card = document.getElementById(data.username + "Card");
+    const inputField = document.getElementsByName("InputField")[0];
+    if(card != null) {
+        if(data.answerInput == false) {
+            card.classList.remove("brown");
+        }
+    } else if(inputField != null) {
+        if(data.answerInput == false) {
+            inputField.removeAttribute("disabled");
+        }
+    }
+})

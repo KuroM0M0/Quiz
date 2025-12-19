@@ -53,6 +53,11 @@ function lockText(button) {
 }
 
 
-function pointSort(button) {
-    
+function answerInput(button) {
+    buttonActiveToggle(button);
+    if(button.classList.contains("is-active")) {
+        socket.emit('answerInputToggle', {roomID: roomID, answerInput: true});
+    } else {
+        socket.emit('answerInputToggle', {roomID: roomID, answerInput: false});
+    }
 }

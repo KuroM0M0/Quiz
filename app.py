@@ -245,10 +245,23 @@ def lockBuzzer(data):
 @socketio.on("lockText")
 def lockText(data):
     data['username'] = session.get("username")
-    print(data)
     roomID = data['roomID']
     rooms[roomID]["text_locked"] = not rooms[roomID]["text_locked"]
-    socketio.emit("lockText", data, room=data['roomID'])
+    socketio.emit("lockText", data, room=roomID)
+
+
+@socketio.on("answerInputToggle")
+def answerInputToggle(data):
+    data['username'] = session.get("username")
+    roomID = data['roomID']
+    socketio.emit("answerInputToggle", data, room=roomID)
+
+
+@socketio.on("submitAnswer")
+def submitAnswer(data):
+    data['username'] = session.get("username")
+    print(data)
+    socketio.emit("submitAnswer", data, room=data['room'])
 
 
 if __name__ == '__main__':

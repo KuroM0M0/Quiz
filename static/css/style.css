@@ -31,8 +31,11 @@
 .green {
     background-color: green;
 }
-.gelb {
+.yellow {
     background-color: yellow;
+}
+.brown {
+    background-color: rgb(78, 44, 0);
 }
 .red {
     background-color: red;

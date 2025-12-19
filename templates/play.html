@@ -53,6 +53,8 @@
 
 <div class="zentriert animiert delay2">
     <textarea class="input answerInput has-fixed-size" placeholder="Deine Antwort" name="InputField" id="{{ username }}Input" oninput="onTextChange(username)"></textarea>
+    <br><br>
+    <button class="button is-primary unsichtbar" id="submitAnswer" onclick="lockSubmitAnswer(username, this)">Antwort abgeben</button>
 </div>
 
 

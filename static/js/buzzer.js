@@ -124,3 +124,14 @@ socket.on("lockBuzzer", function(data) {
         Buzzer.removeAttribute("disabled");
     }
 })
+
+socket.on("answerInput", function(data) {
+    const Button = document.getElementById("lockTextButton");
+    if(Button) {
+        if(data.answerInput == true) {
+            Button.setAttribute("disabled", true);
+        } else {
+            Button.removeAttribute("disabled");
+        }
+    }
+})

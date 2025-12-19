@@ -5,6 +5,13 @@ function onTextChange(user) {
     socket.emit('text_update', {text: text, username: user, room: roomID});
 }
 
+function lockSubmitAnswer(username, button) {
+    answerInput = document.getElementById(username + "Input");
+    answerInput.setAttribute("disabled", true);
+    button.setAttribute("disabled", true);
+    socket.emit("submitAnswer", {username: username, room: roomID});
+}
+
 socket.on("lockText", function(data) {
     inputField = document.getElementsByName("InputField")[0];
     if(inputField) {
@@ -15,3 +22,15 @@ socket.on("lockText", function(data) {
         }
     }
 });
+
+socket.on("answerInputToggle", function(data) {
+    answerButton = document.getElementById("submitAnswer");
+    if(answerButton) {
+        if(data.answerInput == true) {
+            answerButton.classList.remove("unsichtbar");
+            answerButton.removeAttribute("disabled");
+        } else {
+            answerButton.classList.add("unsichtbar");
+        }
+    }
+})
