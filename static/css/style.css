@@ -3,6 +3,7 @@
 }
 .zentriert {
     text-align: center;
+    justify-content: center;
 }
 .unsichtbar {
     visibility: hidden;
@@ -104,6 +105,27 @@
     justify-content: center;  /* horizontal zentrieren */
     align-items: center;      /* vertikal zentrieren */
     margin-top: 50px;
+}
+
+.faqBaseBox {
+    margin-left: 40%;
+    margin-right: 40%;
+}
+.faqBox {
+    margin-left: 20%;
+    margin-right: 20%;
+}
+.faqAbrunden {
+    border-radius: 15px;
+}
+.faqAbrunden .message-header {
+    border-radius: 15px 15px 0px 0px;
+}
+.faqAbrunden .message-body {
+    border-radius: 0px 0px 15px 15px;
+}
+.faqAbrunden details:not([open]) .message-header {
+    border-radius: 15px;
 }
 
 

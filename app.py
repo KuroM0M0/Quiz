@@ -58,6 +58,11 @@ def play():
     return render_template("play.html", username=username)
 
 
+@app.route('/faq')
+def faq():
+    return render_template("faq.html")
+
+
 @app.route('/sitemap.xml')
 def static_from_root():
     return send_from_directory(app.static_folder, 'sitemap.xml')
