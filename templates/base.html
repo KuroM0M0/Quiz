@@ -3,16 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KuroBuzz: Der schnellste Online-Buzzer für Quiz, Streams & Schule. Inklusive Live-Textfeld für Antworten. Kostenlos, ohne Anmeldung & direkt im Browser nutzen!">
+    <meta name="keywords" content="Online Buzzer, Quiz Button, Digitaler Buzzer, Quiz Tool, Lehrer Tool, Multiplayer Buzzer, Textfeld Buzzer">
+    <meta name="robots" content="index, follow">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="KuroBuzz | Kostenloser Online Buzzer">
+    <meta name="twitter:description" content="Interaktive Quiz-Buzzer mit Echtzeit-Textübertragung.">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kuropixel.de/">
+    <meta property="og:title" content="KuroBuzz | Kostenloser Buzzer mit Textfeld">
+    <meta property="og:description" content="Buzzern, Antworten schreiben und gewinnen. Das perfekte Tool für interaktive Quiz-Events.">
+    <meta property="og:image" content="{{ url_for('static', filename='img/preview-image.jpg') }}">
+
+    {% block head_meta %} {% endblock %}
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "KuroBuzz",
+            "operatingSystem": "Web",
+            "applicationCategory": "GameApplication",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "EUR"
+            },
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "5",
+                "reviewCount": "10"
+            }
+        }
+    </script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
     <audio id="buzzerKurz" src="{{ url_for('static', filename='sounds/BuzzerKurz.mp3') }}" preload="auto"></audio>
     <audio id="buzzerLang" src="{{ url_for('static', filename='sounds/BuzzerLang.mp3') }}" preload="auto"></audio>
     <script>    const socket = io();    </script>
-    <title>{% block title %}Gaming Quiz{% endblock %}</title>
+    <title>{% block title %}KuroBuzz | Kostenloser Online Buzzer für Quiz & Teamevents{% endblock %}</title>
 </head>
 <body>
     <div id="content">
@@ -21,7 +59,7 @@
         <section class="hero is-fullheight animiert">
             <div class="hero-body">
                 <div class="container has-text-centered">
-                    <h1 class="title">Willkommen zum Gaming Quiz 2025!</h1>
+                    <h1 class="title">Willkommen zum Quiz!</h1>
                     {% if username %}
                         <p class="subtitle">Hallo, {{ username }} 👋</p>
                         <p>Du bist bereits eingeloggt.</p>

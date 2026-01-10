@@ -1,7 +1,7 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from datetime import timedelta
 import time
@@ -57,6 +57,10 @@ def play():
     username = session.get("username")
     return render_template("play.html", username=username)
 
+
+@app.route('/sitemap.xml')
+def static_from_root():
+    return send_from_directory(app.static_folder, 'sitemap.xml')
 
 @app.route('/join', methods=["POST"])
 def join():
