@@ -1,7 +1,6 @@
 function onTextChange(user) {
     const inputFeld = document.getElementById(user + "Input");
     const text = inputFeld.value;
-    console.log("textChange");
     socket.emit('text_update', {text: text, username: user, room: roomID});
 }
 
@@ -32,5 +31,18 @@ socket.on("answerInputToggle", function(data) {
         } else {
             answerButton.classList.add("unsichtbar");
         }
+    }
+})
+
+socket.on("clearText", function(data) {
+    inputField = document.getElementsByName("InputField")[0];
+    const textareas = document.getElementsByClassName("textarea");
+
+    for (let i = 0; i < textareas.length; i++) {
+        textareas[i].value = "";
+    }
+    
+    if(inputField) {
+        inputField.value = "";
     }
 })

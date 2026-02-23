@@ -139,7 +139,7 @@ def on_join_room(data):
     roomID = data['roomID']
     username = data.get('username') or data.get('host')
 
-    if username not in rooms[roomID]["players"] and username not in rooms[roomID]["host"]:
+    if username != rooms[roomID]["players"] and username not in rooms[roomID]["host"]:
         rooms[roomID]["players"].update({username: {"textFeld": "", "points": 0}})
 
     join_room(roomID)
@@ -148,7 +148,7 @@ def on_join_room(data):
     #socketio.emit("room_update", rooms[roomID], room=roomID)
     if data.get('username') is not None:
         print(rooms[roomID]["players"])
-        socketio.emit("cards_update", {"username": username})
+        socketio.emit("cards_update", {"username": username}, room=roomID)
         socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
@@ -217,7 +217,7 @@ def buzzerReset(data):
 
 @socketio.on("clearText")
 def clearText(data):
-    print("Textclear ist python")
+    print("Textclear in python")
     socketio.emit("clearText", data, room=data['roomID'])
 
 
