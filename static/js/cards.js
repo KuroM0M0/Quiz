@@ -36,7 +36,6 @@ socket.on("cards_update", function(data) {
 
 socket.on('text_update', function(data) {
     const updateField = document.getElementById(data.username + "Input");
-    console.log(data);
     updateField.value = data.text;
 });
 

@@ -102,7 +102,8 @@ def create():
         "text_locked": False,
         "only_first": False,
         "buzzed_by": None,
-        "buzzerOrder": 0
+        "buzzerOrder": 0,
+        "answerButton": False
     }
 
     # Add host as first player, unnötig, weil durch Vue er sonst auch in der Spielerliste erscheint
@@ -136,8 +137,7 @@ def rejoin():
         return jsonify({"success": "True"})
     else:
         return jsonify({"success": "False"})
-
-
+    
 
 
 
@@ -214,8 +214,9 @@ def playLoaded(data):
     buzzerStatus = rooms[data['roomID']]["buzzer_active"]
     buzzed_by = rooms[data['roomID']]["buzzed_by"]
     textLocked = rooms[data['roomID']]["text_locked"]
+    answerButton = rooms[data['roomID']]["answerButton"]
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked}, room=data['roomID'])
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, room=data['roomID'])
 
 
 @socketio.on("buzzerReset")
@@ -275,6 +276,7 @@ def lockText(data):
 def answerInputToggle(data):
     data['username'] = session.get("username")
     roomID = data['roomID']
+    rooms[roomID]["answerButton"] = not rooms[roomID]["answerButton"]
     socketio.emit("answerInputToggle", data, room=roomID)
 
 

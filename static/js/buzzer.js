@@ -113,6 +113,11 @@ socket.on("playLoaded", function(data) {
             inputField.removeAttribute("disabled");
         }
     }
+    console.log("Hallaowfioknjwsoiefgjn", data);
+    if(data.answerButton == true) {
+        const answerButton = document.getElementById("submitAnswer");
+        answerButton.classList.remove("unsichtbar");
+    }
 })
 
 
