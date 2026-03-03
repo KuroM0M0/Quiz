@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 
+{% block head_meta %} 
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
 {% block title %} KuroBuzz {% endblock %}
 {% block content %}
 
 <div class="columns black">
     <div class="column is-one-fifth überschrift">
-        <h1 class="title"><a href="/">Gaming Quiz 2025</a></h1>
+        <h1 class="title"><a href="/">KuroBuzz</a></h1>
     </div>
     <div class="column">
         <div class="überschrift" id="roomCodeDiv"> 
@@ -53,6 +57,8 @@
 
 <div class="zentriert animiert delay2">
     <textarea class="input answerInput has-fixed-size" placeholder="Deine Antwort" name="InputField" id="{{ username }}Input" oninput="onTextChange(username)"></textarea>
+    <br><br>
+    <button class="button is-primary unsichtbar" id="submitAnswer" onclick="lockSubmitAnswer(username, this)">Antwort abgeben</button>
 </div>
 
 

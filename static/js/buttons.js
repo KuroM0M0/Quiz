@@ -53,6 +53,30 @@ function lockText(button) {
 }
 
 
-function pointSort(button) {
-    
+function answerInput(button) {
+    buttonActiveToggle(button);
+    if(button.classList.contains("is-active")) {
+        socket.emit('answerInputToggle', {roomID: roomID, answerInput: true});
+    } else {
+        socket.emit('answerInputToggle', {roomID: roomID, answerInput: false});
+    }
+}
+
+
+function rejoinButton(button) {
+    fetch('/rejoin')
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if (data.error) {
+            ShowErrorAlert("Fehler", data.error);
+            return;
+        }
+        if(data.success == "True") {
+            window.location.href = "/play";
+        } else {
+            ShowErrorAlert("Fehler", "Du bist aktuell in keinem Raum dem du rejoinen könntest.");
+        }
+    })
+    .catch(error => console.error('rejoin Button Fehler', error));
 }

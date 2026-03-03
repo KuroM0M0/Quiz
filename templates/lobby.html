@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
+{% block head_meta %} 
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
 {% block title %} Join / Create Room {% endblock %}
 {% block content %}
 
-<h1 class="title zentriert abstandOben animiert">Willkommen zum Gaming Quiz 2025!</h1>
+<h1 class="title zentriert abstandOben animiert">Willkommen zum Quiz!</h1>
 <p class="subtitle zentriert animiert">Hallo, {{ username }} 👋</p>
 
 <br><br><br><br><br>
@@ -11,7 +15,7 @@
 <div class="columns">
     <div class="column animiert delayRejoin">
         <div class="zentriert">
-            <a class="button buttonJoin" href="/play" id="rejoinButton">Rejoin</a>
+            <a class="button buttonJoin" id="rejoinButton" onclick="rejoinButton(this)">Rejoin</a>
         </div>
     </div>
     <div class="column animiert delay2">

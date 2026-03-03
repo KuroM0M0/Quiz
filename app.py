@@ -1,7 +1,7 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from datetime import timedelta
 import time
@@ -58,6 +58,15 @@ def play():
     return render_template("play.html", username=username)
 
 
+@app.route('/faq')
+def faq():
+    return render_template("faq.html")
+
+
+@app.route('/sitemap.xml')
+def static_from_root():
+    return send_from_directory(app.static_folder, 'sitemap.xml')
+
 @app.route('/join', methods=["POST"])
 def join():
     username = session.get("username")
@@ -93,7 +102,8 @@ def create():
         "text_locked": False,
         "only_first": False,
         "buzzed_by": None,
-        "buzzerOrder": 0
+        "buzzerOrder": 0,
+        "answerButton": False
     }
 
     # Add host as first player, unnötig, weil durch Vue er sonst auch in der Spielerliste erscheint
@@ -117,6 +127,17 @@ def get_rooms():
     return jsonify(rooms)
 
 
+@app.route('/rejoin')
+def rejoin():
+    username = session.get("username")
+    roomID = session.get("roomID")
+    if roomID not in rooms:
+        return jsonify({"success": "False"})
+    if username in rooms[roomID]["players"]:
+        return jsonify({"success": "True"})
+    else:
+        return jsonify({"success": "False"})
+    
 
 
 
@@ -130,7 +151,7 @@ def on_join_room(data):
     roomID = data['roomID']
     username = data.get('username') or data.get('host')
 
-    if username not in rooms[roomID]["players"] and username not in rooms[roomID]["host"]:
+    if username != rooms[roomID]["players"] and username not in rooms[roomID]["host"]:
         rooms[roomID]["players"].update({username: {"textFeld": "", "points": 0}})
 
     join_room(roomID)
@@ -139,7 +160,7 @@ def on_join_room(data):
     #socketio.emit("room_update", rooms[roomID], room=roomID)
     if data.get('username') is not None:
         print(rooms[roomID]["players"])
-        socketio.emit("cards_update", {"username": username})
+        socketio.emit("cards_update", {"username": username}, room=roomID)
         socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
@@ -193,8 +214,9 @@ def playLoaded(data):
     buzzerStatus = rooms[data['roomID']]["buzzer_active"]
     buzzed_by = rooms[data['roomID']]["buzzed_by"]
     textLocked = rooms[data['roomID']]["text_locked"]
+    answerButton = rooms[data['roomID']]["answerButton"]
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked}, room=data['roomID'])
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, room=data['roomID'])
 
 
 @socketio.on("buzzerReset")
@@ -208,7 +230,7 @@ def buzzerReset(data):
 
 @socketio.on("clearText")
 def clearText(data):
-    print("Textclear ist python")
+    print("Textclear in python")
     socketio.emit("clearText", data, room=data['roomID'])
 
 
@@ -245,10 +267,24 @@ def lockBuzzer(data):
 @socketio.on("lockText")
 def lockText(data):
     data['username'] = session.get("username")
-    print(data)
     roomID = data['roomID']
     rooms[roomID]["text_locked"] = not rooms[roomID]["text_locked"]
-    socketio.emit("lockText", data, room=data['roomID'])
+    socketio.emit("lockText", data, room=roomID)
+
+
+@socketio.on("answerInputToggle")
+def answerInputToggle(data):
+    data['username'] = session.get("username")
+    roomID = data['roomID']
+    rooms[roomID]["answerButton"] = not rooms[roomID]["answerButton"]
+    socketio.emit("answerInputToggle", data, room=roomID)
+
+
+@socketio.on("submitAnswer")
+def submitAnswer(data):
+    data['username'] = session.get("username")
+    print(data)
+    socketio.emit("submitAnswer", data, room=data['room'])
 
 
 if __name__ == '__main__':

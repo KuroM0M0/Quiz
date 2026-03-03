@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %} KuroBuzz - FAQ {% endblock %}
+
+{% block content %}
+
+<div class="columns black">
+    <div class="column is-one-fifth überschrift">
+        <h1 class="title"><a href="/">KuroBuzz</a></h1>
+    </div>
+    <div class="column">
+        <div class="überschrift" id="roomCode"> 
+            
+        </div>
+    </div>
+</div>
+
+<br><br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Was macht diese Seite besser als andere?
+            </summary>
+            <div class="message-body">
+                Zusätzlich zum Buzzer gibt es noch für jeden Teilnehmer ein Textfeld. Dieses kann in Echtzeit vom Host angesehen und auch bearbeitet werden.<br><br>
+                Der Host kann Einstellen, ob der Buzzer und die Textfelder aktiv oder gesperrt sind. <br>Er kann auch einen Abgabe Button bei den Teilnehmern hinzufügen.<br><br>
+                Ebenfalls gibt es für den Host die möglichkeit, Punkte zu verteilen, die alle sofort sehen können.
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Welche Probleme gibt es aktuell noch?
+            </summary>
+            <div class="message-body">
+                Probleme beim Host: <br>
+                Beim neu laden der Seite, wird ein neuer Raum erstellt.
+                <br><br>
+                Probleme beim Teilnehmer:<br>
+                Der Rejoin Button gibt keine Fehlermeldung, wenn man zuvor in keinem Raum war. <br>
+                Das Textfeld macht manchmal Probleme, wenn man etwas mitten drin bearbeiten möchte.
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Was machen die Buttons beim Host?
+            </summary>
+            <div class="message-body">
+                Reset Buzzer:<br>
+                Der Buzzer wird zurückgesetzt.<br><br>
+                Clear Text:<br>
+                Das Textfeld wird bei allen Teilnehmern gelöscht<br><br>
+                Lock Buzzer:<br>
+                Der Buzzer wird für alle gesperrt. Der Buzzer kann währenddessen nicht resettet werden.<br><br>
+                Lock Text:<br>
+                Die Teilnehmer können das Textfeld nicht mehr bearbeiten.<br><br>
+                Antwort abgeben:<br>
+                Die Teilnehmer erhalten einen Button mit dem sie ihre Antwort abgeben können. Sie können den Text danach nicht mehr bearbeiten.<br>
+                Damit die Teilnehmer wieder schreiben können, muss der Host den Button wieder deaktivieren. Wer abgegeben hat, wird braun hinterlegt.
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Was bedeuten die Farben beim Host?
+            </summary>
+            <div class="message-body">
+                Braun:<br>
+                Der Teilnehmer hat eine Antwort abgegeben.<br><br>
+                Grün:<br>
+                Der Teilnehmer hat als erstes den Buzzer gedrückt.
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Wo kann ich Bugs melden oder Verbesserungen vorschlagen?
+            </summary>
+            <div class="message-body">
+                Es wird bald ein Formular auf der Website geben, bis dahin aber nur auf Discord. <br>
+                <a href="https://discord.gg/Djf3PJNgSk"> Hier kannst du dann einfach ein Ticket eröffnen.</a>
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Wie lang wird es diese Website geben?
+            </summary>
+            <div class="message-body">
+                Aktuell läuft sie bis zum 29. September 2026. <br><br>
+                Um diese Zeit zu verlängern, bin ich auf <a href="https://paypal.me/KuroPixel?country.x=DE&locale.x=de_DE">Spenden angewiesen.</a><br>
+                Bitte gib als Nachricht "Website" an c:
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Mit wie vielen Personen kann ich ein Quiz machen?
+            </summary>
+            <div class="message-body">
+                Es gibt keine Begrenzung. Lade so viele Leute wie du möchtest ein :)
+            </div>
+        </details>
+    </article>
+</div>
+
+{% endblock %}

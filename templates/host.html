@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %} Gaming Quiz 2025 {% endblock %}
+{% block head_meta %} 
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block title %} KuroBuzz - Host {% endblock %}
 {% block content %}
 <div class="columns black">
     <div class="column is-one-fifth überschrift">
-        <h1 class="title"><a href="/">Gaming Quiz 2025</a></h1>
+        <h1 class="title"><a href="/">KuroBuzz</a></h1>
     </div>
     <div class="column">
         <div class="überschrift" id="roomCode"> 
@@ -16,7 +20,8 @@
 <button id="resetBuzzer" class="button" onclick="onBuzzerReset()">Reset Buzzer</button>
 <button class="button" onclick="clearText()">Clear Text</button>
 <button class="button" onclick="lockBuzzer(this)">Lock Buzzer</button>
-<button class="button" onclick="lockText(this)">Lock Text</button>
+<button id="lockTextButton" class="button" onclick="lockText(this)">Lock Text</button>
+<button class="button" onclick="answerInput(this)">Antwort abgeben</button>
 <!--<button id="firstBuzz" class="button" onclick="buttonActiveToggle(this)">Only first Buzz</button> Button hat keine funktion -->
 
 <div class="columns">
