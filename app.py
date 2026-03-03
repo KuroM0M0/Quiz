@@ -126,6 +126,18 @@ def get_rooms():
     return jsonify(rooms)
 
 
+@app.route('/rejoin')
+def rejoin():
+    username = session.get("username")
+    roomID = session.get("roomID")
+    if roomID not in rooms:
+        return jsonify({"success": "False"})
+    if username in rooms[roomID]["players"]:
+        return jsonify({"success": "True"})
+    else:
+        return jsonify({"success": "False"})
+
+
 
 
 
