@@ -68,7 +68,8 @@ def lobby():
 
 @app.route('/host')
 def host():
-    return render_template("host.html")
+    roomID = session.get("roomID")
+    return render_template("host.html", roomID=roomID)
 
 
 @app.route('/play')
@@ -199,7 +200,7 @@ def on_join_room(data):
     roomID = data['roomID']
     username = data.get('username') or data.get('host')
 
-    if username != rooms[roomID]["players"] and username not in rooms[roomID]["host"]:
+    if username not in rooms[roomID]["players"] and username != rooms[roomID]["host"]:
         rooms[roomID]["players"].update({username: {"textFeld": "", "points": 0}})
 
     join_room(roomID)
