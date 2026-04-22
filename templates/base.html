@@ -61,9 +61,9 @@
         {% block content %}
         <!-- Inhalt in der Mitte -->
         <section class="hero is-fullheight animiert"> <br><br>
-            <!--<div class="has-text-centered red">
-                Die Website wird vom 9.4.-10.4. nicht erreichbar sein. Danach erreichst du sie unter buzzer.kuropixel.de wie zuvor.
-            </div>-->
+            <div class="has-text-centered red" id="WartungsBanner">
+    {{ wartung_status.message if wartung_status else '' }}
+            </div>
             <div class="hero-body">
                 <div class="container has-text-centered">
                     <h1 class="title">Willkommen zum Quiz!</h1>
@@ -100,5 +100,6 @@
     <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
     <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
     <script src="{{ url_for('static', filename='js/text.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/wartung.js') }}"></script>
 </body>
 </html>

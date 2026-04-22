@@ -3,18 +3,37 @@ eventlet.monkey_patch()
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from datetime import timedelta
+from dotenv import load_dotenv
 import time
 import json
 import secrets
+import os
 
-
+load_dotenv()
 app = Flask(__name__)
 app.secret_key = "geheimes-passwort"
+password = os.getenv("pw")
 app.permanent_session_lifetime = timedelta(hours=8)
 socketio = SocketIO(app, cors_allowed_origins="*")  # erlaubt auch lokale Tests
 rooms = {}
 players = [] #nötig für Prüfung ob Username bereits existiert
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'wartung/login' # Wo soll man hin, wenn man nicht eingeloggt ist?
+
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+# Da wir keine DB haben, erstellen wir einen festen Admin
+admin_user = User(id="1")
+
+@login_manager.user_loader
+def load_user(user_id):
+    return admin_user if user_id == "1" else None
 
 @app.route('/', methods=["GET", "POST"])
 def index():
@@ -61,6 +80,35 @@ def play():
 @app.route('/faq')
 def faq():
     return render_template("faq.html")
+
+@app.route('/wartung', methods=['GET','POST'])
+@login_required
+def wartung():
+    if request.method == 'POST':
+        msg = request.form.get("message")
+        action = request.form.get("action") # "show" oder "hide"
+
+        is_active = (action == "show")
+        saveWartung(msg, is_active)
+        
+        # Echtzeit-Broadcast an alle User
+        socketio.emit('wartungUpdate', {'message': msg, 'isActive': is_active})
+        
+        # Redirect, damit beim Refresh der Seite nicht alles doppelt gesendet wird
+        return redirect(url_for('wartung'))
+
+    # Bei GET: Aktuellen Status laden, um ihn im Formular anzuzeigen
+    current_status = loadWartung() 
+    return render_template("wartung.html", status=current_status)
+
+@app.route('/wartung/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        pw = request.form.get('password')
+        if pw == password:
+            login_user(admin_user)
+            return redirect(url_for('wartung'))
+    return '''<form method="post">Passwort: <input name="password" type="password"><input type="submit"></form>'''
 
 
 @app.route('/sitemap.xml')
@@ -285,6 +333,37 @@ def submitAnswer(data):
     data['username'] = session.get("username")
     print(data)
     socketio.emit("submitAnswer", data, room=data['room'])
+
+
+@socketio.on("wartungUpdate")
+def wartungUpdate(data):
+    msg = data.get("message", "")
+    is_active = True if msg else False # Wenn Text da ist -> aktiv, sonst nicht
+    saveWartung(msg, is_active) # Speichern, damit es permanent bleibt!
+
+    socketio.emit("wartungUpdate", data)
+
+
+
+@app.context_processor
+def inject_wartung():
+    # Diese Variable "wartung_status" ist nun in JEDEM HTML-Template verfügbar
+    return dict(wartung_status=loadWartung())
+
+
+wartungsFile = 'wartungStatus.json'
+
+# Hilfsfunktion zum Speichern
+def saveWartung(msg, active=True):
+    with open(wartungsFile, 'w') as f:
+        json.dump({'message': msg, 'active': active}, f)
+
+# Hilfsfunktion zum Laden
+def loadWartung():
+    if os.path.exists(wartungsFile):
+        with open(wartungsFile, 'r') as f:
+            return json.load(f)
+    return {'message': '', 'active': False}
 
 
 if __name__ == '__main__':
