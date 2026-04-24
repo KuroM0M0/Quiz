@@ -63,6 +63,7 @@
             const roomCodeDiv = document.getElementById('roomCode');
             roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${roomID}</h1>`;
             socket.emit('join_room', {roomID: roomID, host: username});
+            socket.emit("playLoaded", {roomID: roomID});
         } else {
             createRoom(); //Beim seiten neuladen wird neuer Raum erstellt, wenn noch keiner existiert
         }

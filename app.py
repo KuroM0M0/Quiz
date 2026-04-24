@@ -229,6 +229,9 @@ def on_join_room(data):
         # If the host is joining/reconnecting, send them the cards for all players
         for player_name in rooms[roomID]["players"]:
             socketio.emit("cards_update", {"username": player_name}, to=flask_request.sid)
+            text = rooms[roomID]["players"][player_name].get("textFeld", "")
+            if text:
+                socketio.emit("text_update", {"username": player_name, "text": text}, to=flask_request.sid)
     elif data.get('username') is not None:
         print(rooms[roomID]["players"])
         socketio.emit("cards_update", {"username": username}, room=roomID)
@@ -258,6 +261,9 @@ def firstBuzz(data):
 @socketio.on("text_update")
 def text_update(data):
     print("\x1b[33m", data, "\x1b[0m")
+    roomID = data.get('room')
+    if roomID in rooms and 'username' in data:
+        rooms[roomID]["players"][data['username']]["textFeld"] = data.get('text', '')
     socketio.emit('text_update', data, room=data['room'])
 
 
