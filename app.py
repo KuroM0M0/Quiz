@@ -3,6 +3,7 @@ eventlet.monkey_patch()
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask import request as flask_request
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -221,10 +222,16 @@ def on_join_room(data):
     print(f"\x1b[32m User {username} joined room {roomID}\x1b[0m python")
     # schickt aktuelle Raum Daten an ALLE im Raum
     #socketio.emit("room_update", rooms[roomID], room=roomID)
-    if data.get('username') is not None:
+
+    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+
+    if data.get('host') is not None:
+        # If the host is joining/reconnecting, send them the cards for all players
+        for player_name in rooms[roomID]["players"]:
+            socketio.emit("cards_update", {"username": player_name}, to=flask_request.sid)
+    elif data.get('username') is not None:
         print(rooms[roomID]["players"])
         socketio.emit("cards_update", {"username": username}, room=roomID)
-        socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
 #Spieler leavt
@@ -287,7 +294,7 @@ def playLoaded(data):
     textLocked = rooms[roomID]["text_locked"]
     answerButton = rooms[roomID]["answerButton"]
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, room=roomID)
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, to=flask_request.sid)
 
 
 @socketio.on("buzzerReset")
@@ -338,8 +345,11 @@ def lockBuzzer(data):
     roomID = data['roomID']
     if roomID not in rooms:
         return
-    rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
+    # lockBuzzer logic currently expects "lockBuzzer: True" to mean locked, so buzzer_active should be False.
+    rooms[roomID]["buzzer_active"] = not data['lockBuzzer']
     socketio.emit("lockBuzzer", data, room=data['roomID'])
+    # Only emit buzzerReset to update UI elements like reset button state,
+    # but do NOT call the server buzzerReset event because that sets buzzer_active = True
     socketio.emit("buzzerReset", data, room=data['roomID'])
 
 

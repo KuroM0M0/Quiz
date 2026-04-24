@@ -100,9 +100,11 @@ socket.on("playLoaded", function(data) {
             buzzer.setAttribute("disabled", true);
 
             //Prüft wer gebuzzert hat
-            const whoBuzzed = document.getElementById("whoBuzzed");
-            const username = data.buzzed_by;
-            whoBuzzed.innerHTML = username + " hat gedrückt";
+            if (data.buzzed_by) {
+                const whoBuzzed = document.getElementById("whoBuzzed");
+                const username = data.buzzed_by;
+                whoBuzzed.innerHTML = username + " hat gedrückt";
+            }
         }
     }
 
