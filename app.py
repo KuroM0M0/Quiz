@@ -69,9 +69,13 @@ def lobby():
 @app.route('/host')
 def host():
     roomID = session.get("roomID")
-    if roomID and roomID not in rooms:
-        session.pop("roomID", None)
-        roomID = None
+    if roomID:
+        if roomID not in rooms:
+            session.pop("roomID", None)
+            roomID = None
+        elif rooms[roomID].get("host") != session.get("username"):
+            # The user was a player in this room, not the host. They want to create a new room.
+            roomID = None
     return render_template("host.html", roomID=roomID)
 
 
@@ -334,7 +338,7 @@ def lockBuzzer(data):
     roomID = data['roomID']
     if roomID not in rooms:
         return
-    rooms[roomID]["buzzer_active"] = False
+    rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
     socketio.emit("lockBuzzer", data, room=data['roomID'])
     socketio.emit("buzzerReset", data, room=data['roomID'])
 
