@@ -334,7 +334,7 @@ def lockBuzzer(data):
     roomID = data['roomID']
     if roomID not in rooms:
         return
-    rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
+    rooms[roomID]["buzzer_active"] = False
     socketio.emit("lockBuzzer", data, room=data['roomID'])
     socketio.emit("buzzerReset", data, room=data['roomID'])
 
