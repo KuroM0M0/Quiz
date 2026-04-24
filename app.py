@@ -69,12 +69,19 @@ def lobby():
 @app.route('/host')
 def host():
     roomID = session.get("roomID")
+    if roomID and roomID not in rooms:
+        session.pop("roomID", None)
+        roomID = None
     return render_template("host.html", roomID=roomID)
 
 
 @app.route('/play')
 def play():
     username = session.get("username")
+    roomID = session.get("roomID")
+    if roomID and roomID not in rooms:
+        session.pop("roomID", None)
+        return redirect(url_for("lobby"))
     return render_template("play.html", username=username)
 
 
@@ -200,6 +207,9 @@ def on_join_room(data):
     roomID = data['roomID']
     username = data.get('username') or data.get('host')
 
+    if roomID not in rooms:
+        return
+
     if username not in rooms[roomID]["players"] and username != rooms[roomID]["host"]:
         rooms[roomID]["players"].update({username: {"textFeld": "", "points": 0}})
 
@@ -228,6 +238,8 @@ def on_leave_room(data):
 @socketio.on("firstBuzz")
 def firstBuzz(data):
     roomID = data.get("roomID")
+    if roomID not in rooms:
+        return
     only_first = data["firstBuzz"]
     rooms[roomID]["only_first"] = only_first
     #socketio.emit("room_update", rooms[roomID], room=roomID)
@@ -242,6 +254,8 @@ def text_update(data):
 def buzzer(data):
     #print("\x1b[33m", data, "\x1b[0m")
     #print("\x1b[32m", data['room'], "\x1b[0m")
+    if data['room'] not in rooms:
+        return
 
     rooms[data['room']]["buzzer_active"] = False
     rooms[data['room']]["buzzed_by"] = data['username']
@@ -260,16 +274,22 @@ def buzzer(data):
 
 @socketio.on("playLoaded")
 def playLoaded(data):
-    buzzerStatus = rooms[data['roomID']]["buzzer_active"]
-    buzzed_by = rooms[data['roomID']]["buzzed_by"]
-    textLocked = rooms[data['roomID']]["text_locked"]
-    answerButton = rooms[data['roomID']]["answerButton"]
+    roomID = data.get('roomID')
+    if not roomID or roomID not in rooms:
+        return
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, room=data['roomID'])
+    buzzerStatus = rooms[roomID]["buzzer_active"]
+    buzzed_by = rooms[roomID]["buzzed_by"]
+    textLocked = rooms[roomID]["text_locked"]
+    answerButton = rooms[roomID]["answerButton"]
+
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, room=roomID)
 
 
 @socketio.on("buzzerReset")
 def buzzerReset(data):
+    if data['roomID'] not in rooms:
+        return
     rooms[data['roomID']]["buzzer_active"] = True
     rooms[data['roomID']]["buzzerOrder"] = 0
     print("\x1b[33m", "Resettet", "\x1b[0m")
@@ -287,6 +307,8 @@ def clearText(data):
 def addPoints(data):
     roomID = data['roomID']
     username = data['username']
+    if roomID not in rooms or username not in rooms[roomID]["players"]:
+        return
 
     rooms[roomID]["players"][username]["points"] += 1
 
@@ -298,6 +320,8 @@ def addPoints(data):
 def decreasePoints(data):
     roomID = data['roomID']
     username = data['username']
+    if roomID not in rooms or username not in rooms[roomID]["players"]:
+        return
 
     rooms[roomID]["players"][username]["points"] -= 1
 
@@ -308,6 +332,8 @@ def decreasePoints(data):
 @socketio.on("lockBuzzer")
 def lockBuzzer(data):
     roomID = data['roomID']
+    if roomID not in rooms:
+        return
     rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
     socketio.emit("lockBuzzer", data, room=data['roomID'])
     socketio.emit("buzzerReset", data, room=data['roomID'])
@@ -317,6 +343,8 @@ def lockBuzzer(data):
 def lockText(data):
     data['username'] = session.get("username")
     roomID = data['roomID']
+    if roomID not in rooms:
+        return
     rooms[roomID]["text_locked"] = not rooms[roomID]["text_locked"]
     socketio.emit("lockText", data, room=roomID)
 
@@ -325,6 +353,8 @@ def lockText(data):
 def answerInputToggle(data):
     data['username'] = session.get("username")
     roomID = data['roomID']
+    if roomID not in rooms:
+        return
     rooms[roomID]["answerButton"] = not rooms[roomID]["answerButton"]
     socketio.emit("answerInputToggle", data, room=roomID)
 
