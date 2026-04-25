@@ -92,6 +92,21 @@ function ShowAnswerAlert(title) {
 }
 
 
+function ShowTimerAlert(title, text) {
+    return Swal.fire({
+        title: title,
+        text: text,
+        icon: 'question',
+        input: 'number',
+        confirmButtonText: 'Starten',
+        cancelButtonText: 'Abbrechen',
+        showCancelButton: true,
+        cancelButtonColor: '#d33',
+        theme: 'dark'
+    })
+}
+
+
 socket.on("ShowErrorAlert", function(data) {
     console.log("HALLOOO")
     ShowErrorAlert(data.title, data.text);

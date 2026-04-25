@@ -16,6 +16,9 @@
             
         </div>
     </div>
+    <div class="column is-one-fifth">
+
+    </div>
 </div>
 
 <div class="columns">
@@ -49,11 +52,16 @@
         </div>
     </div>
     <div class="column">
-
+        
     </div>
 </div>
 
-
+<div class="zentriert animiert delay2">
+    <div id="timerDisplay">
+        
+    </div>
+</div>
+<br><br>
 
 <div class="zentriert animiert delay2">
     <textarea class="input answerInput has-fixed-size" placeholder="Deine Antwort" name="InputField" id="{{ username }}Input" oninput="onTextChange(username)"></textarea>
@@ -67,7 +75,7 @@
     const roomCodeDiv = document.getElementById('roomCodeDiv');
     const roomID = "{{ session['roomID'] }}";
     const username = "{{ session['username'] }}";
-    roomCodeDiv.innerHTML = `<h1 class="title roomCode" id="roomCode">Room Code: ${roomID}</h1>`;
+    roomCodeDiv.innerHTML = `<h1 class="title" id="roomCode">Room Code: ${roomID}</h1>`;
     socket.emit('join_room', {roomID: roomID, username: username});
 
     window.addEventListener('DOMContentLoaded', () => {
