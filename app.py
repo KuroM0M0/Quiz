@@ -2,7 +2,7 @@ import eventlet
 eventlet.monkey_patch()
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response, send_from_directory
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_socketio import SocketIO, emit, join_room, leave_room, close_room
 from flask import request as flask_request
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from datetime import timedelta
@@ -399,6 +399,21 @@ def handle_timer(data):
     end_time = (time.time() * 1000) + (duration * 1000) 
     data["endTime"] = end_time
     socketio.emit("timer", data, to=data.get("room"))
+
+
+@socketio.on("closeRoom")
+def closeRoom(data):
+    roomID = data['roomID']
+    if roomID in rooms:
+        # 2. Alle Spieler im Raum informieren, damit sie weitergeleitet werden
+        emit("roomClosed", to=roomID)
+        
+        # 3. Den Raum aus deinem Dictionary löschen
+        rooms.pop(roomID)
+        
+        # 4. Den Socket.io-Kanal komplett schließen
+        close_room(roomID)
+        print(f"Raum {roomID} wurde vom Host geschlossen.")
 
 
 

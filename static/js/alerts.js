@@ -68,10 +68,8 @@ function ShowWarningAlert(title, text) {
         title: title,
         text: text,
         icon: 'warning',
-        confirmButtonText: 'Löschen',
-        cancelButtonText: 'Abbrechen',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ok',
+        showCancelButton: false,
         theme: 'dark'
     })
 }
