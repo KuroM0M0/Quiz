@@ -1,1 +1,1 @@
-Website kann kostenlos unter https://kuropixel.de/ verwendet werden :)
+Website kann kostenlos unter https://buzzer.kuropixel.de/ verwendet werden :)
