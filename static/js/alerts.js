@@ -108,6 +108,5 @@ function ShowTimerAlert(title, text) {
 
 
 socket.on("ShowErrorAlert", function(data) {
-    console.log("HALLOOO")
     ShowErrorAlert(data.title, data.text);
 });

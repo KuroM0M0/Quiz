@@ -86,7 +86,6 @@ const app = createApp({
     },
     mounted() {
         socket.on('playerList', data => {
-            console.log("Empfangen:", data);
             this.players = data.players;
         });
     }

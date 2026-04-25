@@ -1,7 +1,5 @@
 socket.on("cards_update", function(data) {
     //const roomID = data.roomID;
-    console.log(data.username);
-    console.log(data);
     const username = data.username;
     const userCard = username + "Card";
     const cards = document.getElementById('card');

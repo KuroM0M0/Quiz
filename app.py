@@ -284,7 +284,6 @@ def buzzer(data):
     #Füge Dinge in data hinzu
     data['buzzerOrder'] = buzzerOrder
     data['players'] = rooms[data['room']]["players"]
-    print(data['players'])
 
     socketio.emit('buzzer', data, room=data['room'])
 
@@ -316,7 +315,6 @@ def buzzerReset(data):
 
 @socketio.on("clearText")
 def clearText(data):
-    print("Textclear in python")
     socketio.emit("clearText", data, room=data['roomID'])
 
 
@@ -382,7 +380,6 @@ def answerInputToggle(data):
 @socketio.on("submitAnswer")
 def submitAnswer(data):
     data['username'] = session.get("username")
-    print(data)
     socketio.emit("submitAnswer", data, room=data['room'])
 
 

@@ -12,7 +12,6 @@ socket.on("buzzer", function(data) {
     const whoBuzzed = document.getElementById("whoBuzzed");
     const username = data.username;
     const players = Object.keys(data.players);
-    console.log(players);
 
     const hostBuzzerOrder = document.getElementById(username + "BuzzerOrder");
     const hostCard = document.getElementById(username + "Card");
@@ -36,15 +35,12 @@ socket.on("buzzer", function(data) {
     }
 
     if(hostBuzzerOrder != null) {
-        console.log(data.buzzerOrder);
         hostBuzzerOrder.innerHTML = data.buzzerOrder + ". ";
     }
     playBuzzerSound();
 })
 
 function onBuzzerReset() {
-    console.log(roomID);
-    console.log("Buzzerrrrreset");
     socket.emit("buzzerReset", {"roomID": roomID});
 }
 
@@ -61,7 +57,6 @@ socket.on("buzzerReset", function(data) {
         const buzzer = document.getElementById("buzzer");
         const whoBuzzed = document.getElementById("whoBuzzed");
         const players = Object.keys(data.players);
-        console.log("buzzerReset");
 
         if(buzzer != null && whoBuzzed != null) {
             buzzer.removeAttribute("disabled");
@@ -115,7 +110,6 @@ socket.on("playLoaded", function(data) {
             inputField.removeAttribute("disabled");
         }
     }
-    console.log("Hallaowfioknjwsoiefgjn", data);
     if(data.answerButton == true) {
         const answerButton = document.getElementById("submitAnswer");
         answerButton.classList.remove("unsichtbar");

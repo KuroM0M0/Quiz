@@ -37,7 +37,6 @@ function joinButton() {
     rooms = fetch('/get_rooms')
     .then(response => response.json())
     .then(data => {
-        console.log(data)
         if(inputText in data) {
             joinButton.removeAttribute('disabled')
         } else {
