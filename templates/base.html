@@ -60,7 +60,10 @@
     <div id="content">
         {% block content %}
         <!-- Inhalt in der Mitte -->
-        <section class="hero is-fullheight animiert">
+        <section class="hero is-fullheight animiert"> <br><br>
+            <div class="has-text-centered red" id="WartungsBanner">
+    {{ wartung_status.message if wartung_status else '' }}
+            </div>
             <div class="hero-body">
                 <div class="container has-text-centered">
                     <h1 class="title">Willkommen zum Quiz!</h1>
@@ -71,13 +74,13 @@
                     {% else %}
                     <p class="subtitle">Gib deinen Namen ein, um einen Raum beizutreten!</p>
                     <!--Drücke den Buzzer, wenn du bereit bist. Hier Effekt einfügen wenn der Button gedrückt wird und danach Textfeld für namen anzeigen-->
-                    <form method="POST">
+                    <form method="POST" id="loginForm">
                         <div class="field has-addons has-addons-centered">
                             <div class="control">
                                 <input id="username" class="input" type="text" name="name" placeholder="Dein Name">
                             </div>
                             <div class="control">
-                                <button class="button is-primary" type="submit" onclick="CheckNameExists(document.getElementById('username').value)">
+                                <button class="button is-primary" type="submit" onclick="CheckNameExists(event, document.getElementById('username').value)">
                                     Anmelden
                                 </button>
                             </div>
@@ -97,5 +100,6 @@
     <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
     <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
     <script src="{{ url_for('static', filename='js/text.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/wartung.js') }}"></script>
 </body>
 </html>

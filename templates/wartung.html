@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block head_meta %} 
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block title %} KuroBuzz {% endblock %}
+{% block content %}
+<br><br><br>
+<div class="columns">
+    <div class="column zentriert">
+        <button class="button" onclick="WartungsNachricht()">Nachricht für alle hinterlassen</button>
+    </div>
+    <div class="column zentriert">
+        <button class="button" onclick="WartungsNachrichtRemove()">Nachricht löschen</button>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -18,20 +18,21 @@ function loadPage(page) {
         .catch(error => console.error("Fehler beim Laden der Seite: ", error))
 }
 
-function CheckNameExists(name) {
-    fetch("/check_name", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({name})
-    })
+function CheckNameExists(event, name) {
+    event.preventDefault();
+    fetch(`/name_exists?name=${encodeURIComponent(name)}`)
     .then(response => response.json())
     .then(data => {
-        if(data == true) {
-            ShowErrorAlert("Fehler", `Username ${data.name} existiert bereits. Bitte wähle einen anderen.`);
+        if(data === true) {
+            ShowErrorAlert("Fehler", `Username ${name} existiert bereits. Bitte wähle einen anderen.`);
         } else {
-            window.location.href = "/lobby";
+            document.getElementById("loginForm").submit();
         }
     })
+    .catch(error => {
+        console.error("Fehler bei CheckNameExists:", error);
+        document.getElementById("loginForm").submit();
+    });
 }
 
 

@@ -55,17 +55,26 @@
     
 
 <script> 
+    let roomID = "{{ roomID }}";
+    const username = "{{ session['username'] }}";
+
     window.addEventListener('DOMContentLoaded', () => {
-        createRoom(); //Beim seiten neuladen wird neuer Raum erstellt
+        if (roomID && roomID !== "None") {
+            const roomCodeDiv = document.getElementById('roomCode');
+            roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${roomID}</h1>`;
+            socket.emit('join_room', {roomID: roomID, host: username});
+            socket.emit("playLoaded", {roomID: roomID});
+        } else {
+            createRoom(); //Beim seiten neuladen wird neuer Raum erstellt, wenn noch keiner existiert
+        }
     });
-    let roomID = null;
 
     setTimeout(() => {
-        roomID = document.getElementById("roomCode").textContent.split("Room Code:")[1].trim();
+        if (!roomID || roomID === "None") {
+            roomID = document.getElementById("roomCode").textContent.split("Room Code:")[1].trim();
+        }
         console.log(roomID);
     }, 5000);
-    
-    const username = "{{ session['username'] }}";
 </script>
 
 {% endblock %}

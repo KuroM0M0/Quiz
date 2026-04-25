@@ -3,18 +3,38 @@ eventlet.monkey_patch()
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask import request as flask_request
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from datetime import timedelta
+from dotenv import load_dotenv
 import time
 import json
 import secrets
+import os
 
-
+load_dotenv()
 app = Flask(__name__)
 app.secret_key = "geheimes-passwort"
+password = os.getenv("pw")
 app.permanent_session_lifetime = timedelta(hours=8)
 socketio = SocketIO(app, cors_allowed_origins="*")  # erlaubt auch lokale Tests
 rooms = {}
 players = [] #nötig für Prüfung ob Username bereits existiert
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'wartung/login' # Wo soll man hin, wenn man nicht eingeloggt ist?
+
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+# Da wir keine DB haben, erstellen wir einen festen Admin
+admin_user = User(id="1")
+
+@login_manager.user_loader
+def load_user(user_id):
+    return admin_user if user_id == "1" else None
 
 @app.route('/', methods=["GET", "POST"])
 def index():
@@ -49,18 +69,59 @@ def lobby():
 
 @app.route('/host')
 def host():
-    return render_template("host.html")
+    roomID = session.get("roomID")
+    if roomID:
+        if roomID not in rooms:
+            session.pop("roomID", None)
+            roomID = None
+        elif rooms[roomID].get("host") != session.get("username"):
+            # The user was a player in this room, not the host. They want to create a new room.
+            roomID = None
+    return render_template("host.html", roomID=roomID)
 
 
 @app.route('/play')
 def play():
     username = session.get("username")
+    roomID = session.get("roomID")
+    if roomID and roomID not in rooms:
+        session.pop("roomID", None)
+        return redirect(url_for("lobby"))
     return render_template("play.html", username=username)
 
 
 @app.route('/faq')
 def faq():
     return render_template("faq.html")
+
+@app.route('/wartung', methods=['GET','POST'])
+@login_required
+def wartung():
+    if request.method == 'POST':
+        msg = request.form.get("message")
+        action = request.form.get("action") # "show" oder "hide"
+
+        is_active = (action == "show")
+        saveWartung(msg, is_active)
+        
+        # Echtzeit-Broadcast an alle User
+        socketio.emit('wartungUpdate', {'message': msg, 'isActive': is_active})
+        
+        # Redirect, damit beim Refresh der Seite nicht alles doppelt gesendet wird
+        return redirect(url_for('wartung'))
+
+    # Bei GET: Aktuellen Status laden, um ihn im Formular anzuzeigen
+    current_status = loadWartung() 
+    return render_template("wartung.html", status=current_status)
+
+@app.route('/wartung/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        pw = request.form.get('password')
+        if pw == password:
+            login_user(admin_user)
+            return redirect(url_for('wartung'))
+    return '''<form method="post">Passwort: <input name="password" type="password"><input type="submit"></form>'''
 
 
 @app.route('/sitemap.xml')
@@ -151,17 +212,29 @@ def on_join_room(data):
     roomID = data['roomID']
     username = data.get('username') or data.get('host')
 
-    if username != rooms[roomID]["players"] and username not in rooms[roomID]["host"]:
+    if roomID not in rooms:
+        return
+
+    if username not in rooms[roomID]["players"] and username != rooms[roomID]["host"]:
         rooms[roomID]["players"].update({username: {"textFeld": "", "points": 0}})
 
     join_room(roomID)
     print(f"\x1b[32m User {username} joined room {roomID}\x1b[0m python")
     # schickt aktuelle Raum Daten an ALLE im Raum
     #socketio.emit("room_update", rooms[roomID], room=roomID)
-    if data.get('username') is not None:
+
+    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+
+    if data.get('host') is not None:
+        # If the host is joining/reconnecting, send them the cards for all players
+        for player_name in rooms[roomID]["players"]:
+            socketio.emit("cards_update", {"username": player_name}, to=flask_request.sid)
+            text = rooms[roomID]["players"][player_name].get("textFeld", "")
+            if text:
+                socketio.emit("text_update", {"username": player_name, "text": text}, to=flask_request.sid)
+    elif data.get('username') is not None:
         print(rooms[roomID]["players"])
         socketio.emit("cards_update", {"username": username}, room=roomID)
-        socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
 #Spieler leavt
@@ -179,6 +252,8 @@ def on_leave_room(data):
 @socketio.on("firstBuzz")
 def firstBuzz(data):
     roomID = data.get("roomID")
+    if roomID not in rooms:
+        return
     only_first = data["firstBuzz"]
     rooms[roomID]["only_first"] = only_first
     #socketio.emit("room_update", rooms[roomID], room=roomID)
@@ -186,6 +261,9 @@ def firstBuzz(data):
 @socketio.on("text_update")
 def text_update(data):
     print("\x1b[33m", data, "\x1b[0m")
+    roomID = data.get('room')
+    if roomID in rooms and 'username' in data:
+        rooms[roomID]["players"][data['username']]["textFeld"] = data.get('text', '')
     socketio.emit('text_update', data, room=data['room'])
 
 
@@ -193,6 +271,8 @@ def text_update(data):
 def buzzer(data):
     #print("\x1b[33m", data, "\x1b[0m")
     #print("\x1b[32m", data['room'], "\x1b[0m")
+    if data['room'] not in rooms:
+        return
 
     rooms[data['room']]["buzzer_active"] = False
     rooms[data['room']]["buzzed_by"] = data['username']
@@ -211,16 +291,22 @@ def buzzer(data):
 
 @socketio.on("playLoaded")
 def playLoaded(data):
-    buzzerStatus = rooms[data['roomID']]["buzzer_active"]
-    buzzed_by = rooms[data['roomID']]["buzzed_by"]
-    textLocked = rooms[data['roomID']]["text_locked"]
-    answerButton = rooms[data['roomID']]["answerButton"]
+    roomID = data.get('roomID')
+    if not roomID or roomID not in rooms:
+        return
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, room=data['roomID'])
+    buzzerStatus = rooms[roomID]["buzzer_active"]
+    buzzed_by = rooms[roomID]["buzzed_by"]
+    textLocked = rooms[roomID]["text_locked"]
+    answerButton = rooms[roomID]["answerButton"]
+
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, to=flask_request.sid)
 
 
 @socketio.on("buzzerReset")
 def buzzerReset(data):
+    if data['roomID'] not in rooms:
+        return
     rooms[data['roomID']]["buzzer_active"] = True
     rooms[data['roomID']]["buzzerOrder"] = 0
     print("\x1b[33m", "Resettet", "\x1b[0m")
@@ -238,6 +324,8 @@ def clearText(data):
 def addPoints(data):
     roomID = data['roomID']
     username = data['username']
+    if roomID not in rooms or username not in rooms[roomID]["players"]:
+        return
 
     rooms[roomID]["players"][username]["points"] += 1
 
@@ -249,6 +337,8 @@ def addPoints(data):
 def decreasePoints(data):
     roomID = data['roomID']
     username = data['username']
+    if roomID not in rooms or username not in rooms[roomID]["players"]:
+        return
 
     rooms[roomID]["players"][username]["points"] -= 1
 
@@ -259,8 +349,13 @@ def decreasePoints(data):
 @socketio.on("lockBuzzer")
 def lockBuzzer(data):
     roomID = data['roomID']
-    rooms[roomID]["buzzer_active"] = not rooms[roomID]["buzzer_active"]
+    if roomID not in rooms:
+        return
+    # lockBuzzer logic currently expects "lockBuzzer: True" to mean locked, so buzzer_active should be False.
+    rooms[roomID]["buzzer_active"] = not data['lockBuzzer']
     socketio.emit("lockBuzzer", data, room=data['roomID'])
+    # Only emit buzzerReset to update UI elements like reset button state,
+    # but do NOT call the server buzzerReset event because that sets buzzer_active = True
     socketio.emit("buzzerReset", data, room=data['roomID'])
 
 
@@ -268,6 +363,8 @@ def lockBuzzer(data):
 def lockText(data):
     data['username'] = session.get("username")
     roomID = data['roomID']
+    if roomID not in rooms:
+        return
     rooms[roomID]["text_locked"] = not rooms[roomID]["text_locked"]
     socketio.emit("lockText", data, room=roomID)
 
@@ -276,6 +373,8 @@ def lockText(data):
 def answerInputToggle(data):
     data['username'] = session.get("username")
     roomID = data['roomID']
+    if roomID not in rooms:
+        return
     rooms[roomID]["answerButton"] = not rooms[roomID]["answerButton"]
     socketio.emit("answerInputToggle", data, room=roomID)
 
@@ -285,6 +384,37 @@ def submitAnswer(data):
     data['username'] = session.get("username")
     print(data)
     socketio.emit("submitAnswer", data, room=data['room'])
+
+
+@socketio.on("wartungUpdate")
+def wartungUpdate(data):
+    msg = data.get("message", "")
+    is_active = True if msg else False # Wenn Text da ist -> aktiv, sonst nicht
+    saveWartung(msg, is_active) # Speichern, damit es permanent bleibt!
+
+    socketio.emit("wartungUpdate", data)
+
+
+
+@app.context_processor
+def inject_wartung():
+    # Diese Variable "wartung_status" ist nun in JEDEM HTML-Template verfügbar
+    return dict(wartung_status=loadWartung())
+
+
+wartungsFile = 'wartungStatus.json'
+
+# Hilfsfunktion zum Speichern
+def saveWartung(msg, active=True):
+    with open(wartungsFile, 'w') as f:
+        json.dump({'message': msg, 'active': active}, f)
+
+# Hilfsfunktion zum Laden
+def loadWartung():
+    if os.path.exists(wartungsFile):
+        with open(wartungsFile, 'r') as f:
+            return json.load(f)
+    return {'message': '', 'active': False}
 
 
 if __name__ == '__main__':
