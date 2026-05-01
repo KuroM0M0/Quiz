@@ -68,7 +68,35 @@ function ShowWarningAlert(title, text) {
         title: title,
         text: text,
         icon: 'warning',
-        confirmButtonText: 'Löschen',
+        confirmButtonText: 'Ok',
+        showCancelButton: false,
+        theme: 'dark'
+    })
+}
+
+
+function ShowAnswerAlert(title) {
+    return Swal.fire({
+        title: title,
+        icon: 'question',
+        input: 'textarea',
+        inputPlaceholder: 'Deine Nachricht',
+        confirmButtonText: 'Absenden',
+        cancelButtonText: 'Abbrechen',
+        showCancelButton: true,
+        cancelButtonColor: '#d33',
+        theme: 'dark'
+    })
+}
+
+
+function ShowTimerAlert(title, text) {
+    return Swal.fire({
+        title: title,
+        text: text,
+        icon: 'question',
+        input: 'number',
+        confirmButtonText: 'Starten',
         cancelButtonText: 'Abbrechen',
         showCancelButton: true,
         cancelButtonColor: '#d33',
@@ -93,6 +121,5 @@ function ShowAnswerAlert(title) {
 
 
 socket.on("ShowErrorAlert", function(data) {
-    console.log("HALLOOO")
     ShowErrorAlert(data.title, data.text);
 });

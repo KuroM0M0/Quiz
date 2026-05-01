@@ -2,7 +2,7 @@ import eventlet
 eventlet.monkey_patch()
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response, send_from_directory
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_socketio import SocketIO, emit, join_room, leave_room, close_room
 from flask import request as flask_request
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from datetime import timedelta
@@ -94,6 +94,10 @@ def play():
 def faq():
     return render_template("faq.html")
 
+@app.route('/request')
+def requests():
+    return render_template("request.html")
+
 @app.route('/wartung', methods=['GET','POST'])
 @login_required
 def wartung():
@@ -112,7 +116,13 @@ def wartung():
 
     # Bei GET: Aktuellen Status laden, um ihn im Formular anzuzeigen
     current_status = loadWartung() 
-    return render_template("wartung.html", status=current_status)
+
+    cards = []
+    if os.path.exists(cardsFile):
+        with open(cardsFile, 'r') as f:
+            cards = json.load(f)
+    return render_template("wartung.html", status=current_status, cards=cards)
+
 
 @app.route('/wartung/login', methods=['GET', 'POST'])
 def login():
@@ -146,6 +156,42 @@ def join():
 
     session["roomID"] = roomID
     return jsonify({"success": True, "roomID": roomID, "players": room["players"], "player": username})
+
+
+@app.route('/saveCard', methods=['POST'])
+def save_card():
+    data = request.json
+    
+    # Vorhandene Karten laden
+    cards = []
+    if os.path.exists(cardsFile):
+        with open(cardsFile, 'r') as f:
+            cards = json.load(f)
+    cards.append(data)
+    
+    with open(cardsFile, 'w') as f:
+        json.dump(cards, f)
+        
+    return jsonify({"status": "success"})
+
+
+@app.route('/deleteCard', methods=['POST'])
+def delete_card():
+    data = request.json
+    target_name = data.get('name')
+    target_text = data.get('text')
+    
+    if os.path.exists(cardsFile):
+        with open(cardsFile, 'r') as f:
+            cards = json.load(f)
+        
+        # Neue Liste ohne die gelöschte Karte erstellen
+        new_cards = [c for c in cards if not (c['name'] == target_name and c['text'] == target_text)]
+        
+        with open(cardsFile, 'w') as f:
+            json.dump(new_cards, f)
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error"}), 404
 
 
 @app.route('/create', methods=["GET", "POST"])
@@ -284,7 +330,6 @@ def buzzer(data):
     #Füge Dinge in data hinzu
     data['buzzerOrder'] = buzzerOrder
     data['players'] = rooms[data['room']]["players"]
-    print(data['players'])
 
     socketio.emit('buzzer', data, room=data['room'])
 
@@ -316,7 +361,6 @@ def buzzerReset(data):
 
 @socketio.on("clearText")
 def clearText(data):
-    print("Textclear in python")
     socketio.emit("clearText", data, room=data['roomID'])
 
 
@@ -382,7 +426,6 @@ def answerInputToggle(data):
 @socketio.on("submitAnswer")
 def submitAnswer(data):
     data['username'] = session.get("username")
-    print(data)
     socketio.emit("submitAnswer", data, room=data['room'])
 
 
@@ -395,6 +438,30 @@ def wartungUpdate(data):
     socketio.emit("wartungUpdate", data)
 
 
+@socketio.on("timer")
+def handle_timer(data):
+    duration = int(data.get("timer"))
+    # Wir berechnen den Endzeitpunkt: Aktuelle Zeit + Dauer
+    end_time = (time.time() * 1000) + (duration * 1000) 
+    data["endTime"] = end_time
+    socketio.emit("timer", data, to=data.get("room"))
+
+
+@socketio.on("closeRoom")
+def closeRoom(data):
+    roomID = data['roomID']
+    if roomID in rooms:
+        # 2. Alle Spieler im Raum informieren, damit sie weitergeleitet werden
+        emit("roomClosed", to=roomID)
+        
+        # 3. Den Raum aus deinem Dictionary löschen
+        rooms.pop(roomID)
+        
+        # 4. Den Socket.io-Kanal komplett schließen
+        close_room(roomID)
+        print(f"Raum {roomID} wurde vom Host geschlossen.")
+
+
 
 @app.context_processor
 def inject_wartung():
@@ -403,6 +470,7 @@ def inject_wartung():
 
 
 wartungsFile = 'wartungStatus.json'
+cardsFile = 'cards.json'
 
 # Hilfsfunktion zum Speichern
 def saveWartung(msg, active=True):

@@ -41,8 +41,8 @@
 .red {
     background-color: rgb(141, 0, 0);
 }
-.roomCode {
-    padding-right: 400px;
+.redText {
+    color: rgb(141, 0, 0);
 }
 
 .buzzer {

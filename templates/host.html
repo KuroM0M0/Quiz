@@ -6,22 +6,39 @@
 
 {% block title %} KuroBuzz - Host {% endblock %}
 {% block content %}
+
 <div class="columns black">
     <div class="column is-one-fifth überschrift">
         <h1 class="title"><a href="/">KuroBuzz</a></h1>
     </div>
-    <div class="column">
+    <div class="column is-three-fifth">
         <div class="überschrift" id="roomCode"> 
             
         </div>
     </div>
+    <div class="column is-one-fifth">
+        <div class="überschrift" id="closeRoom">
+            <button class="title redText" onclick="closeRoom()">Raum schließen</button>
+        </div>
+    </div>
 </div>
 
-<button id="resetBuzzer" class="button" onclick="onBuzzerReset()">Reset Buzzer</button>
-<button class="button" onclick="clearText()">Clear Text</button>
-<button class="button" onclick="lockBuzzer(this)">Lock Buzzer</button>
-<button id="lockTextButton" class="button" onclick="lockText(this)">Lock Text</button>
-<button class="button" onclick="answerInput(this)">Antwort abgeben</button>
+<div class="columns">
+    <div class="column is four-fifths">
+        <button id="resetBuzzer" class="button" onclick="onBuzzerReset()">Reset Buzzer</button>
+        <button class="button" onclick="clearText()">Clear Text</button>
+        <button class="button" onclick="lockBuzzer(this)">Lock Buzzer</button>
+        <button id="lockTextButton" class="button" onclick="lockText(this)">Lock Text</button>
+        <button class="button" onclick="answerInput(this)">Antwort abgeben</button>
+        <button class="button" onclick="startTimer()">Starte Timer</button>
+    </div>
+    <div class="column">
+        <h1 id="timerDisplay" class="subtitle is-3"></h1>
+    </div>
+</div>
+
+
+
 <!--<button id="firstBuzz" class="button" onclick="buttonActiveToggle(this)">Only first Buzz</button> Button hat keine funktion -->
 
 <div class="columns">
@@ -61,7 +78,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         if (roomID && roomID !== "None") {
             const roomCodeDiv = document.getElementById('roomCode');
-            roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${roomID}</h1>`;
+            roomCodeDiv.innerHTML = `<h1 class="title">Room Code: ${roomID}</h1>`;
             socket.emit('join_room', {roomID: roomID, host: username});
             socket.emit("playLoaded", {roomID: roomID});
         } else {

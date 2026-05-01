@@ -87,7 +87,8 @@
                         </div>
                     </form>
                     {% endif %}<br><br>
-                    <a href="/faq"><div class="box faqBaseBox">FAQ</div></a>
+                    <button href="/faq" class="button"><a href="/faq">FAQ</a></button> <br><br>
+                    <button class="button" href="/request"><a href="/request">Bug Report / Feature Request</a></button>
                 </div>
             </div>
         </section>
@@ -101,5 +102,8 @@
     <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
     <script src="{{ url_for('static', filename='js/text.js') }}"></script>
     <script src="{{ url_for('static', filename='js/wartung.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/leave.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bugreport.js') }}"></script>
 </body>
 </html>

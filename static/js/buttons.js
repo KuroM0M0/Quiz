@@ -16,7 +16,6 @@ function onlyFirstBuzz() {
 
 function clearText() {
     const text = "";
-    console.log("clearText IST DAAAAAAAAAAAAAAAAA");
     socket.emit('clearText', {text: text, roomID: roomID});
 }
 
@@ -67,7 +66,6 @@ function rejoinButton(button) {
     fetch('/rejoin')
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         if (data.error) {
             ShowErrorAlert("Fehler", data.error);
             return;
