@@ -105,6 +105,21 @@ function ShowTimerAlert(title, text) {
 }
 
 
+function ShowAnswerAlert(title) {
+    return Swal.fire({
+        title: title,
+        icon: 'question',
+        input: 'text',
+        inputPlaceholder: 'Deine Nachricht',
+        confirmButtonText: 'Absenden',
+        cancelButtonText: 'Abbrechen',
+        showCancelButton: true,
+        cancelButtonColor: '#d33',
+        theme: 'dark'
+    })
+}
+
+
 socket.on("ShowErrorAlert", function(data) {
     ShowErrorAlert(data.title, data.text);
 });

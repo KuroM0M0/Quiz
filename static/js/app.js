@@ -24,7 +24,8 @@ function CheckNameExists(event, name) {
     .then(response => response.json())
     .then(data => {
         if(data === true) {
-            ShowErrorAlert("Fehler", `Username ${name} existiert bereits. Bitte wähle einen anderen.`);
+            document.getElementById("loginForm").submit(); //Das hier löschen
+            //ShowErrorAlert("Fehler", `Username ${name} existiert bereits. Bitte wähle einen anderen.`); //Das hier reinmachen
         } else {
             document.getElementById("loginForm").submit();
         }
