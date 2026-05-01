@@ -79,7 +79,7 @@ function ShowAnswerAlert(title) {
     return Swal.fire({
         title: title,
         icon: 'question',
-        input: 'text',
+        input: 'textarea',
         inputPlaceholder: 'Deine Nachricht',
         confirmButtonText: 'Absenden',
         cancelButtonText: 'Abbrechen',
