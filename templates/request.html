@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block head_meta %} 
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block title %} KuroBuzz - Host {% endblock %}
+{% block content %}
+
+<div class="columns black">
+    <div class="column is-one-fifth überschrift">
+        <h1 class="title"><a href="/">KuroBuzz</a></h1>
+    </div>
+    <div class="column is-three-fifth">
+    </div>
+    <div class="column is-one-fifth">
+    </div>
+</div>
+
+<br><br>
+
+<div class="columns">
+    <div class="column"></div>
+    <div class="column">
+        <h1 class="subtitle is-4">Dein Name:</h1>
+        <input id="nameReport" type="text" class="input" placeholder="Dein Name (Optional)">
+        <br><br><br>
+        <h1 class="subtitle is-4">Bug oder Vorschlag:</h1>
+        <textarea id="bugReport" type="text" class="input textarea" placeholder="Bug oder Vorschlag"></textarea>
+        <br>
+        <button class="button is-primary is-dark" onclick="submitReport()">Senden</button>
+    </div>
+    <div class="column"></div>
+</div>
+
+
+{% endblock %}

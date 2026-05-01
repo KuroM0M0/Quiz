@@ -94,6 +94,10 @@ def play():
 def faq():
     return render_template("faq.html")
 
+@app.route('/request')
+def requests():
+    return render_template("request.html")
+
 @app.route('/wartung', methods=['GET','POST'])
 @login_required
 def wartung():
@@ -112,7 +116,13 @@ def wartung():
 
     # Bei GET: Aktuellen Status laden, um ihn im Formular anzuzeigen
     current_status = loadWartung() 
-    return render_template("wartung.html", status=current_status)
+
+    cards = []
+    if os.path.exists(cardsFile):
+        with open(cardsFile, 'r') as f:
+            cards = json.load(f)
+    return render_template("wartung.html", status=current_status, cards=cards)
+
 
 @app.route('/wartung/login', methods=['GET', 'POST'])
 def login():
@@ -146,6 +156,42 @@ def join():
 
     session["roomID"] = roomID
     return jsonify({"success": True, "roomID": roomID, "players": room["players"], "player": username})
+
+
+@app.route('/saveCard', methods=['POST'])
+def save_card():
+    data = request.json
+    
+    # Vorhandene Karten laden
+    cards = []
+    if os.path.exists(cardsFile):
+        with open(cardsFile, 'r') as f:
+            cards = json.load(f)
+    cards.append(data)
+    
+    with open(cardsFile, 'w') as f:
+        json.dump(cards, f)
+        
+    return jsonify({"status": "success"})
+
+
+@app.route('/deleteCard', methods=['POST'])
+def delete_card():
+    data = request.json
+    target_name = data.get('name')
+    target_text = data.get('text')
+    
+    if os.path.exists(cardsFile):
+        with open(cardsFile, 'r') as f:
+            cards = json.load(f)
+        
+        # Neue Liste ohne die gelöschte Karte erstellen
+        new_cards = [c for c in cards if not (c['name'] == target_name and c['text'] == target_text)]
+        
+        with open(cardsFile, 'w') as f:
+            json.dump(new_cards, f)
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error"}), 404
 
 
 @app.route('/create', methods=["GET", "POST"])
@@ -424,6 +470,7 @@ def inject_wartung():
 
 
 wartungsFile = 'wartungStatus.json'
+cardsFile = 'cards.json'
 
 # Hilfsfunktion zum Speichern
 def saveWartung(msg, active=True):
