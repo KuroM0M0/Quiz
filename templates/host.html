@@ -23,13 +23,22 @@
     </div>
 </div>
 
-<button id="resetBuzzer" class="button" onclick="onBuzzerReset()">Reset Buzzer</button>
-<button class="button" onclick="clearText()">Clear Text</button>
-<button class="button" onclick="lockBuzzer(this)">Lock Buzzer</button>
-<button id="lockTextButton" class="button" onclick="lockText(this)">Lock Text</button>
-<button class="button" onclick="answerInput(this)">Antwort abgeben</button>
-<button class="button" onclick="startTimer()">Starte Timer</button>
-<div id="timerDisplay"></div>
+<div class="columns">
+    <div class="column is four-fifths">
+        <button id="resetBuzzer" class="button" onclick="onBuzzerReset()">Reset Buzzer</button>
+        <button class="button" onclick="clearText()">Clear Text</button>
+        <button class="button" onclick="lockBuzzer(this)">Lock Buzzer</button>
+        <button id="lockTextButton" class="button" onclick="lockText(this)">Lock Text</button>
+        <button class="button" onclick="answerInput(this)">Antwort abgeben</button>
+        <button class="button" onclick="startTimer()">Starte Timer</button>
+    </div>
+    <div class="column">
+        <h1 id="timerDisplay" class="subtitle is-3"></h1>
+    </div>
+</div>
+
+
+
 <!--<button id="firstBuzz" class="button" onclick="buttonActiveToggle(this)">Only first Buzz</button> Button hat keine funktion -->
 
 <div class="columns">
