@@ -441,9 +441,9 @@ def wartungUpdate(data):
 @socketio.on("timer")
 def handle_timer(data):
     duration = int(data.get("timer"))
-    # Wir berechnen den Endzeitpunkt: Aktuelle Zeit + Dauer
-    end_time = (time.time() * 1000) + (duration * 1000) 
-    data["endTime"] = end_time
+    # Wir schicken die Dauer UND den aktuellen Server-Zeitstempel
+    data["duration"] = duration
+    data["serverTime"] = time.time() * 1000 
     socketio.emit("timer", data, to=data.get("room"))
 
 

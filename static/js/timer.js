@@ -21,27 +21,47 @@ function startTimer() {
 socket.on("timer", function(data) {
     const display = document.getElementById('timerDisplay');
     const lockTextButton = document.getElementById("lockTextButton");
-    const endTime = data.endTime;
+    
+    const clientNow = Date.now();
+    const serverOffset = data.serverTime - clientNow;
+    const durationInMs = parseInt(data.duration) * 1000;
+    const endTime = clientNow + durationInMs + serverOffset;
 
     clearInterval(countdown);
+    
     countdown = setInterval(() => {
-        const now = Date.now();
-        const timeLeft = endTime - now; // Differenz in Millisekunden
+        const now = Date.now() + serverOffset; 
+        const timeLeft = endTime - now;
 
-        // Umrechnung in Sekunden für die Anzeige
-        let totalSeconds = Math.floor(timeLeft / 1000);
+        // 1. Prüfen, ob der Timer abgelaufen ist
+        if(timeLeft <= 0) {
+            clearInterval(countdown); // Intervall stoppen
+            display.innerText = "00:00"; // Kurz 0 anzeigen
+
+            // Die Sperr-Logik ausführen
+            if(lockTextButton) {
+                // Hier das Signal an den Server senden
+                socket.emit("lockText", {roomID: roomID, lockText: true});
+                
+                // Falls du eine lokale Funktion zum Button-Styling hast:
+                if (typeof buttonActiveToggle === "function") {
+                    buttonActiveToggle(lockTextButton);
+                }
+            }
+
+            // Nach einer halben Sekunde den Timer ganz ausblenden
+            setTimeout(() => {
+                display.innerText = "";
+            }, 500);
+
+            return; // WICHTIG: Hier abbrechen, damit der Code unten nicht mehr läuft
+        }
+
+        // 2. Wenn noch Zeit da ist: Anzeige berechnen
+        let totalSeconds = Math.max(0, Math.floor(timeLeft / 1000));
         let mins = Math.floor(totalSeconds / 60);
         let secs = totalSeconds % 60;
 
         display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-        if(timeLeft <= 0) {
-            clearInterval(countdown);
-            display.innerText = "";
-            if(lockTextButton) {
-                socket.emit("lockText", {roomID: roomID, lockText: true});
-                buttonActiveToggle(lockTextButton);
-            }
-        }
     }, 200);
 });
