@@ -19,11 +19,11 @@ socket.on("cards_update", function(data) {
                         <textarea class="textarea hostAnswerInput has-fixed-size" placeholder="Textfeld" id="${username}Input" oninput="onTextChange('${username}')"></textarea>
                     </div>
                 </div>
-            <footer class="card-footer">
+                <footer class="card-footer">
                     <p class="card-footer-item">
-                        
                         <button class="button is-success is-small abstand" onclick="addPoints(this)" id="${username}Add"><i class="fas fa-plus"></i></button>
-                        <button class="button is-danger is-small abstand" onclick="decreasePoints(this)" id="${username}Decrease"><i class="fas fa-minus"></i></button>    
+                        <button class="button is-info is-small abstand" onclick="editPoints(this)" id="${username}Edit"><i class="fas fa-edit"></i></button>
+                        <button class="button is-danger is-small abstand" onclick="decreasePoints(this)" id="${username}Decrease"><i class="fas fa-minus"></i></button>
                     </p>
                 </footer>
             </div>

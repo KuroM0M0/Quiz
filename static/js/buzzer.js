@@ -6,6 +6,12 @@ function onBuzzerClick() {
     socket.emit("buzzer", {"username": username, "room": roomID});
 }
 
+document.addEventListener('keydown', function(event) {
+    if(event.code === 'Space') {
+        socket.emit("buzzer", {"username": username, "room": roomID});
+    }
+});
+
 //Wird ausgeführt wenn Buzzer gedrückt wird
 socket.on("buzzer", function(data) {
     const buzzer = document.getElementById("buzzer");

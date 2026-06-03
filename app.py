@@ -390,6 +390,19 @@ def decreasePoints(data):
     socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
+@socketio.on("editPoints")
+def editPoints(data):
+    roomID = data['roomID']
+    username = data['username']
+    if roomID not in rooms or username not in rooms[roomID]["players"]:
+        return
+
+    rooms[roomID]["players"][username]["points"] = data['points']
+
+    #socketio.emit("editPoints", data, room=data['roomID'])
+    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+
+
 @socketio.on("lockBuzzer")
 def lockBuzzer(data):
     roomID = data['roomID']
@@ -441,9 +454,9 @@ def wartungUpdate(data):
 @socketio.on("timer")
 def handle_timer(data):
     duration = int(data.get("timer"))
-    # Wir berechnen den Endzeitpunkt: Aktuelle Zeit + Dauer
-    end_time = (time.time() * 1000) + (duration * 1000) 
-    data["endTime"] = end_time
+    # Wir schicken die Dauer UND den aktuellen Server-Zeitstempel
+    data["duration"] = duration
+    data["serverTime"] = time.time() * 1000 
     socketio.emit("timer", data, to=data.get("room"))
 
 
