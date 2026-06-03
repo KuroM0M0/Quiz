@@ -74,13 +74,13 @@
                     {% else %}
                     <p class="subtitle">Gib deinen Namen ein, um einen Raum beizutreten!</p>
                     <!--Drücke den Buzzer, wenn du bereit bist. Hier Effekt einfügen wenn der Button gedrückt wird und danach Textfeld für namen anzeigen-->
-                    <form method="POST" id="loginForm">
+                    <form method="POST" id="loginForm" onsubmit="CheckNameExists(event, document.getElementById('username').value.trim())">
                         <div class="field has-addons has-addons-centered">
                             <div class="control">
                                 <input id="username" class="input" type="text" name="name" placeholder="Dein Name">
                             </div>
                             <div class="control">
-                                <button class="button is-primary" type="submit" onclick="CheckNameExists(event, document.getElementById('username').value)">
+                                <button class="button is-primary" type="submit">
                                     Anmelden
                                 </button>
                             </div>

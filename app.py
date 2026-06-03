@@ -11,6 +11,7 @@ import time
 import json
 import secrets
 import os
+import uuid
 
 load_dotenv()
 app = Flask(__name__)
@@ -19,7 +20,7 @@ password = os.getenv("pw")
 app.permanent_session_lifetime = timedelta(hours=8)
 socketio = SocketIO(app, cors_allowed_origins="*")  # erlaubt auch lokale Tests
 rooms = {}
-players = [] #nötig für Prüfung ob Username bereits existiert
+players = {} #nötig für Prüfung ob Username bereits existiert
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -38,23 +39,32 @@ def load_user(user_id):
 
 @app.route('/', methods=["GET", "POST"])
 def index():
+    error = None
     #print(f"\x1b[34m{players}\x1b[0m")
     if request.method == "POST":
         name = request.form.get("name")
-        session.permanent = True
-        session["username"] = name
-        players.append(name)
-        #print(f"\x1b[34m{players}\x1b[0m")
-        return redirect(url_for("lobby"))
+        deletePlayer() # Alte Spieler löschen, damit die Liste nicht unendlich wächst
+        checkName = any(p["name"] == name for p in players.values())
+        if checkName:
+            error = "vergeben"
+        elif name == "":
+            error = "leer"
 
+        session.permanent = True
+        u_id = str(uuid.uuid4())
+        session["user_id"] = u_id
+        session["username"] = name
+        players[u_id] = {"name": name, "last_ping": time.time()}
+        print(f"\x1b[34m{players}\x1b[0m")
+        return redirect(url_for("lobby"))
     username = session.get("username")
-    return render_template("base.html", username=username)
+    return render_template("base.html", username=username, error=error)
 
 
 @app.route('/name_exists')
 def name_exists():
     name = request.args.get("name")
-    if name in players:
+    if any(player["name"] == name for player in players.values()):
         return jsonify(True)
     else:
         return jsonify(False)
@@ -244,6 +254,21 @@ def rejoin():
         return jsonify({"success": "True"})
     else:
         return jsonify({"success": "False"})
+    
+
+@app.route('/ping')
+def ping():
+    u_id = session.get("user_id")
+    
+    # Wenn die ID existiert UND noch in den aktiven Playern ist
+    if u_id and u_id in players:
+        players[u_id]["last_ping"] = time.time()
+        print(f"\x1b[31m Ping da {players} \x1b[0m")
+        return {"status": "ok"}
+        
+    # Wenn der User gelöscht wurde (weil er zu lange weg war)
+    print(f"\x1b[31m user gelöscht {players} \x1b[0m")
+    return {"status": "session_expired"}, 401
     
 
 
@@ -483,6 +508,20 @@ def loadWartung():
         with open(wartungsFile, 'r') as f:
             return json.load(f)
     return {'message': '', 'active': False}
+
+
+def deletePlayer():
+    now = time.time()
+    maxInaktiv = 60  # 6 Stunden
+    abgelaufen = [
+        p_id for p_id, data in players.items() 
+        if now - data["last_ping"] > maxInaktiv
+    ]
+    for p_id in abgelaufen:
+        name = players[p_id]["name"]
+        
+        del players[p_id]
+        print(f"\x1b[31m Spieler {name} wurde gelöscht (inaktiv) \x1b[0m")
 
 
 if __name__ == '__main__':
