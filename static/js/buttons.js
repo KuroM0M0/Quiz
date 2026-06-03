@@ -31,6 +31,16 @@ function decreasePoints(button) {
     socket.emit('decreasePoints', {username: player, roomID: roomID});
 }
 
+function editPoints(button) {
+    let player = button.id.split("Edit")[0].trim();
+    ShowAnswerAlert("Gib die neue Punktzahl für " + player + " ein:", "number", "Punktzahl").then((result) => {
+        if(result.isConfirmed) {
+            const newPoints = parseInt(result.value);
+            socket.emit('editPoints', {username: player, points: newPoints, roomID: roomID});
+        }
+    });
+}
+
 
 function lockBuzzer(button) {
     if(button.classList.contains("is-active")) {

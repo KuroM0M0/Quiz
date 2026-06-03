@@ -46,6 +46,19 @@ function playBuzzerSound() {
 }
 
 
+function toggleCode() {
+    const roomCodeElement = document.querySelector('.roomCode');
+    if (roomCodeElement) {
+        if(roomCodeElement.style.filter === 'blur(8px)') {
+            roomCodeElement.style.filter = 'none';
+        } else {
+            
+            roomCodeElement.style.filter = 'blur(8px)';
+        }
+    }
+}
+
+
 //Vue funktioniert normal mit {{ }}, da das aber von Flask verwendet wird,
 //muss es mit v-text="" gemacht werden. Beispiel: <td v-text="player.points"></td>
 const { createApp } = Vue;

@@ -13,7 +13,7 @@ function createRoom() {
         console.log("Raum erstellt:", data);
 
         const roomCodeDiv = document.getElementById('roomCode');
-        roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${data.roomID}</h1>`;
+        roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${data.roomID} <button class="subtitle" onclick="toggleCode()"><i class="fas fa-eye"></i></button></h1>`;
 
         socket.emit('join_room', {roomID: data.roomID, host: data.host}); //Host tritt direkt neu erstellten Raum bei
     })
