@@ -319,6 +319,9 @@ def buzzer(data):
     #print("\x1b[32m", data['room'], "\x1b[0m")
     if data['room'] not in rooms:
         return
+    
+    if rooms[data['room']]["buzzer_active"] == False:
+        return
 
     rooms[data['room']]["buzzer_active"] = False
     rooms[data['room']]["buzzed_by"] = data['username']

@@ -8,6 +8,15 @@ function onBuzzerClick() {
 
 document.addEventListener('keydown', function(event) {
     if(event.code === 'Space') {
+        const activeElem = document.activeElement;
+        const isInputField = activeElem.tagName === 'INPUT' || 
+                             activeElem.tagName === 'TEXTAREA' || 
+                             activeElem.isContentEditable;
+
+        if (isInputField) {
+            // Wenn der Nutzer tippt, tun wir nichts und lassen das Leerzeichen normal schreiben
+            return; 
+        }
         socket.emit("buzzer", {"username": username, "room": roomID});
     }
 });
