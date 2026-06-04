@@ -4,6 +4,13 @@
 .zentriert {
     text-align: center;
     justify-content: center;
+    align-items: center;
+}
+.zentriertFlex {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
 }
 .unsichtbar {
     visibility: hidden;
@@ -18,6 +25,9 @@
 }
 .abstandOben {
     margin-top: 30px;
+}
+.kleinAbstandOben {
+    margin-top: 5px;
 }
 .buttonJoin {
     height: 100px;

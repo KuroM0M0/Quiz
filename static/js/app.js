@@ -37,15 +37,6 @@ function CheckNameExists(event, name) {
 }
 
 
-function playBuzzerSound() {
-    var sound = document.getElementById("buzzerKurz");
-    //var sound = new Audio("/sounds/BuzzerKurz.mp3");
-    sound.play().catch(function(error) {
-        console.error("Error playing sound:", error);
-    });
-}
-
-
 function toggleCode() {
     const roomCodeElement = document.querySelector('.roomCode');
     if (roomCodeElement) {

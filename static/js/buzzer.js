@@ -21,6 +21,17 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+function playBuzzerSound() {
+    var cookie = getCookie("buzzerSound") || "BuzzerKurz"; // Standard-Sound, falls kein Cookie gesetzt ist
+    var sound = document.getElementById(cookie);
+    console.log(cookie);
+    sound.play().catch(function(error) {
+        console.error("Error playing sound:", error);
+    });
+}
+
+
+
 //Wird ausgeführt wenn Buzzer gedrückt wird
 socket.on("buzzer", function(data) {
     const buzzer = document.getElementById("buzzer");

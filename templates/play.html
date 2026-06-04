@@ -16,8 +16,24 @@
             
         </div>
     </div>
-    <div class="column is-one-fifth">
-
+    <div class="column is-one-fifth zentriertFlex">
+        <div class="dropdown is-right" id="settings">
+            <div class="dropdown-trigger">
+                <button class="fas fa-cog fa-3x" onclick="toggleSettingsMenu()"></button>
+            </div>
+            <div class="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                    <p class="dropdown-item">Buzzer Sounds:</p>
+                    <hr class="dropdown-divider" />
+                    <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('BuzzerLang')">BuzzerLang</button>
+                    <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('BuzzerKurz')">BuzzerShort</button>
+                    <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('Meow')">Meow</button>
+                    <hr class="dropdown-divider" />
+                    <!-- <p class="dropdown-item">Other Settings:</p> -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
