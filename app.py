@@ -376,10 +376,11 @@ def clearText(data):
 def addPoints(data):
     roomID = data['roomID']
     username = data['username']
+    points = data.get('points', 1)  # Standardmäßig 1 Punkt hinzufügen, wenn kein Wert übergeben wird
     if roomID not in rooms or username not in rooms[roomID]["players"]:
         return
 
-    rooms[roomID]["players"][username]["points"] += 1
+    rooms[roomID]["players"][username]["points"] += points
 
     #socketio.emit("addPoints", data, room=data['roomID'])
     socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
@@ -389,10 +390,11 @@ def addPoints(data):
 def decreasePoints(data):
     roomID = data['roomID']
     username = data['username']
+    points = data.get('points', 1)  # Standardmäßig 1 Punkt abziehen, wenn kein Wert übergeben wird
     if roomID not in rooms or username not in rooms[roomID]["players"]:
         return
 
-    rooms[roomID]["players"][username]["points"] -= 1
+    rooms[roomID]["players"][username]["points"] -= points
 
     #socketio.emit("decreasePoints", data, room=data['roomID'])
     socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)

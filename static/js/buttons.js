@@ -35,8 +35,17 @@ function editPoints(button) {
     let player = button.id.split("Edit")[0].trim();
     ShowAnswerAlert("Gib die neue Punktzahl für " + player + " ein:", "number", "Punktzahl").then((result) => {
         if(result.isConfirmed) {
-            const newPoints = parseInt(result.value);
+            const inputValue = Swal.getInput().value;
+            const newPoints = parseInt(inputValue);
+            socket.emit('addPoints', {username: player, points: newPoints, roomID: roomID});
+        } else if(result.isDenied) {
+            const inputValue = Swal.getInput().value;
+            const newPoints = parseInt(inputValue);
             socket.emit('editPoints', {username: player, points: newPoints, roomID: roomID});
+        } else if(result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+            const inputValue = Swal.getInput().value;
+            const newPoints = parseInt(inputValue);
+            socket.emit('decreasePoints', {username: player, points: newPoints, roomID: roomID});
         }
     });
 }

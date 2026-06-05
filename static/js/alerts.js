@@ -125,10 +125,14 @@ function ShowAnswerAlert(title, input, placeholder) {
         icon: 'question',
         input: input,
         inputPlaceholder: placeholder,
-        confirmButtonText: 'Absenden',
-        cancelButtonText: 'Abbrechen',
+        confirmButtonText: '+',
+        confirmButtonColor: '#28a745',
         showCancelButton: true,
+        cancelButtonText: '-',
         cancelButtonColor: '#d33',
+        showDenyButton: true,
+        denyButtonText: 'Setzen',
+        denyButtonColor: '#3578dc',
         theme: 'dark'
     })
 }
