@@ -26,11 +26,11 @@
 <div class="columns">
     <div class="column is four-fifths">
         <button id="resetBuzzer" class="button" onclick="onBuzzerReset()">Reset Buzzer</button>
-        <button class="button" onclick="clearText()">Clear Text</button>
-        <button class="button" onclick="lockBuzzer(this)">Lock Buzzer</button>
-        <button id="lockTextButton" class="button" onclick="lockText(this)">Lock Text</button>
-        <button class="button" onclick="answerInput(this)">Antwort abgeben</button>
-        <button class="button" onclick="startTimer()">Starte Timer</button>
+        <button class="button" onclick="clearText()"><span title="Entfernt den Text aller Spieler">Clear Text</span></button>
+        <button class="button" onclick="lockBuzzer(this)"><span title="Sperrt den Buzzer für alle Spieler">Lock Buzzer</span></button>
+        <button id="lockTextButton" class="button" onclick="lockText(this)"><span title="Sperrt das Textfeld aller Spieler">Lock Text</span></button>
+        <button class="button" onclick="answerInput(this)"><span title="Spieler erhalten Button, womit sie ihr eigenes Textfeld sperren können. Du siehst das dann als Braun hinterlegt.">Antwort abgeben</span></button>
+        <button class="button" onclick="startTimer()"><span title="Wenn Timer abgelaufen: Textfeld sperrt sich">Starte Timer</span></button>
     </div>
     <div class="column">
         <h1 id="timerDisplay" class="subtitle is-3"></h1>
