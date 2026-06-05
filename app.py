@@ -246,6 +246,11 @@ def rejoin():
         return jsonify({"success": "False"})
     
 
+@app.route('/updates')
+def updates():
+    return render_template("updates.html")
+    
+
 
 
 
