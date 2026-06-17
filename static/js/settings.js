@@ -7,6 +7,11 @@ function changeBuzzerSound(soundName) {
     playBuzzerSound(); // Sofort den neuen Sound abspielen, um die Änderung zu bestätigen
 }
 
+function changeBuzzerVolume(value) {
+    const volume = value / 100;
+    document.cookie = `buzzerVolume=${volume}; path=/; max-age=31536000`;
+}
+
 function getCookie(name) {
     // Füge ein Semikolon am Anfang hinzu, um die Suche zu erleichtern
     const value = `; ${document.cookie}`;

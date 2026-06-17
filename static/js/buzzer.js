@@ -24,7 +24,8 @@ document.addEventListener('keydown', function(event) {
 function playBuzzerSound() {
     var cookie = getCookie("buzzerSound") || "BuzzerKurz"; // Standard-Sound, falls kein Cookie gesetzt ist
     var sound = document.getElementById(cookie);
-    console.log(cookie);
+    var volume = parseFloat(getCookie("buzzerVolume"));
+    sound.volume = isNaN(volume) ? 1 : volume; // Standard: volle Lautstärke
     sound.play().catch(function(error) {
         console.error("Error playing sound:", error);
     });

@@ -28,7 +28,13 @@
                     <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('BuzzerLang')">BuzzerLang</button>
                     <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('BuzzerKurz')">BuzzerShort</button>
                     <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('Meow')">Meow</button>
+                    <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('Quak')">Quak</button>
                     <hr class="dropdown-divider" />
+                    <p class="dropdown-item">Lautstärke:</p>
+                        <div class="dropdown-item">
+                            <input type="range" id="volumeSlider" min="0" max="100" value="100"
+                                oninput="changeBuzzerVolume(this.value)" style="width: 100%;">
+                        </div>
                     <!-- <p class="dropdown-item">Other Settings:</p> -->
                     </div>
                 </div>
