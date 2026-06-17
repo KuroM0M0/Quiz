@@ -77,7 +77,7 @@
     display: flex;
     justify-content: center;  /* horizontal zentrieren */
     align-items: center;      /* vertikal zentrieren */
-    height: 500px;            /* volle Höhe des Bildschirms */
+    padding: 20px 0;            
 }
 
 .cardDash {
@@ -137,7 +137,33 @@
 .faqAbrunden details:not([open]) .message-header {
     border-radius: 15px;
 }
+.questionCard {
+    background: #1a1830;
+    border: 2px solid #6c63ff;
+    border-radius: 12px;
+    padding: 20px 36px;
+    margin: 0 auto 24px;
+    max-width: 900px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f0eefc;
+    box-shadow: 0 0 24px rgba(108, 99, 255, 0.35);
+    min-height: 100px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
+@keyframes slideBounce {
+    0% { transform: translateY(-140px) scale(0.85); opacity: 0; }
+    60% { transform: translateY(6px) scale(1.04); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.qcard-slide {
+    animation: slideBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
 
 
 
@@ -166,4 +192,5 @@
 .delay1 { animation-delay: 0.2s; }
 .delay2 { animation-delay: 0.4s; }
 .delay3 { animation-delay: 0.6s; }
+.delay4 { animation-delay: 0.8s; }
 .delayRejoin { animation-delay: 3s; }

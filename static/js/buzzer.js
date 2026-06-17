@@ -140,6 +140,20 @@ socket.on("playLoaded", function(data) {
         const answerButton = document.getElementById("submitAnswer");
         answerButton.classList.remove("unsichtbar");
     }
+
+    if(data.question) {
+        const questionCard = document.getElementById("qCard");
+        const questionText = document.getElementById("qText");
+        questionText.textContent = data.question;
+        questionCard.classList.add('delay4');
+        questionCard.classList.remove('qcard-slide');
+        questionCard.style.opacity = '0';
+        void questionCard.offsetWidth; // Reflow erzwingen, damit die Animation auch bei gleicher Frage erneut läuft
+        questionCard.classList.add('qcard-slide');
+        setTimeout(() => {
+            questionCard.classList.remove('delay4');
+        }, 1500);
+    }
 })
 
 

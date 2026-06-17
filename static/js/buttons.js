@@ -33,7 +33,7 @@ function decreasePoints(button) {
 
 function editPoints(button) {
     let player = button.id.split("Edit")[0].trim();
-    ShowAnswerAlert("Gib die neue Punktzahl für " + player + " ein:", "number", "Punktzahl").then((result) => {
+    ShowPointsAlert("Gib die neue Punktzahl für " + player + " ein:").then((result) => {
         if(result.isConfirmed) {
             const inputValue = Swal.getInput().value;
             const newPoints = parseInt(inputValue);

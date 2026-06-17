@@ -50,9 +50,9 @@ socket.on("timer", function(data) {
             }
 
             // Nach einer halben Sekunde den Timer ganz ausblenden
-            setTimeout(() => {
-                display.innerText = "";
-            }, 500);
+            //setTimeout(() => {
+            //    display.innerText = "";
+            //}, 500);
 
             return; // WICHTIG: Hier abbrechen, damit der Code unten nicht mehr läuft
         }
