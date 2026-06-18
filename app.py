@@ -423,7 +423,9 @@ def lockBuzzer(data):
 
 @socketio.on("clearText")
 def clearText(data):
-    socketio.emit("clearText", data, room=data['roomID'])
+    roomID = data['roomID']
+    rooms[roomID]["currentQuestion"] = ""
+    socketio.emit("clearText", data, room=roomID)
 
 
 @socketio.on("text_update")
@@ -463,8 +465,6 @@ def submitAnswer(data):
 
 @socketio.on("sendQuestion")
 def sendQuestion(data):
-    print("\x1b[33m", data, "\x1b[0m")
-    print("\x1b[35m", data['room'], "\x1b[0m")
     roomID = data['room']
     rooms[roomID]["currentQuestion"] = data['question']
     socketio.emit("sendQuestion", data, room=data['room'])

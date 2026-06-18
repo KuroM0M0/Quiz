@@ -11,6 +11,7 @@ function sendQuestion() {
 socket.on('sendQuestion', function(data) {
     const card = document.getElementById('qCard');
     if(card != null) {
+        card.classList.remove('unsichtbar');
         const text = document.getElementById('qText');
         text.textContent = data.question;
         card.classList.remove('qcard-slide');
