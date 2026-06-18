@@ -8,9 +8,30 @@ function onBuzzerClick() {
 
 document.addEventListener('keydown', function(event) {
     if(event.code === 'Space') {
+        const activeElem = document.activeElement;
+        const isInputField = activeElem.tagName === 'INPUT' || 
+                             activeElem.tagName === 'TEXTAREA' || 
+                             activeElem.isContentEditable;
+
+        if (isInputField) {
+            // Wenn der Nutzer tippt, tun wir nichts und lassen das Leerzeichen normal schreiben
+            return; 
+        }
         socket.emit("buzzer", {"username": username, "room": roomID});
     }
 });
+
+function playBuzzerSound() {
+    var cookie = getCookie("buzzerSound") || "BuzzerKurz"; // Standard-Sound, falls kein Cookie gesetzt ist
+    var sound = document.getElementById(cookie);
+    var volume = parseFloat(getCookie("buzzerVolume"));
+    sound.volume = isNaN(volume) ? 1 : volume; // Standard: volle Lautstärke
+    sound.play().catch(function(error) {
+        console.error("Error playing sound:", error);
+    });
+}
+
+
 
 //Wird ausgeführt wenn Buzzer gedrückt wird
 socket.on("buzzer", function(data) {
@@ -119,6 +140,20 @@ socket.on("playLoaded", function(data) {
     if(data.answerButton == true) {
         const answerButton = document.getElementById("submitAnswer");
         answerButton.classList.remove("unsichtbar");
+    }
+
+    if(data.question) {
+        const questionCard = document.getElementById("qCard");
+        const questionText = document.getElementById("qText");
+        questionText.textContent = data.question;
+        questionCard.classList.add('delay4');
+        questionCard.classList.remove('qcard-slide');
+        questionCard.style.opacity = '0';
+        void questionCard.offsetWidth; // Reflow erzwingen, damit die Animation auch bei gleicher Frage erneut läuft
+        questionCard.classList.add('qcard-slide');
+        setTimeout(() => {
+            questionCard.classList.remove('delay4');
+        }, 1500);
     }
 })
 

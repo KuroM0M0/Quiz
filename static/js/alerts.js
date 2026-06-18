@@ -75,21 +75,6 @@ function ShowWarningAlert(title, text) {
 }
 
 
-function ShowAnswerAlert(title) {
-    return Swal.fire({
-        title: title,
-        icon: 'question',
-        input: 'textarea',
-        inputPlaceholder: 'Deine Nachricht',
-        confirmButtonText: 'Absenden',
-        cancelButtonText: 'Abbrechen',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        theme: 'dark'
-    })
-}
-
-
 function ShowTimerAlert(title, text) {
     return Swal.fire({
         title: title,
@@ -109,7 +94,7 @@ function ShowAnswerAlert(title) {
     return Swal.fire({
         title: title,
         icon: 'question',
-        input: 'text',
+        input: 'textarea',
         inputPlaceholder: 'Deine Nachricht',
         confirmButtonText: 'Absenden',
         cancelButtonText: 'Abbrechen',
@@ -129,6 +114,54 @@ function ShowAnswerAlert(title, input, placeholder) {
         cancelButtonText: 'Abbrechen',
         showCancelButton: true,
         cancelButtonColor: '#d33',
+        theme: 'dark'
+    })
+}
+
+
+function ShowAnswerAlert3(title, input, placeholder) {
+    return Swal.fire({
+        title: title,
+        icon: 'question',
+        input: input,
+        inputPlaceholder: placeholder,
+        confirmButtonText: 'Absenden',
+        cancelButtonText: 'Abbrechen',
+        showCancelButton: true,
+        cancelButtonColor: '#d33',
+        theme: 'dark'
+    })
+}
+
+function ShowAnswerAlert5(title, input, placeholder, confirmText, cancelText) {
+    return Swal.fire({
+        title: title,
+        icon: 'question',
+        input: input,
+        inputPlaceholder: placeholder,
+        confirmButtonText: confirmText,
+        confirmButtonColor: '#28a745',
+        showCancelButton: true,
+        cancelButtonText: cancelText,
+        cancelButtonColor: '#d33',
+        theme: 'dark'
+    })
+}
+
+function ShowPointsAlert(title) {
+    return Swal.fire({
+        title: title,
+        icon: 'question',
+        input: 'number',
+        inputPlaceholder: 'Punktzahl',
+        confirmButtonText: '+',
+        confirmButtonColor: '#28a745',
+        showCancelButton: true,
+        cancelButtonText: '-',
+        cancelButtonColor: '#d33',
+        showDenyButton: true,
+        denyButtonText: 'Setzen',
+        denyButtonColor: '#3578dc',
         theme: 'dark'
     })
 }

@@ -36,6 +36,14 @@ admin_user = User(id="1")
 def load_user(user_id):
     return admin_user if user_id == "1" else None
 
+
+
+##########################################
+#### Hier sind die aufrufbaren Routen ####
+##########################################
+
+
+
 @app.route('/', methods=["GET", "POST"])
 def index():
     #print(f"\x1b[34m{players}\x1b[0m")
@@ -49,15 +57,6 @@ def index():
 
     username = session.get("username")
     return render_template("base.html", username=username)
-
-
-@app.route('/name_exists')
-def name_exists():
-    name = request.args.get("name")
-    if name in players:
-        return jsonify(True)
-    else:
-        return jsonify(False)
 
 
 @app.route('/lobby', methods=["GET"])
@@ -158,6 +157,18 @@ def join():
     return jsonify({"success": True, "roomID": roomID, "players": room["players"], "player": username})
 
 
+@app.route('/updates')
+def updates():
+    return render_template("updates.html")
+
+
+
+################################################
+#### Hier sind die nicht aufrufbaren Routen ####
+################################################
+
+
+
 @app.route('/saveCard', methods=['POST'])
 def save_card():
     data = request.json
@@ -210,7 +221,8 @@ def create():
         "only_first": False,
         "buzzed_by": None,
         "buzzerOrder": 0,
-        "answerButton": False
+        "answerButton": False,
+        "currentQuestion": ""
     }
 
     # Add host as first player, unnötig, weil durch Vue er sonst auch in der Spielerliste erscheint
@@ -245,10 +257,20 @@ def rejoin():
     else:
         return jsonify({"success": "False"})
     
+    
+@app.route('/name_exists')
+def name_exists():
+    name = request.args.get("name")
+    if name in players:
+        return jsonify(True)
+    else:
+        return jsonify(False)
 
 
 
-
+###################################
+#### Socket.IO Room Join/Leave ####
+###################################
 
 
 
@@ -295,6 +317,45 @@ def on_leave_room(data):
     leave_room(roomID)
     #socketio.emit("room_update", rooms[roomID], room=roomID)
 
+
+@socketio.on("playLoaded")
+def playLoaded(data):
+    roomID = data.get('roomID')
+    if not roomID or roomID not in rooms:
+        return
+
+    buzzerStatus = rooms[roomID]["buzzer_active"]
+    buzzed_by = rooms[roomID]["buzzed_by"]
+    textLocked = rooms[roomID]["text_locked"]
+    answerButton = rooms[roomID]["answerButton"]
+    question = rooms[roomID]["currentQuestion"]
+
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton, "question": question}, to=flask_request.sid)
+
+
+@socketio.on("closeRoom")
+def closeRoom(data):
+    roomID = data['roomID']
+    if roomID in rooms:
+        # 2. Alle Spieler im Raum informieren, damit sie weitergeleitet werden
+        emit("roomClosed", to=roomID)
+        
+        # 3. Den Raum aus deinem Dictionary löschen
+        rooms.pop(roomID)
+        
+        # 4. Den Socket.io-Kanal komplett schließen
+        close_room(roomID)
+        print(f"Raum {roomID} wurde vom Host geschlossen.")
+
+
+
+##########################
+#### Socket.Io Buzzer ####
+##########################
+
+
+
+# Wird aktuell nicht verwendet i guess
 @socketio.on("firstBuzz")
 def firstBuzz(data):
     roomID = data.get("roomID")
@@ -304,20 +365,15 @@ def firstBuzz(data):
     rooms[roomID]["only_first"] = only_first
     #socketio.emit("room_update", rooms[roomID], room=roomID)
 
-@socketio.on("text_update")
-def text_update(data):
-    print("\x1b[33m", data, "\x1b[0m")
-    roomID = data.get('room')
-    if roomID in rooms and 'username' in data:
-        rooms[roomID]["players"][data['username']]["textFeld"] = data.get('text', '')
-    socketio.emit('text_update', data, room=data['room'])
-
 
 @socketio.on("buzzer")
 def buzzer(data):
     #print("\x1b[33m", data, "\x1b[0m")
     #print("\x1b[32m", data['room'], "\x1b[0m")
     if data['room'] not in rooms:
+        return
+    
+    if rooms[data['room']]["buzzer_active"] == False:
         return
 
     rooms[data['room']]["buzzer_active"] = False
@@ -334,20 +390,6 @@ def buzzer(data):
     socketio.emit('buzzer', data, room=data['room'])
 
 
-@socketio.on("playLoaded")
-def playLoaded(data):
-    roomID = data.get('roomID')
-    if not roomID or roomID not in rooms:
-        return
-
-    buzzerStatus = rooms[roomID]["buzzer_active"]
-    buzzed_by = rooms[roomID]["buzzed_by"]
-    textLocked = rooms[roomID]["text_locked"]
-    answerButton = rooms[roomID]["answerButton"]
-
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton}, to=flask_request.sid)
-
-
 @socketio.on("buzzerReset")
 def buzzerReset(data):
     if data['roomID'] not in rooms:
@@ -357,50 +399,6 @@ def buzzerReset(data):
     print("\x1b[33m", "Resettet", "\x1b[0m")
     data['players'] = rooms[data['roomID']]["players"]
     socketio.emit("buzzerReset", data, room=data['roomID'])
-
-
-@socketio.on("clearText")
-def clearText(data):
-    socketio.emit("clearText", data, room=data['roomID'])
-
-
-@socketio.on("addPoints")
-def addPoints(data):
-    roomID = data['roomID']
-    username = data['username']
-    if roomID not in rooms or username not in rooms[roomID]["players"]:
-        return
-
-    rooms[roomID]["players"][username]["points"] += 1
-
-    #socketio.emit("addPoints", data, room=data['roomID'])
-    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
-
-
-@socketio.on("decreasePoints")
-def decreasePoints(data):
-    roomID = data['roomID']
-    username = data['username']
-    if roomID not in rooms or username not in rooms[roomID]["players"]:
-        return
-
-    rooms[roomID]["players"][username]["points"] -= 1
-
-    #socketio.emit("decreasePoints", data, room=data['roomID'])
-    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
-
-
-@socketio.on("editPoints")
-def editPoints(data):
-    roomID = data['roomID']
-    username = data['username']
-    if roomID not in rooms or username not in rooms[roomID]["players"]:
-        return
-
-    rooms[roomID]["players"][username]["points"] = data['points']
-
-    #socketio.emit("editPoints", data, room=data['roomID'])
-    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
 
 
 @socketio.on("lockBuzzer")
@@ -414,6 +412,29 @@ def lockBuzzer(data):
     # Only emit buzzerReset to update UI elements like reset button state,
     # but do NOT call the server buzzerReset event because that sets buzzer_active = True
     socketio.emit("buzzerReset", data, room=data['roomID'])
+
+
+
+########################
+#### Socket.IO Text ####
+########################
+
+
+
+@socketio.on("clearText")
+def clearText(data):
+    roomID = data['roomID']
+    rooms[roomID]["currentQuestion"] = ""
+    socketio.emit("clearText", data, room=roomID)
+
+
+@socketio.on("text_update")
+def text_update(data):
+    print("\x1b[33m", data, "\x1b[0m")
+    roomID = data.get('room')
+    if roomID in rooms and 'username' in data:
+        rooms[roomID]["players"][data['username']]["textFeld"] = data.get('text', '')
+    socketio.emit('text_update', data, room=data['room'])
 
 
 @socketio.on("lockText")
@@ -442,6 +463,67 @@ def submitAnswer(data):
     socketio.emit("submitAnswer", data, room=data['room'])
 
 
+@socketio.on("sendQuestion")
+def sendQuestion(data):
+    roomID = data['room']
+    rooms[roomID]["currentQuestion"] = data['question']
+    socketio.emit("sendQuestion", data, room=data['room'])
+
+
+##########################
+#### Socket.Io Punkte ####
+##########################
+
+
+
+@socketio.on("addPoints")
+def addPoints(data):
+    roomID = data['roomID']
+    username = data['username']
+    points = data.get('points', 1)  # Standardmäßig 1 Punkt hinzufügen, wenn kein Wert übergeben wird
+    if roomID not in rooms or username not in rooms[roomID]["players"]:
+        return
+
+    rooms[roomID]["players"][username]["points"] += points
+
+    #socketio.emit("addPoints", data, room=data['roomID'])
+    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+
+
+@socketio.on("decreasePoints")
+def decreasePoints(data):
+    roomID = data['roomID']
+    username = data['username']
+    points = data.get('points', 1)  # Standardmäßig 1 Punkt abziehen, wenn kein Wert übergeben wird
+    if roomID not in rooms or username not in rooms[roomID]["players"]:
+        return
+
+    rooms[roomID]["players"][username]["points"] -= points
+
+    #socketio.emit("decreasePoints", data, room=data['roomID'])
+    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+
+
+@socketio.on("editPoints")
+def editPoints(data):
+    roomID = data['roomID']
+    username = data['username']
+    if roomID not in rooms or username not in rooms[roomID]["players"]:
+        return
+
+    rooms[roomID]["players"][username]["points"] = data['points']
+
+    #socketio.emit("editPoints", data, room=data['roomID'])
+    socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+
+
+
+#############################
+#### Socket.Io Sonstiges ####
+#############################
+
+
+
 @socketio.on("wartungUpdate")
 def wartungUpdate(data):
     msg = data.get("message", "")
@@ -460,19 +542,7 @@ def handle_timer(data):
     socketio.emit("timer", data, to=data.get("room"))
 
 
-@socketio.on("closeRoom")
-def closeRoom(data):
-    roomID = data['roomID']
-    if roomID in rooms:
-        # 2. Alle Spieler im Raum informieren, damit sie weitergeleitet werden
-        emit("roomClosed", to=roomID)
-        
-        # 3. Den Raum aus deinem Dictionary löschen
-        rooms.pop(roomID)
-        
-        # 4. Den Socket.io-Kanal komplett schließen
-        close_room(roomID)
-        print(f"Raum {roomID} wurde vom Host geschlossen.")
+
 
 
 

@@ -37,6 +37,7 @@ socket.on("answerInputToggle", function(data) {
 socket.on("clearText", function(data) {
     inputField = document.getElementsByName("InputField")[0];
     const textareas = document.getElementsByClassName("textarea");
+    const card = document.getElementById('qCard');
 
     for (let i = 0; i < textareas.length; i++) {
         textareas[i].value = "";
@@ -44,5 +45,8 @@ socket.on("clearText", function(data) {
     
     if(inputField) {
         inputField.value = "";
+        const text = document.getElementById('qText');
+        text.textContent = "";
+        card.classList.add('unsichtbar');
     }
 })

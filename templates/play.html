@@ -16,8 +16,30 @@
             
         </div>
     </div>
-    <div class="column is-one-fifth">
-
+    <div class="column is-one-fifth zentriertFlex">
+        <div class="dropdown is-right" id="settings">
+            <div class="dropdown-trigger">
+                <button class="fas fa-cog fa-3x" onclick="toggleSettingsMenu()"></button>
+            </div>
+            <div class="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                    <p class="dropdown-item">Buzzer Sounds:</p>
+                    <hr class="dropdown-divider" />
+                    <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('BuzzerLang')">BuzzerLang</button>
+                    <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('BuzzerKurz')">BuzzerShort</button>
+                    <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('Meow')">Meow</button>
+                    <button class="button dropdown-item kleinAbstandOben" onclick="changeBuzzerSound('Quak')">Quak</button>
+                    <hr class="dropdown-divider" />
+                    <p class="dropdown-item">Lautstärke:</p>
+                        <div class="dropdown-item">
+                            <input type="range" id="volumeSlider" min="0" max="100" value="100"
+                                oninput="changeBuzzerVolume(this.value)" style="width: 100%;">
+                        </div>
+                    <!-- <p class="dropdown-item">Other Settings:</p> -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -58,10 +80,15 @@
 
 <div class="zentriert animiert delay2">
     <h1 id="timerDisplay" class="subtitle is-2">
-        
+        00:00
     </h1>
 </div>
-<br><br>
+<br>
+<div class="zentriert">
+    <div id="qCard" class="questionCard" style="opacity:0;">
+        <span id="qText"></span>
+    </div>
+</div>
 
 <div class="zentriert animiert delay2">
     <textarea class="input answerInput has-fixed-size" placeholder="Deine Antwort" name="InputField" id="{{ username }}Input" oninput="onTextChange(username)"></textarea>
