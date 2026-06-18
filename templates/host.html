@@ -24,17 +24,25 @@
 </div>
 
 <div class="columns">
-    <div class="column is four-fifths">
-        <button id="resetBuzzer" class="button" onclick="onBuzzerReset()">Reset Buzzer</button>
-        <button class="button" onclick="clearText()"><span title="Entfernt den Text aller Spieler">Clear Text</span></button>
-        <button class="button" onclick="lockBuzzer(this)"><span title="Sperrt den Buzzer für alle Spieler">Lock Buzzer</span></button>
-        <button id="lockTextButton" class="button" onclick="lockText(this)"><span title="Sperrt das Textfeld aller Spieler">Lock Text</span></button>
-        <button class="button" onclick="answerInput(this)"><span title="Spieler erhalten Button, womit sie ihr eigenes Textfeld sperren können. Du siehst das dann als Braun hinterlegt.">Antwort abgeben</span></button>
-        <button class="button" onclick="startTimer()"><span title="Wenn Timer abgelaufen: Textfeld sperrt sich">Starte Timer</span></button>
-        <button class="button" onclick="sendQuestion()"><span title="Jeder Spieler sieht gleichzeitig die eingegebene Frage">Sende Frage</span></button>
-    </div>
     <div class="column">
-        <h1 id="timerDisplay" class="subtitle is-3"></h1>
+        <div class="toolbar-groups">
+            <div class="buttons">
+                <button class="button is-primary abstandLinks" onclick="sendQuestion()"><span title="Jeder Spieler sieht gleichzeitig die eingegebene Frage">Sende Frage</span></button>
+                <button class="button is-primary" onclick="startTimer()"><span title="Wenn Timer abgelaufen: Textfeld sperrt sich">Starte Timer</span></button>
+            </div>
+            <div class="toolbar-divider"></div>
+            <div class="buttons">
+                <button class="button" onclick="lockBuzzer(this)"><span title="Sperrt den Buzzer für alle Spieler">Lock Buzzer</span></button>
+                <button id="lockTextButton" class="button" onclick="lockText(this)"><span title="Sperrt das Textfeld aller Spieler">Lock Text</span></button>
+                <button class="button" onclick="answerInput(this)"><span title="Spieler erhalten Button, womit sie ihr eigenes Textfeld sperren können. Du siehst das dann als Braun hinterlegt.">Antwort abgeben</span></button>
+            </div>
+            <div class="toolbar-divider"></div>
+            <div class="buttons">
+                <button id="resetBuzzer" class="button is-danger" onclick="onBuzzerReset()">Reset Buzzer</button>
+                <button class="button is-danger" onclick="clearText()"><span title="Entfernt den Text aller Spieler und die gestellte Frage">Clear Text</span></button>
+            </div>
+            <h1 id="timerDisplay" class="subtitle is-3">00:00</h1>
+        </div>
     </div>
 </div>
 
