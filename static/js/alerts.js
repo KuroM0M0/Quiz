@@ -104,6 +104,20 @@ function ShowAnswerAlert(title) {
     })
 }
 
+function ShowAnswerAlert(title, input, placeholder) {
+    return Swal.fire({
+        title: title,
+        icon: 'question',
+        input: input,
+        inputPlaceholder: placeholder,
+        confirmButtonText: 'Absenden',
+        cancelButtonText: 'Abbrechen',
+        showCancelButton: true,
+        cancelButtonColor: '#d33',
+        theme: 'dark'
+    })
+}
+
 
 function ShowAnswerAlert3(title, input, placeholder) {
     return Swal.fire({
