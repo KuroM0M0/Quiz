@@ -68,8 +68,8 @@
                             <span v-else>⬆️</span>
                         </th>
                     </tr>
-                    <tr v-for="(player, name) in players" :key="name">
-                        <th v-text="name"></th>
+                    <tr v-for="player in sortedPlayersList" :key="player.name">
+                        <th v-text="player.name"></th> 
                         <th v-text="player.points"></th>
                     </tr>
                 </tbody>
