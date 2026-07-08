@@ -20,11 +20,11 @@
     </div>
     <div class="column animiert delay2">
         <div class="zentriert">
-            <a class="button buttonJoin" href="/host">Create Room</a>
+            <a id="createRoomButton" class="button buttonJoin" href="/host">Create Room</a>
             <br><br><br><br><br><br>
             <input class="input abstandOben roomInput" type="text" placeholder="RoomID" id="roomIDInput" oninput="joinButton()">
             <br><br>
-            <a class="button buttonJoin" onclick="joinRoom()" id="joinButton" disabled>Join Room</a>
+            <a id="joinButton" class="button buttonJoin" onclick="joinRoom()" disabled>Join Room</a>
         </div>
     </div>
     <div class="column">

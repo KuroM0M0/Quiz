@@ -154,13 +154,13 @@ function ShowPointsAlert(title) {
         icon: 'question',
         input: 'number',
         inputPlaceholder: 'Punktzahl',
-        confirmButtonText: '+',
+        confirmButtonText: '<span title="Punkte hinzufügen">+</span>',
         confirmButtonColor: '#28a745',
         showCancelButton: true,
-        cancelButtonText: '-',
+        cancelButtonText: '<span title="Punkte reduzieren">-</span>',
         cancelButtonColor: '#d33',
         showDenyButton: true,
-        denyButtonText: 'Setzen',
+        denyButtonText: '<span title="Setzt die Punktzahl auf den eingegebenen Wert">Setzen</span>',
         denyButtonColor: '#3578dc',
         theme: 'dark'
     })

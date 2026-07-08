@@ -8,7 +8,7 @@ socket.on("cards_update", function(data) {
     if(cardExists == null && cards != null) {
         const card = document.createElement('div');
         card.classList.add('abstandOben');
-        card.classList.add('column');
+        card.classList.add('column', 'is-narrow');
         card.innerHTML = `
             <div name="card" class="card cardDash" id="${userCard}">
                 <header class="card-header">
@@ -21,9 +21,9 @@ socket.on("cards_update", function(data) {
                 </div>
                 <footer class="card-footer">
                     <p class="card-footer-item">
-                        <button class="button is-success is-small abstand" onclick="addPoints(this)" id="${username}Add"><i class="fas fa-plus"></i></button>
-                        <button class="button is-info is-small abstand" onclick="editPoints(this)" id="${username}Edit"><i class="fas fa-edit"></i></button>
-                        <button class="button is-danger is-small abstand" onclick="decreasePoints(this)" id="${username}Decrease"><i class="fas fa-minus"></i></button>
+                        <span title="Füge einen Punkt hinzu"><button class="button is-success is-small abstand" onclick="addPoints(this)" id="${username}Add"><i class="fas fa-plus"></i></button></span>
+                        <span title="Setze eine beliebige Punktzahl"><button class="button is-info is-small abstand" onclick="editPoints(this)" id="${username}Edit"><i class="fas fa-edit"></i></button></span>
+                        <span title="Reduziere die Punkte um 1"><button class="button is-danger is-small abstand" onclick="decreasePoints(this)" id="${username}Decrease"><i class="fas fa-minus"></i></button></span>
                     </p>
                 </footer>
             </div>
