@@ -8,7 +8,7 @@ socket.on("cards_update", function(data) {
     if(cardExists == null && cards != null) {
         const card = document.createElement('div');
         card.classList.add('abstandOben');
-        card.classList.add('column', 'is-3');
+        card.classList.add('column', 'is-narrow');
         card.innerHTML = `
             <div name="card" class="card cardDash" id="${userCard}">
                 <header class="card-header">
