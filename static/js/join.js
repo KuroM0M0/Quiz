@@ -37,7 +37,7 @@ function joinButton() {
     rooms = fetch('/get_rooms')
     .then(response => response.json())
     .then(data => {
-        if(inputText in data) {
+        if(inputText in data && data[inputText]["isOpenToJoin"] === true) {
             joinButton.removeAttribute('disabled')
         } else {
             joinButton.setAttribute('disabled', true)

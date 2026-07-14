@@ -16,7 +16,74 @@
             
         </div>
     </div>
-    <div class="column is-one-fifth">
+    <div class="column is-one-fifth zentriertFlex">
+        <div class="dropdown is-right" id="settings">
+        <div class="dropdown-trigger">
+            <!-- Das Zahnrad-Icon in hellem Text für den Dark Mode -->
+            <button class="button is-ghost p-0" onclick="toggleSettingsMenu()">
+                <span class="icon is-large">
+                    <i class="fas fa-cog fa-2x has-text-light"></i>
+                </span>
+            </button>
+        </div>
+        <div class="dropdown-menu" role="menu">
+            <!-- p-3 für den schwebenden Look. Der Hintergrund passt sich deinem restlichen Darkmode an -->
+            <div class="dropdown-content p-3" style="width: 240px;">
+                
+                <!-- Haupt-Trigger für die Sounds (Jetzt passend in is-dark) -->
+                <button class="button is-dark is-fullwidth is-justify-content-space-between mb-2" onclick="toggleBuzzerSounds()">
+                    <span class="has-text-weight-semibold has-text-light">Sound Settings</span>
+                    <span class="icon is-small">
+                        <i class="fas fa-chevron-down has-text-light" id="buzzer-chevron"></i>
+                    </span>
+                </button>
+                
+                <!-- Eingerücktes Untermenü mit sattem, dunklem Hintergrund -->
+                <div id="buzzer-sounds-list" class="is-hidden py-2 px-1 mb-2 has-background-grey-darker" style="border-radius: 6px;">
+                    <!-- Die Buttons nutzen jetzt is-dark, um sich dezent vom Hintergrund abzuheben -->
+                    <button class="button is-dark is-small is-fullwidth mb-1" onclick="changeBuzzerSound('BuzzerLang')">BuzzerLang</button>
+                    <button class="button is-dark is-small is-fullwidth mb-1" onclick="changeBuzzerSound('BuzzerKurz')">BuzzerShort</button>
+                    <button class="button is-dark is-small is-fullwidth mb-1" onclick="changeBuzzerSound('Meow')">Meow</button>
+                    <button class="button is-dark is-small is-fullwidth mb-2" onclick="changeBuzzerSound('Quak')">Quak</button>
+                    
+                    <hr class="dropdown-divider my-2" style="background-color: #4a4a4a;" />
+                    
+                    <!-- Textfarbe explizit auf hell gesetzt -->
+                    <p class="subtitle is-6 mb-2 pl-1 has-text-light">Lautstärke:</p>
+                    <div class="px-1">
+                        <input type="range" id="volumeSlider" min="0" max="100" value="100" oninput="changeBuzzerVolume(this.value)" class="slider is-fullwidth">
+                    </div>
+                </div>
+
+                <hr class="dropdown-divider my-2" />
+                
+                <!-- "Spieler entfernen" in sattem Rot (is-danger) statt hellem Rosa -->
+                <button class="button is-danger is-fullwidth mb-2" onclick="kickPlayer()">
+                    <span class="icon is-small">
+                        <i class="fas fa-user-slash"></i>
+                    </span>
+                    <span>Spieler entfernen</span>
+                </button>
+                
+                <hr class="dropdown-divider my-2" />
+
+                <!-- Raum-Status Toggle -->
+                <div class="field has-addons is-justify-content-center">
+                    <p class="control">
+                        <button class="button is-static is-small">Raum-Status:</button>
+                    </p>
+                    <p class="control">
+                        <button class="button is-success is-small" id="btn-toggle-join" onclick="toggleJoinability()">
+                            <span class="icon is-small">
+                                <i class="fas fa-unlock" id="join-icon"></i>
+                            </span>
+                            <span id="join-text">Offen</span>
+                        </button>
+                    </p>
+                </div>
+                </div>
+            </div>
+        </div>
         <div class="überschrift" id="closeRoom">
             <button class="title redText" onclick="closeRoom()">Raum schließen</button>
         </div>

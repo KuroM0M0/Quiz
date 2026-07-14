@@ -222,7 +222,8 @@ def create():
         "buzzed_by": None,
         "buzzerOrder": 0,
         "answerButton": False,
-        "currentQuestion": ""
+        "currentQuestion": "",
+        "isOpenToJoin": True
     }
 
     # Add host as first player, unnötig, weil durch Vue er sonst auch in der Spielerliste erscheint
@@ -305,14 +306,14 @@ def on_join_room(data):
         socketio.emit("cards_update", {"username": username}, room=roomID)
 
 
-#Spieler leavt
+#Spieler leavt | Wird aktuell nicht verwendet
 @socketio.on('leave_room')
 def on_leave_room(data):
     roomID = data['roomID']
     username = data['username']
 
     if roomID in rooms and username in rooms[roomID]["players"]:
-        rooms[roomID]["players"].remove(username)
+        rooms[roomID]["players"].pop(username, None)
 
     leave_room(roomID)
     #socketio.emit("room_update", rooms[roomID], room=roomID)
@@ -348,11 +349,37 @@ def closeRoom(data):
         print(f"Raum {roomID} wurde vom Host geschlossen.")
 
 
+@socketio.on("kickPlayer")
+def kickPlayer(data):
+    roomID = data['roomID']
+    username = data['username']
+    if roomID in rooms and username in rooms[roomID]["players"]:
+        # Spieler aus der Spielerliste entfernen
+        rooms[roomID]["players"].pop(username, None)
+        
+        # 1. Spieler über den Kick informieren (Client-seitig prüfen, ob man selbst das ist)
+        socketio.emit("kicked", {"username": username, "message": "Du wurdest vom Host entfernt."}, room=roomID)
+        
+        # 2. Dem Host sagen, dass er die Karte dieses Spielers löschen soll
+        socketio.emit("playerRemoved", {"username": username}, room=roomID)
+        
+        # 3. Aktualisierte Spielerliste an alle im Raum senden
+        socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
+        print(f"Spieler {username} wurde aus Raum {roomID} entfernt.")
+
+
+@socketio.on("toggleJoinability")
+def toggleJoinability(data):
+    roomID = data['roomID']
+    if roomID in rooms:
+        rooms[roomID]["isOpenToJoin"] = not rooms[roomID]["isOpenToJoin"]
+        print(f"Raum {roomID} Joinability geändert: {rooms[roomID]['isOpenToJoin']}")
+
+
 
 ##########################
 #### Socket.Io Buzzer ####
 ##########################
-
 
 
 # Wird aktuell nicht verwendet i guess
@@ -420,7 +447,6 @@ def lockBuzzer(data):
 ########################
 
 
-
 @socketio.on("clearText")
 def clearText(data):
     roomID = data['roomID']
@@ -430,7 +456,6 @@ def clearText(data):
 
 @socketio.on("text_update")
 def text_update(data):
-    print("\x1b[33m", data, "\x1b[0m")
     roomID = data.get('room')
     if roomID in rooms and 'username' in data:
         rooms[roomID]["players"][data['username']]["textFeld"] = data.get('text', '')
@@ -470,10 +495,10 @@ def sendQuestion(data):
     socketio.emit("sendQuestion", data, room=data['room'])
 
 
+
 ##########################
 #### Socket.Io Punkte ####
 ##########################
-
 
 
 @socketio.on("addPoints")

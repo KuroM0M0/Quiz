@@ -74,3 +74,15 @@ socket.on("answerInputToggle", function(data) {
         }
     }
 })
+
+socket.on("playerRemoved", function(data) {
+    const username = data.username;
+    const userCard = document.getElementById(username + "Card");
+    
+    if (userCard != null) {
+        // .parentElement.remove() löscht auch das äußere column-div,
+        // damit kein leerer Platzhalter im Grid zurückbleibt.
+        userCard.parentElement.remove();
+        console.log("Karte von " + username + " erfolgreich entfernt.");
+    }
+});

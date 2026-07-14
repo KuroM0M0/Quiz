@@ -50,6 +50,15 @@ function toggleCode() {
 }
 
 
+socket.on("kicked", function(data) {
+    // Prüfen, ob man selbst der gekickte Spieler ist
+    if(username === data.username) {
+        window.location.href = "/lobby";
+        ShowErrorAlert("Du wurdest gekickt", data.message);
+    }
+});
+
+
 //Vue funktioniert normal mit {{ }}, da das aber von Flask verwendet wird,
 //muss es mit v-text="" gemacht werden. Beispiel: <td v-text="player.points"></td>
 const { createApp } = Vue;

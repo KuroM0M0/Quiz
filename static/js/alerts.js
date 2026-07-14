@@ -166,6 +166,22 @@ function ShowPointsAlert(title) {
     })
 }
 
+function ShowPlayerKickAlert() {
+    return Swal.fire({
+        title: 'Spieler entfernen',
+        text: 'Welchen Spieler möchtest du entfernen?',
+        icon: 'question',
+        input: 'text',
+        inputPlaceholder: 'Spielername',
+        confirmButtonText: 'Entfernen',
+        confirmButtonColor: '#d33',
+        showCancelButton: true,
+        cancelButtonText: 'Abbrechen',
+        cancelButtonColor: 'rgb(23, 121, 179)',
+        theme: 'dark'
+    })
+}
+
 
 socket.on("ShowErrorAlert", function(data) {
     ShowErrorAlert(data.title, data.text);
