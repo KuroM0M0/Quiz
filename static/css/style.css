@@ -57,6 +57,9 @@
 .redText {
     color: rgb(141, 0, 0);
 }
+.greenText {
+    color: green;
+}
 
 .buzzer {
     width: 300px;

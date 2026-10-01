@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %} KuroBuzz - QuizBoard {% endblock %}
+
+{% block content %}
+
+<div class="columns black">
+    <div class="column is-one-fifth überschrift">
+        <h1 class="title"><a href="/">KuroBuzz</a></h1>
+    </div>
+
+    <div class="column is-two-fifth"></div>
+
+    <div class="column is-two-fifth zentriertFlex">
+        <div class="dropdown is-right" id="settings">
+        <div class="dropdown-trigger">
+            <button class="fas fa-cog fa-3x" onclick="toggleSettingsMenu()"></button>
+        </div>
+
+        <div class="dropdown-menu" role="menu">
+            <!-- p-3 für den schwebenden Look -->
+            <div class="dropdown-content p-3" style="width: 240px;">
+                <p class="dropdown-item">Kategorie:</p>
+                <!-- Haupt-Trigger für die Sounds -->
+                 <div class="field has-addons is-justify-content-center">
+                    <p class="control">
+                        <button class="button is-success is-small is-fullwidth is-justify-content-space-between mb-2 zentriert" onclick="addCategory()">Hinzufügen</button>
+                    </p>
+                    <p class="control">
+                        <button class="button is-danger is-small is-fullwidth is-justify-content-space-between mb-2 zentriert" onclick="removeCategory()">Entfernen</button>
+                    </p>
+                </div>
+
+                <hr class="dropdown-divider my-2" />
+                
+                <div class="field has-addons is-justify-content-center">
+                    <p class="control">
+                        <button class="button is-static is-small">Bearbeitungsmodus:</button>
+                    </p>
+                    <p class="control">
+                        <button class="button is-success is-small" id="btn-toggle-edit" onclick="toggleEditing()">
+                            <span class="icon is-small">
+                                <i class="fas fa-eye" id="edit-icon"></i>
+                            </span>
+                            <span id="edit-text">An</span>
+                        </button>
+                    </p>
+                </div>
+
+                <hr class="dropdown-divider my-2" />
+                </div>
+            </div>
+        </div>
+        <div class="überschrift">
+            <a class="title greenText" href="/host">Zurück zum Raum</a>
+        </div>
+    </div>
+</div>
+
+<br><br>
+
+
+
+<div class="columns">
+    <div class="column">
+        <div id="qboard"></div>
+    </div>
+</div>
+
+<!--<div class="reset-wrap">
+  <button onclick="resetBoard()"><i class="ti ti-refresh" aria-hidden="true"></i> Alles zurücksetzen</button>
+</div>-->
+
+{% endblock %}

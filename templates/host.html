@@ -96,6 +96,7 @@
             <div class="buttons">
                 <button class="button is-primary abstandLinks" onclick="sendQuestion()"><span title="Jeder Spieler sieht gleichzeitig die eingegebene Frage">Sende Frage</span></button>
                 <button class="button is-primary" onclick="startTimer()"><span title="Wenn Timer abgelaufen: Textfeld sperrt sich">Starte Timer</span></button>
+                <button class="button is-primary" onclick="openModal('quizboardModal')"><span title="Wähle aus deinem Quizboard eine Frage aus">Wähle Frage</span></button>
             </div>
             <div class="toolbar-divider"></div>
             <div class="buttons">
@@ -143,6 +144,15 @@
             </table>
         </div>
     </div>
+</div>
+
+
+<div class="modal" id="quizboardModal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <!-- Any other Bulma elements you want --><p>test</p>
+  </div>
+  <button class="modal-close is-large" aria-label="close" onclick="closeModal('quizboardModal')"></button>
 </div>
 
     

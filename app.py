@@ -162,6 +162,11 @@ def updates():
     return render_template("updates.html")
 
 
+@app.route('/quizboard')
+def quizboard():
+    return render_template("quizBoard.html")
+
+
 
 ################################################
 #### Hier sind die nicht aufrufbaren Routen ####

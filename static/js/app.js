@@ -8,6 +8,17 @@ window.addEventListener('popstate', function(event) {
 });
 
 
+function openModal(modalID) {
+    const modal = document.getElementById(modalID);
+    modal.classList.add("is-active");
+}
+
+function closeModal(modalID) {
+    const modal = document.getElementById(modalID);
+    modal.classList.remove("is-active");
+}
+
+
 function loadPage(page) {
     fetch(`${page}`)
         .then(response => response.text())

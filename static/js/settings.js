@@ -75,3 +75,24 @@ function toggleJoinability() {
         socket.emit('toggleJoinability', {'roomID': roomID});
     }
 }
+
+
+let isEditing = true;
+function toggleEditing() {
+    const button = document.getElementById('btn-toggle-edit');
+    const icon = document.getElementById('edit-icon');
+    const text = document.getElementById('edit-text');
+    isEditing = !isEditing;
+    
+    if (!isEditing) {
+        // Raum ist geschlossen
+        button.classList.replace('is-success', 'is-danger');
+        icon.className = 'fas fa-pencil';
+        text.innerText = 'Aus';
+    } else {
+        // Raum ist offen
+        button.classList.replace('is-danger', 'is-success');
+        icon.className = 'fas fa-eye';
+        text.innerText = 'An';
+    }
+}
