@@ -112,6 +112,7 @@ socket.on("buzzerReset", function(data) {
 socket.on("playLoaded", function(data) {
     const buzzer = document.getElementById("buzzer");
     const inputField = document.getElementsByName("InputField")[0];
+    const toggleJoinButton = document.getElementById('btn-toggle-join');
 
     //Verhindert fehlermeldung für den Host
     if(buzzer != null) {
@@ -154,6 +155,16 @@ socket.on("playLoaded", function(data) {
         setTimeout(() => {
             questionCard.classList.remove('delay4');
         }, 1500);
+    }
+
+    if(data.isJoinable == true) {
+        toggleJoinButton.classList.replace('is-success', 'is-danger');
+        joinIcon.className = 'fas fa-lock';
+        joinText.innerText = 'Gesperrt';
+    } else {
+        toggleJoinButton.classList.replace('is-danger', 'is-success');
+        joinIcon.className = 'fas fa-unlock';
+        joinText.innerText = 'Offen';
     }
 })
 

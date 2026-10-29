@@ -330,21 +330,22 @@ def playLoaded(data):
     textLocked = rooms[roomID]["text_locked"]
     answerButton = rooms[roomID]["answerButton"]
     question = rooms[roomID]["currentQuestion"]
+    isJoinable = rooms[roomID]["isOpenToJoin"]
+    hasImage = rooms[roomID]["hasImage"]
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton, "question": question}, to=flask_request.sid)
+    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton, "question": question, "isJoinable": isJoinable, "hasImage": hasImage}, to=flask_request.sid)
 
 
 @socketio.on("closeRoom")
 def closeRoom(data):
     roomID = data['roomID']
     if roomID in rooms:
-        # 2. Alle Spieler im Raum informieren, damit sie weitergeleitet werden
+        #Alle Spieler im Raum informieren, damit sie weitergeleitet werden
         emit("roomClosed", to=roomID)
         
-        # 3. Den Raum aus deinem Dictionary löschen
+        #Aus Dictionary löschen
         rooms.pop(roomID)
-        
-        # 4. Den Socket.io-Kanal komplett schließen
+        #Den Socket.io-Kanal komplett schließen
         close_room(roomID)
         print(f"Raum {roomID} wurde vom Host geschlossen.")
 
@@ -354,16 +355,13 @@ def kickPlayer(data):
     roomID = data['roomID']
     username = data['username']
     if roomID in rooms and username in rooms[roomID]["players"]:
-        # Spieler aus der Spielerliste entfernen
         rooms[roomID]["players"].pop(username, None)
         
-        # 1. Spieler über den Kick informieren (Client-seitig prüfen, ob man selbst das ist)
+        #Spieler über Kick informieren
         socketio.emit("kicked", {"username": username, "message": "Du wurdest vom Host entfernt."}, room=roomID)
-        
-        # 2. Dem Host sagen, dass er die Karte dieses Spielers löschen soll
+        #Dem Host sagen, dass er die Karte dieses Spielers löschen soll
         socketio.emit("playerRemoved", {"username": username}, room=roomID)
-        
-        # 3. Aktualisierte Spielerliste an alle im Raum senden
+        #Aktualisierte Spielerliste an alle im Raum senden
         socketio.emit("playerList", {"players": rooms[roomID]["players"]}, room=roomID)
         print(f"Spieler {username} wurde aus Raum {roomID} entfernt.")
 
@@ -380,6 +378,7 @@ def toggleJoinability(data):
 ##########################
 #### Socket.Io Buzzer ####
 ##########################
+
 
 
 # Wird aktuell nicht verwendet i guess
@@ -447,6 +446,7 @@ def lockBuzzer(data):
 ########################
 
 
+
 @socketio.on("clearText")
 def clearText(data):
     roomID = data['roomID']
@@ -499,6 +499,7 @@ def sendQuestion(data):
 ##########################
 #### Socket.Io Punkte ####
 ##########################
+
 
 
 @socketio.on("addPoints")

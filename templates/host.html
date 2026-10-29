@@ -95,18 +95,18 @@
         <div class="toolbar-groups">
             <div class="buttons">
                 <button class="button is-primary abstandLinks" onclick="sendQuestion()"><span title="Jeder Spieler sieht gleichzeitig die eingegebene Frage">Sende Frage</span></button>
-                <button class="button is-primary" onclick="startTimer()"><span title="Wenn Timer abgelaufen: Textfeld sperrt sich">Starte Timer</span></button>
+                <button class="button is-primary" onclick="startTimer()"><span title="Wenn Timer abgelaufen: Textfeld sperrt sich"><i class="fas fa-hourglass-half"></i>&nbsp;Starte Timer</span></button>
             </div>
             <div class="toolbar-divider"></div>
             <div class="buttons">
                 <button class="button" onclick="lockBuzzer(this)"><span title="Sperrt den Buzzer für alle Spieler">Lock Buzzer</span></button>
-                <button id="lockTextButton" class="button" onclick="lockText(this)"><span title="Sperrt das Textfeld aller Spieler">Lock Text</span></button>
-                <button class="button" onclick="answerInput(this)"><span title="Spieler erhalten Button, womit sie ihr eigenes Textfeld sperren können. Du siehst das dann als Braun hinterlegt.">Antwort abgeben</span></button>
+                <button id="lockTextButton" class="button" onclick="lockText(this)"><span title="Sperrt das Textfeld aller Spieler"><i class="far fa-file-archive"></i>&nbsp;Lock Text</span></button>
+                <button class="button" onclick="answerInput(this)"><span title="Spieler erhalten Button, womit sie ihr eigenes Textfeld sperren können. Du siehst das dann als Braun hinterlegt."><i class="far fa-keyboard"></i>&nbsp;Antwort abgeben</span></button>
             </div>
             <div class="toolbar-divider"></div>
             <div class="buttons">
-                <button id="resetBuzzer" class="button is-danger" onclick="onBuzzerReset()">Reset Buzzer</button>
-                <button class="button is-danger" onclick="clearText()"><span title="Entfernt den Text aller Spieler und die gestellte Frage">Clear Text</span></button>
+                <button id="resetBuzzer" class="button is-danger" onclick="onBuzzerReset()"><i class="fas fa-undo"></i>&nbsp;Reset Buzzer</button>
+                <button class="button is-danger" onclick="clearText()"><span title="Entfernt den Text aller Spieler und die gestellte Frage"><i class="fas fa-trash"></i>&nbsp;Clear Text</span></button>
             </div>
             <h1 id="timerDisplay" class="subtitle is-3">00:00</h1>
         </div>
