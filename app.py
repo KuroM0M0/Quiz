@@ -29,6 +29,8 @@ def add_cors_headers(response):
     return response
 
 upload_folder = os.path.join(app.static_folder, 'uploads')
+os.makedirs(upload_folder, exist_ok=True)
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -196,14 +198,21 @@ def playerPoints(roomID, username):
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    file = request.files.get('file')
-    if file:
-        # Dateiendung ermitteln (z.B. .jpg oder .png)
-        ext = os.path.splitext(file.filename)[1]
+    try:
+        file = request.files.get('file')
+        if not file or not file.filename:
+            return jsonify({'error': 'Keine Datei ausgewählt'}), 400
+
+        os.makedirs(upload_folder, exist_ok=True)
+        # Dateiendung ermitteln (z.B. .jpg oder .mp3)
+        ext = os.path.splitext(file.filename)[1].lower()
         random_name = f"{secrets.token_hex(8)}{ext}"
-        file.save(os.path.join(upload_folder, random_name))
+        save_path = os.path.join(upload_folder, random_name)
+        file.save(save_path)
         return jsonify({'url': f"/static/uploads/{random_name}"})
-    return jsonify({'error': 'Keine Datei'}), 400
+    except Exception as e:
+        print(f"Upload-Fehler: {e}")
+        return jsonify({'error': f'Fehler beim Speichern: {str(e)}'}), 500
 
 
 @app.route('/saveCard', methods=['POST'])

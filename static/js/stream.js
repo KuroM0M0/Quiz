@@ -2872,6 +2872,15 @@
 
         try {
             const res = await fetch("/upload", { method: "POST", body: formData });
+            if (!res.ok) {
+                if (res.status === 413) {
+                    throw new Error("Die Bilddatei ist zu groß für den Webserver (Nginx/Server-Limit überschritten).");
+                }
+                const text = await res.text();
+                let errJson;
+                try { errJson = JSON.parse(text); } catch (e) {}
+                throw new Error((errJson && errJson.error) || `Serverfehler beim Upload (HTTP ${res.status})`);
+            }
             const data = await res.json();
             if (data.url) {
                 document.getElementById('cardImageInput').value = data.url;
@@ -2885,7 +2894,7 @@
         } catch (err) {
             console.error("Fehler beim Hochladen:", err);
             if (status) status.textContent = "Fehler beim Upload.";
-            triggerErrorAlert("Upload-Fehler", "Fehler beim Hochladen des Bildes.");
+            triggerErrorAlert("Upload-Fehler", err.message || "Fehler beim Hochladen des Bildes.");
         }
     };
 
@@ -2899,6 +2908,15 @@
 
         try {
             const res = await fetch("/upload", { method: "POST", body: formData });
+            if (!res.ok) {
+                if (res.status === 413) {
+                    throw new Error("Die Audiodatei ist zu groß für den Webserver (Nginx client_max_body_size überschritten).");
+                }
+                const text = await res.text();
+                let errJson;
+                try { errJson = JSON.parse(text); } catch (e) {}
+                throw new Error((errJson && errJson.error) || `Serverfehler beim Upload (HTTP ${res.status})`);
+            }
             const data = await res.json();
             if (data.url) {
                 const input = document.getElementById('cardAudioInput');
@@ -2915,7 +2933,7 @@
         } catch (err) {
             console.error("Fehler beim Hochladen:", err);
             if (status) status.textContent = "Fehler beim Upload.";
-            triggerErrorAlert("Upload-Fehler", "Fehler beim Hochladen der Audiodatei.");
+            triggerErrorAlert("Upload-Fehler", err.message || "Fehler beim Hochladen der Audiodatei.");
         }
     };
 
