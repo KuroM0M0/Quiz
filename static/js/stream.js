@@ -2893,23 +2893,57 @@
     // =========================================================================
 
     window.exportQuizPackage = function () {
-        const exportData = {
-            version: "1.0",
-            exportedAt: new Date().toISOString(),
-            cards: cards,
-            slots: slots
-        };
+        function triggerDownload(includeSlots) {
+            const exportData = {
+                version: "1.0",
+                exportedAt: new Date().toISOString(),
+                cards: cards
+            };
+            if (includeSlots) {
+                exportData.slots = slots;
+            }
 
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-        const downloadAnchor = document.createElement('a');
-        const today = new Date().toISOString().slice(0, 10);
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `kurobuzz_quiz_${today}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            const today = new Date().toISOString().slice(0, 10);
+            const fileName = includeSlots ? `kurobuzz_quiz_mit_slots_${today}.json` : `kurobuzz_quiz_${today}.json`;
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", fileName);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
 
-        triggerSuccessAlert("Export erfolgreich", "Die Quiz-Datei wurde auf deinen Computer heruntergeladen.");
+            const msg = includeSlots
+                ? "Fragen sowie Stream-Slots & Links wurden erfolgreich exportiert!"
+                : "Fragen wurden erfolgreich (ohne Slots) exportiert!";
+            triggerSuccessAlert("Export erfolgreich", msg);
+        }
+
+        if (window.Swal) {
+            Swal.fire({
+                title: "Quiz exportieren",
+                text: "Möchtest du die Stream-Slots (Spielerzuweisungen, Kamera- und Overlay-Links) mit in die Datei exportieren?",
+                icon: "question",
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: "Mit Slots & Links",
+                denyButtonText: "Nur Fragen",
+                cancelButtonText: "Abbrechen",
+                confirmButtonColor: "#485fc7",
+                denyButtonColor: "#3e8ed0",
+                cancelButtonColor: "#363645",
+                background: "#1a1a28",
+                color: "#f5f5f7"
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    triggerDownload(true);
+                } else if (res.isDenied) {
+                    triggerDownload(false);
+                }
+            });
+        } else {
+            triggerDownload(false);
+        }
     };
 
     window.importQuizPackage = function (fileInput) {
@@ -2932,6 +2966,34 @@
                 importedCards.forEach((c, idx) => {
                     if (!c.id) c.id = Date.now() + idx;
                 });
+
+                function checkAndPromptSlots() {
+                    if (Array.isArray(importedData.slots) && importedData.slots.length >= 1 && importedData.slots.length <= 8) {
+                        const hasConfiguredSlots = importedData.slots.some(s => (s.username && s.username.trim()) || (s.reactiveUrl && s.reactiveUrl.trim()) || (s.overlayUrl && s.overlayUrl.trim()));
+                        if (hasConfiguredSlots && window.Swal) {
+                            Swal.fire({
+                                title: "Stream-Slots importieren?",
+                                text: "Die importierte Datei enthält auch gespeicherte Stream-Slots und Kamera-/Overlay-Links. Möchtest du diese ebenfalls übernehmen?",
+                                icon: "question",
+                                showCancelButton: true,
+                                confirmButtonText: "Slots übernehmen",
+                                cancelButtonText: "Bestehende Slots behalten",
+                                confirmButtonColor: "#485fc7",
+                                cancelButtonColor: "#363645",
+                                background: "#1a1a28",
+                                color: "#f5f5f7"
+                            }).then((slotRes) => {
+                                if (slotRes.isConfirmed) {
+                                    slots = importedData.slots;
+                                    saveSlots();
+                                    renderSlots();
+                                    renderSlotOverviewGrid();
+                                    updateSlotUI();
+                                }
+                            });
+                        }
+                    }
+                }
 
                 if (window.Swal) {
                     Swal.fire({
@@ -2958,6 +3020,7 @@
                             renderMiddleCard();
                             updateControlBar();
                             if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", "Quiz-Paket wurde vollständig geladen!");
+                            checkAndPromptSlots();
                         } else if (result.isDenied) {
                             const maxId = cards.reduce((max, c) => Math.max(max, c.id || 0), 0);
                             importedCards.forEach((c, idx) => {
