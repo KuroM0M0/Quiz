@@ -1331,6 +1331,9 @@
                 startHostAudioAnalyzerLoop();
             }).catch(err => {
                 console.warn("Host Audio Playback Fehler:", err);
+                updateHostAudioButtons(false);
+                stopHostAudioAnalyzerLoop();
+                triggerErrorAlert("Audio-Wiedergabe", "Die Audiodatei konnte nicht abgespielt werden. Bitte prüfe, ob die Datei auf dem Server existiert (404) oder lade sie für diese Frage neu hoch.");
             });
 
             // Wellen-Animation auf Stream anzeigen (auch im Vorhörmodus laut Benutzerauswahl)
@@ -1979,6 +1982,15 @@
             }
         };
 
+        hostAudioPlayer.onerror = function () {
+            const timeElem = document.getElementById('hostAudioTime');
+            if (timeElem) {
+                timeElem.innerHTML = `<span class="has-text-danger" title="Datei nicht erreichbar oder 404"><i class="fas fa-exclamation-triangle mr-1"></i>Audio nicht gefunden (404)</span>`;
+            }
+            updateHostAudioButtons(false);
+            stopHostAudioAnalyzerLoop();
+        };
+
         window.setHostAudioVolume(0.8);
     }
 
@@ -2485,8 +2497,9 @@
             const imageBadge = (card.imageOnly && card.image)
                 ? `<span class="tag is-small is-warning is-light ml-2"><i class="fas fa-image"></i>&nbsp;Nur Bild</span>`
                 : (card.image ? `<span class="tag is-small is-dark ml-2"><i class="fas fa-image"></i></span>` : '');
-            const audioBadge = (card.audio && card.audio.trim().length > 0)
-                ? `<span class="tag is-small is-info is-light ml-2" title="Audio hinterlegt"><i class="fas fa-music"></i>${card.audioLoop ? '&nbsp;<i class="fas fa-redo" style="font-size:0.7em;"></i>' : ''}</span>`
+            const audioFileName = (card.audio && card.audio.trim().length > 0) ? card.audio.split('/').pop().split('?')[0] : '';
+            const audioBadge = audioFileName
+                ? `<span class="tag is-small is-info is-light ml-2" title="Audiodatei: ${audioFileName}"><i class="fas fa-music mr-1"></i>${audioFileName.length > 20 ? audioFileName.slice(0, 17) + '...' : audioFileName}${card.audioLoop ? '&nbsp;<i class="fas fa-redo" style="font-size:0.7em;"></i>' : ''}</span>`
                 : '';
             const placeholderBadge = isPlaceholder
                 ? `<span class="tag is-small is-dark has-text-warning ml-2" title="Mitte im Stream ausgeblendet"><i class="fas fa-eye-slash mr-1"></i>Platzhalter</span>`
@@ -2602,7 +2615,8 @@
         const audioStatus = document.getElementById('cardAudioStatus');
         const previewBtn = document.getElementById('cardAudioPreviewBtn');
         if (card.audio && card.audio.trim().length > 0) {
-            if (audioStatus) audioStatus.innerHTML = `Audio vorhanden &bull; <a href="javascript:void(0)" onclick="removeCardAudio()" class="has-text-danger ml-1"><i class="fas fa-trash-alt"></i> Entfernen</a>`;
+            const fileName = card.audio.split('/').pop().split('?')[0];
+            if (audioStatus) audioStatus.innerHTML = `<span class="has-text-success"><i class="fas fa-check-circle mr-1"></i>Audio aktiv: <strong>${fileName}</strong></span> &bull; <a href="javascript:void(0)" onclick="removeCardAudio()" class="has-text-danger ml-1"><i class="fas fa-trash-alt"></i> Entfernen</a>`;
             if (previewBtn) previewBtn.disabled = false;
         } else {
             if (audioStatus) audioStatus.textContent = '';
@@ -2924,7 +2938,14 @@
                 try { errJson = JSON.parse(text); } catch (e) {}
                 throw new Error((errJson && errJson.error) || `Serverfehler beim Upload (HTTP ${res.status})`);
             }
-            const data = await res.json();
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (jsonErr) {
+                console.error("Server-Antwort war kein gültiges JSON:", text);
+                throw new Error("Unerwartete Server-Antwort (kein JSON empfangen). Möglicherweise blockiert der Webserver die Datei.");
+            }
             if (data.url) {
                 document.getElementById('cardImageInput').value = data.url;
                 if (status) {
@@ -2970,7 +2991,14 @@
                 try { errJson = JSON.parse(text); } catch (e) {}
                 throw new Error((errJson && errJson.error) || `Serverfehler beim Upload (HTTP ${res.status})`);
             }
-            const data = await res.json();
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (jsonErr) {
+                console.error("Server-Antwort war kein gültiges JSON:", text);
+                throw new Error("Unerwartete Server-Antwort (kein JSON empfangen). Möglicherweise blockiert der Webserver die Datei.");
+            }
             if (data.url) {
                 const input = document.getElementById('cardAudioInput');
                 if (input) input.value = data.url;
@@ -2995,6 +3023,31 @@
     // =========================================================================
 
     window.exportQuizPackage = function () {
+        // Falls gerade eine Frage im Formular aktiv bearbeitet wird, Änderungen vorab sichern
+        if (editingCardId) {
+            const currentEditing = cards.find(c => String(c.id) === String(editingCardId));
+            if (currentEditing) {
+                const titleVal = document.getElementById('cardTitleInput') ? document.getElementById('cardTitleInput').value.trim() : '';
+                const qVal = document.getElementById('cardQuestionInput') ? document.getElementById('cardQuestionInput').value.trim() : '';
+                const aVal = document.getElementById('cardAnswerInput') ? document.getElementById('cardAnswerInput').value.trim() : '';
+                const imgVal = document.getElementById('cardImageInput') ? document.getElementById('cardImageInput').value.trim() : '';
+                const audVal = document.getElementById('cardAudioInput') ? document.getElementById('cardAudioInput').value.trim() : '';
+                const loopVal = document.getElementById('cardAudioLoopInput') ? document.getElementById('cardAudioLoopInput').checked : false;
+                const timerVal = document.getElementById('cardTimerInput') ? document.getElementById('cardTimerInput').value.trim() : '';
+                const imgOnlyVal = document.getElementById('cardImageOnlyInput') ? document.getElementById('cardImageOnlyInput').checked : false;
+
+                if (titleVal) currentEditing.title = titleVal;
+                currentEditing.question = qVal;
+                currentEditing.answer = aVal;
+                currentEditing.image = imgVal;
+                currentEditing.imageOnly = imgOnlyVal;
+                currentEditing.audio = audVal;
+                currentEditing.audioLoop = loopVal;
+                currentEditing.timer = (timerVal && parseInt(timerVal, 10) > 0) ? parseInt(timerVal, 10) : null;
+                saveCards();
+            }
+        }
+
         function triggerDownload(includeSlots) {
             const exportData = {
                 version: "1.0",
@@ -3064,11 +3117,17 @@
                     return;
                 }
 
-                // Sicherstellen, dass jede importierte Karte eine eindeutige ID besitzt & Platzhalter markiert sind
+                // Sicherstellen, dass jede importierte Karte eine eindeutige ID besitzt & Felder normalisiert sind
                 importedCards.forEach((c, idx) => {
                     if (!c.id) c.id = Date.now() + idx;
+                    c.audio = (c.audio || c.audioUrl || c.audio_url || c.sound || c.soundUrl || "").toString().trim();
+                    c.image = (c.image || c.imageUrl || c.image_url || c.bild || "").toString().trim();
+                    c.audioLoop = !!(c.audioLoop || c.loop);
                     if (isCardPlaceholder(c)) c.isPlaceholder = true;
                 });
+
+                const audioCardsCount = importedCards.filter(c => c.audio && c.audio.length > 0).length;
+                const audioNote = audioCardsCount > 0 ? ` (${audioCardsCount} mit Audio 🎵)` : '';
 
                 function checkAndPromptSlots() {
                     if (Array.isArray(importedData.slots) && importedData.slots.length >= 1 && importedData.slots.length <= 8) {
@@ -3122,7 +3181,7 @@
                             renderCardManagerList();
                             renderMiddleCard();
                             updateControlBar();
-                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", "Quiz-Paket wurde vollständig geladen!");
+                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `Quiz-Paket mit ${importedCards.length} Fragen geladen!${audioNote}`);
                             checkAndPromptSlots();
                         } else if (result.isDenied) {
                             const maxId = cards.reduce((max, c) => Math.max(max, c.id || 0), 0);
@@ -3136,7 +3195,7 @@
                             renderCardManagerList();
                             renderMiddleCard();
                             updateControlBar();
-                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `${importedCards.length} Fragen wurden angehängt!`);
+                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `${importedCards.length} Fragen wurden angehängt!${audioNote}`);
                         }
                         fileInput.value = "";
                     });

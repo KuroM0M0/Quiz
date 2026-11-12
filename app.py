@@ -11,6 +11,7 @@ import time
 import json
 import secrets
 import os
+import re
 
 load_dotenv()
 app = Flask(__name__)
@@ -210,10 +211,21 @@ def upload():
         os.makedirs(upload_folder, exist_ok=True)
         # Dateiendung ermitteln (z.B. .jpg oder .mp3)
         ext = os.path.splitext(file.filename)[1].lower()
-        random_name = f"{secrets.token_hex(8)}{ext}"
-        save_path = os.path.join(upload_folder, random_name)
+
+        # Optional: Erlaube gezielten Dateinamen bei Sync/Migration (sicher validiert)
+        custom_name = request.form.get('custom_name')
+        if custom_name:
+            clean_name = os.path.basename(custom_name)
+            if re.match(r'^[a-f0-9]{16}\.[a-zA-Z0-9]+$', clean_name):
+                filename = clean_name
+            else:
+                filename = f"{secrets.token_hex(8)}{ext}"
+        else:
+            filename = f"{secrets.token_hex(8)}{ext}"
+
+        save_path = os.path.join(upload_folder, filename)
         file.save(save_path)
-        return jsonify({'url': f"/static/uploads/{random_name}"})
+        return jsonify({'url': f"/static/uploads/{filename}"})
     except Exception as e:
         print(f"Upload-Fehler: {e}")
         return jsonify({'error': f'Fehler beim Speichern: {str(e)}'}), 500
