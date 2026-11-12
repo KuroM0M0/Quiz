@@ -75,6 +75,15 @@ socket.on("answerInputToggle", function(data) {
     }
 })
 
+socket.on("clearText", function() {
+    const card = document.getElementsByName("card");
+    if(card != null) {
+        for(let i = 0; i < card.length; i++) {
+            card[i].classList.remove("brown");
+        }
+    }
+})
+
 socket.on("playerRemoved", function(data) {
     const username = data.username;
     const userCard = document.getElementById(username + "Card");

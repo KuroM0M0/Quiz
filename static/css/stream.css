@@ -531,12 +531,14 @@
 }
 
 /* Buzzer und Antwort Zustände */
-.zellen.slot-buzzed {
-    border: 2px solid #23d160 !important;
+.zellen.slot-submitted {
+    border: 3px solid #b86b14 !important;
+    box-shadow: 0 0 15px rgba(184, 107, 20, 0.4) !important;
 }
 
-.zellen.slot-submitted {
-    border: 2px solid #b86b14 !important;
+.zellen.slot-buzzed {
+    border: 3px solid #23d160 !important;
+    box-shadow: 0 0 18px rgba(35, 209, 96, 0.5) !important;
 }
 
 .buzzer-badge {

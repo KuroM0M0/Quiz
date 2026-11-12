@@ -22,16 +22,14 @@ socket.on("timer", function(data) {
     const display = document.getElementById('timerDisplay');
     const lockTextButton = document.getElementById("lockTextButton");
     
-    const clientNow = Date.now();
-    const serverOffset = data.serverTime - clientNow;
-    const durationInMs = parseInt(data.duration) * 1000;
-    const endTime = clientNow + durationInMs + serverOffset;
+    const duration = parseInt(data.duration || data.timer, 10);
+    if (isNaN(duration) || duration <= 0) return;
+    const endTime = Date.now() + duration * 1000;
 
     clearInterval(countdown);
     
     countdown = setInterval(() => {
-        const now = Date.now() + serverOffset; 
-        const timeLeft = endTime - now;
+        const timeLeft = endTime - Date.now();
 
         // 1. Prüfen, ob der Timer abgelaufen ist
         if(timeLeft <= 0) {

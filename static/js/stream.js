@@ -852,6 +852,7 @@
                 }).then((res) => {
                     if (res.isConfirmed && res.value && parseInt(res.value, 10) > 0) {
                         const secs = parseInt(res.value, 10);
+                        const timerEndTime = Date.now() + secs * 1000;
                         socket.emit("timer", {
                             room: targetRoom,
                             roomID: targetRoom,
@@ -861,9 +862,7 @@
                             type: 'stream_timer_sync',
                             timerData: {
                                 duration: secs,
-                                startTime: Date.now(),
-                                serverTime: Date.now(),
-                                endTime: Date.now() + secs * 1000
+                                endTime: timerEndTime
                             }
                         });
                     }
@@ -872,6 +871,7 @@
             return;
         }
 
+        const timerEndTime = Date.now() + duration * 1000;
         socket.emit("timer", {
             room: targetRoom,
             roomID: targetRoom,
@@ -881,9 +881,7 @@
             type: 'stream_timer_sync',
             timerData: {
                 duration: duration,
-                startTime: Date.now(),
-                serverTime: Date.now(),
-                endTime: Date.now() + duration * 1000
+                endTime: timerEndTime
             }
         });
     };
@@ -2953,13 +2951,6 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             cards = importedCards;
-                            if (Array.isArray(importedData.slots) && importedData.slots.length >= 1 && importedData.slots.length <= 8) {
-                                slots = importedData.slots;
-                                saveSlots();
-                                renderSlots();
-                                renderSlotOverviewGrid();
-                                updateSlotUI();
-                            }
                             activeCardIndex = 0;
                             saveCards();
                             saveActiveCardIndex();
@@ -3079,11 +3070,12 @@
         slots.forEach((s, idx) => {
             if (s.username === buzzedUser) {
                 const cell = document.getElementById(`streamSlot_${idx}`);
-                const badge = document.getElementById(`buzzerBadge_${idx}`);
                 if (cell) cell.classList.add('slot-buzzed');
+                // Auf /stream soll die Zahl verschwinden und nur der Rahmen grün leuchten
+                const badge = document.getElementById(`buzzerBadge_${idx}`);
                 if (badge) {
-                    badge.textContent = `${order}. `;
-                    badge.classList.remove('is-hidden');
+                    badge.textContent = '';
+                    badge.classList.add('is-hidden');
                 }
             }
         });
@@ -3154,11 +3146,26 @@
         }
     });
 
+    function resetSlotBorders() {
+        slots.forEach((_, idx) => {
+            const cell = document.getElementById(`streamSlot_${idx}`);
+            if (cell) {
+                cell.classList.remove('slot-buzzed');
+                cell.classList.remove('slot-submitted');
+            }
+            const badge = document.getElementById(`buzzerBadge_${idx}`);
+            if (badge) {
+                badge.textContent = '';
+                badge.classList.add('is-hidden');
+            }
+        });
+    }
+
     socket.on('buzzerReset', function () {
         slots.forEach((_, idx) => {
             const cell = document.getElementById(`streamSlot_${idx}`);
-            const badge = document.getElementById(`buzzerBadge_${idx}`);
             if (cell) cell.classList.remove('slot-buzzed');
+            const badge = document.getElementById(`buzzerBadge_${idx}`);
             if (badge) {
                 badge.textContent = '';
                 badge.classList.add('is-hidden');
@@ -3177,15 +3184,25 @@
     });
 
     socket.on('clearText', function () {
-        slots.forEach((_, idx) => {
-            const cell = document.getElementById(`streamSlot_${idx}`);
-            if (cell) cell.classList.remove('slot-submitted');
-        });
+        resetSlotBorders();
         lastSentCardId = null;
         if (typeof window.hostStopAudio === 'function') {
             window.hostStopAudio();
         }
         updateAudioSentHint();
+    });
+
+    socket.on('answerInputToggle', function (data) {
+        if (data && data.answerInput === false) {
+            slots.forEach((_, idx) => {
+                const cell = document.getElementById(`streamSlot_${idx}`);
+                if (cell) cell.classList.remove('slot-submitted');
+            });
+        }
+    });
+
+    socket.on('sendQuestion', function () {
+        resetSlotBorders();
     });
 
     function handleTimerSync(data) {
@@ -3195,43 +3212,22 @@
 
         const badge = document.getElementById('quizCardTimerBadge');
         const timerText = document.getElementById('quizCardTimerText');
-        const timerDisplay = document.getElementById('timerDisplay');
-        if (!badge && !timerText && !timerDisplay) return;
+        if (!badge && !timerText) return;
 
-        const durationInMs = duration * 1000;
-        const clientNow = Date.now();
-        const serverTime = (typeof data.serverTime === 'number' && data.serverTime > 0)
-            ? data.serverTime
-            : (typeof data.startTime === 'number' ? data.startTime : clientNow);
-        const serverOffset = serverTime - clientNow;
-        const endTime = (typeof data.endTime === 'number' && data.endTime > 0)
-            ? data.endTime
-            : (clientNow + durationInMs + serverOffset);
+        let endTime;
+        if (typeof data.endTime === 'number' && data.endTime > Date.now()) {
+            endTime = data.endTime;
+        } else {
+            endTime = Date.now() + duration * 1000;
+        }
 
         if (timerHideTimeout) {
             clearTimeout(timerHideTimeout);
             timerHideTimeout = null;
         }
 
-        const initialNow = Date.now() + serverOffset;
-        const initialTimeLeft = endTime - initialNow;
-        if (initialTimeLeft <= 0) {
-            if (timerCountdownInterval) {
-                clearInterval(timerCountdownInterval);
-                timerCountdownInterval = null;
-            }
-            activeStreamTimer = null;
-            if (activeRoomId && activeRoomId !== 'None') {
-                try { localStorage.removeItem('kurobuzz_active_timer_' + activeRoomId); } catch (e) {}
-            }
-            if (badge) badge.classList.add('unsichtbar');
-            if (timerDisplay) timerDisplay.innerText = "00:00";
-            return;
-        }
-
         activeStreamTimer = {
             duration: duration,
-            serverTime: serverTime,
             endTime: endTime
         };
 
@@ -3247,8 +3243,7 @@
         }
 
         function updateTimerDOM() {
-            const now = Date.now() + serverOffset;
-            const timeLeft = endTime - now;
+            const timeLeft = endTime - Date.now();
 
             if (timeLeft <= 0) {
                 if (timerCountdownInterval) {
@@ -3261,9 +3256,6 @@
                 }
                 if (timerText) {
                     timerText.textContent = (duration >= 60) ? "00:00" : "0s";
-                }
-                if (timerDisplay) {
-                    timerDisplay.innerText = "00:00";
                 }
                 if (timerHideTimeout) clearTimeout(timerHideTimeout);
                 timerHideTimeout = setTimeout(() => {
@@ -3290,13 +3282,9 @@
                     timerText.textContent = `${totalSeconds}s`;
                 }
             }
-            if (timerDisplay) {
-                timerDisplay.innerText = formattedMS;
-            }
         }
 
         updateTimerDOM();
-        // 200ms Taktung wie in timer.js, absolut driftfrei durch Date.now()-Differenzberechnung
         timerCountdownInterval = setInterval(updateTimerDOM, 200);
     }
     window.handleTimerSync = handleTimerSync;
