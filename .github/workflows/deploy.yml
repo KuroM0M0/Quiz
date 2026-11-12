@@ -1,0 +1,50 @@
+name: Deploy to Buzzertest Server
+
+on:
+  push:
+    branches:
+      - dev
+      - dev-stream
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Python Syntax & Build Check
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Test Requirements & Syntax
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m py_compile app.py
+
+      - name: Deploy via SSH to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            BRANCH="${{ github.ref_name }}"
+            echo "Deploying branch $BRANCH to buzzertest.kuropixel.de..."
+            cd ${{ secrets.SERVER_PROJECT_PATH }}
+            git fetch origin "$BRANCH"
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+            git reset --hard "origin/$BRANCH"
+            if [ -d "venv" ]; then
+              source venv/bin/activate
+            elif [ -d "env" ]; then
+              source env/bin/activate
+            fi
+            pip install -r requirements.txt
+            # Service neustarten (passe den Servicenamen ggf. in deinen Secrets an)
+            sudo systemctl restart ${{ secrets.SYSTEMD_SERVICE_NAME || 'buzzertest' }}

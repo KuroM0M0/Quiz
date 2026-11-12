@@ -8,6 +8,9 @@ function onBuzzerClick() {
 
 document.addEventListener('keydown', function(event) {
     if(event.code === 'Space') {
+        const buzzerBtn = document.getElementById("buzzer");
+        if (!buzzerBtn) return;
+
         const activeElem = document.activeElement;
         const isInputField = activeElem.tagName === 'INPUT' || 
                              activeElem.tagName === 'TEXTAREA' || 
@@ -113,6 +116,10 @@ socket.on("playLoaded", function(data) {
     const buzzer = document.getElementById("buzzer");
     const inputField = document.getElementsByName("InputField")[0];
     const toggleJoinButton = document.getElementById('btn-toggle-join');
+    const joinIcon = document.getElementById('join-icon');
+    const joinText = document.getElementById('join-text');
+    const bildContainer = document.getElementById('bildContainer');
+    const bildURL = data.image;
 
     //Verhindert fehlermeldung für den Host
     if(buzzer != null) {
@@ -165,6 +172,12 @@ socket.on("playLoaded", function(data) {
         toggleJoinButton.classList.replace('is-danger', 'is-success');
         joinIcon.className = 'fas fa-unlock';
         joinText.innerText = 'Offen';
+    }
+
+    if(data.hasImage == true) {
+        const bildContainer = document.getElementById('bildContainer');
+        bildContainer.classList.remove('unsichtbar');
+        bildContainer.src = data.image;
     }
 })
 

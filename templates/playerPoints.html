@@ -1,0 +1,50 @@
+{% extends "overlayBase.html" %}
+
+{% block head_meta %} 
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block title %} KuroBuzz - Punkte ({{ username }}) {% endblock %}
+{% block content %}
+
+<div class="zentriertFlex punkteBox box">
+    <p class="title" id="{{username}}Points">0</p>
+</div>
+
+<script>
+    const currentUsername = "{{ username }}";
+    const currentRoomID = "{{ roomID }}";
+
+    function joinRoomSafe() {
+        socket.emit('join_room', { roomID: currentRoomID, username: currentUsername });
+    }
+
+    if (socket.connected) {
+        joinRoomSafe();
+    }
+    socket.on('connect', joinRoomSafe);
+
+    // Initiale Punkte abrufen
+    fetch('/get_rooms')
+        .then(res => res.json())
+        .then(allRooms => {
+            if (allRooms && allRooms[currentRoomID] && allRooms[currentRoomID].players && allRooms[currentRoomID].players[currentUsername] !== undefined) {
+                const initialPoints = allRooms[currentRoomID].players[currentUsername].points;
+                const pointsElem = document.getElementById(currentUsername + "Points");
+                if (pointsElem) {
+                    pointsElem.textContent = initialPoints;
+                }
+            }
+        })
+        .catch(err => console.error("Fehler beim Laden der initialen Punkte:", err));
+
+    // Punkte aktualisieren wenn neue Spielerdaten ankommen
+    socket.on('playerList', function(data) {
+        const playerPointsElement = document.getElementById(currentUsername + "Points");
+        if (playerPointsElement && data && data.players && data.players[currentUsername] !== undefined) {
+            playerPointsElement.textContent = data.players[currentUsername].points;
+        }
+    });
+</script>
+
+{% endblock %}

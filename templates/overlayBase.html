@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de" class="theme-dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}KuroBuzz - Overlay{% endblock %}</title>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>    const socket = io();    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        /* Transparent für OBS-Browserquelle */
+        html, body {
+            background: transparent;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/text.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/buzzer.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

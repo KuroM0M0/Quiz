@@ -1,0 +1,1052 @@
+/* ==========================================================================
+   KuroBuzz - Stream Overlay & Host-Steuerung Stylesheet (stream.css)
+   ========================================================================== */
+
+/* Platzhalter-Karte im Stream (versteckt die Mittelkarte komplett) */
+.quizFeld.is-card-hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+.quizFeld {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.quizFeld button {
+    width: 400px;
+    height: 200px;
+    cursor: pointer;
+    border-radius: var(--bulma-box-radius, 6px);
+    /* Base identity transformations prevent stacking context / containment shifts during animations */
+    translate: 0px 0px;
+    scale: 1;
+    transition: width 0.5s ease-in-out, height 0.5s ease-in-out, border-radius 0.5s ease-in-out, padding 0.5s ease-in-out, box-shadow 0.35s ease;
+    animation: none;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Wenn Vollbild aktiv ist */
+.quizFeld button.button-vollbild {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    translate: 0px 0px !important;
+    scale: 1 !important;
+    animation: none !important;
+}
+
+.quizFeld button.button-klein {
+    animation: none;
+}
+
+/* ==========================================================================
+   Fragenwechsel-Animation auf der Stream-Mittelkarte
+   ========================================================================== */
+
+@keyframes cardSwitchOutNext {
+    0% {
+        translate: 0px 0px;
+        scale: 1;
+        opacity: 1;
+    }
+    100% {
+        translate: -32px 0px;
+        scale: 0.92;
+        opacity: 0;
+    }
+}
+
+@keyframes cardSwitchOutPrev {
+    0% {
+        translate: 0px 0px;
+        scale: 1;
+        opacity: 1;
+    }
+    100% {
+        translate: 32px 0px;
+        scale: 0.92;
+        opacity: 0;
+    }
+}
+
+@keyframes cardSwitchInNext {
+    0% {
+        translate: 40px 0px;
+        scale: 0.90;
+        opacity: 0;
+        box-shadow: 0 0 0 rgba(62, 142, 208, 0);
+    }
+    60% {
+        translate: -4px 0px;
+        scale: 1.03;
+        opacity: 1;
+        box-shadow: 0 0 28px rgba(62, 142, 208, 0.5);
+    }
+    100% {
+        translate: 0px 0px;
+        scale: 1;
+        opacity: 1;
+    }
+}
+
+@keyframes cardSwitchInPrev {
+    0% {
+        translate: -40px 0px;
+        scale: 0.90;
+        opacity: 0;
+        box-shadow: 0 0 0 rgba(62, 142, 208, 0);
+    }
+    60% {
+        translate: 4px 0px;
+        scale: 1.03;
+        opacity: 1;
+        box-shadow: 0 0 28px rgba(62, 142, 208, 0.5);
+    }
+    100% {
+        translate: 0px 0px;
+        scale: 1;
+        opacity: 1;
+    }
+}
+
+.quizFeld button:not(.button-vollbild).card-switch-out-next {
+    animation: cardSwitchOutNext 0.14s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+}
+
+.quizFeld button:not(.button-vollbild).card-switch-out-prev {
+    animation: cardSwitchOutPrev 0.14s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+}
+
+.quizFeld button:not(.button-vollbild).card-switch-in-next {
+    animation: cardSwitchInNext 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+.quizFeld button:not(.button-vollbild).card-switch-in-prev {
+    animation: cardSwitchInPrev 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+/* Im Vollbildmodus bleibt die Box flächendeckend und der innere Inhalt animiert weich */
+.quizFeld button.button-vollbild > :not(.tag) {
+    translate: 0px 0px;
+    scale: 1;
+}
+
+.quizFeld button.button-vollbild.card-switch-out-next > :not(.tag) {
+    animation: cardSwitchOutNext 0.14s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+}
+
+.quizFeld button.button-vollbild.card-switch-out-prev > :not(.tag) {
+    animation: cardSwitchOutPrev 0.14s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+}
+
+.quizFeld button.button-vollbild.card-switch-in-next > :not(.tag) {
+    animation: cardSwitchInNext 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+.quizFeld button.button-vollbild.card-switch-in-prev > :not(.tag) {
+    animation: cardSwitchInPrev 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+@supports not (translate: 0px) {
+    @keyframes cardSwitchOutNextFallback {
+        0% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+        100% { transform: translate(-32px, 0px) scale(0.92); opacity: 0; }
+    }
+    @keyframes cardSwitchOutPrevFallback {
+        0% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+        100% { transform: translate(32px, 0px) scale(0.92); opacity: 0; }
+    }
+    @keyframes cardSwitchInNextFallback {
+        0% { transform: translate(40px, 0px) scale(0.90); opacity: 0; }
+        60% { transform: translate(-4px, 0px) scale(1.03); opacity: 1; }
+        100% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+    }
+    @keyframes cardSwitchInPrevFallback {
+        0% { transform: translate(-40px, 0px) scale(0.90); opacity: 0; }
+        60% { transform: translate(4px, 0px) scale(1.03); opacity: 1; }
+        100% { transform: translate(0px, 0px) scale(1); opacity: 1; }
+    }
+    .quizFeld button:not(.button-vollbild).card-switch-out-next,
+    .quizFeld button.button-vollbild.card-switch-out-next > :not(.tag) {
+        animation: cardSwitchOutNextFallback 0.14s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+    }
+    .quizFeld button:not(.button-vollbild).card-switch-out-prev,
+    .quizFeld button.button-vollbild.card-switch-out-prev > :not(.tag) {
+        animation: cardSwitchOutPrevFallback 0.14s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+    }
+    .quizFeld button:not(.button-vollbild).card-switch-in-next,
+    .quizFeld button.button-vollbild.card-switch-in-next > :not(.tag) {
+        animation: cardSwitchInNextFallback 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+    }
+    .quizFeld button:not(.button-vollbild).card-switch-in-prev,
+    .quizFeld button.button-vollbild.card-switch-in-prev > :not(.tag) {
+        animation: cardSwitchInPrevFallback 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+    }
+}
+
+/* Vollbild-Textanpassung für Lesbarkeit */
+.quizFeld button .title,
+.quizFeld button .subtitle,
+.quizFeld button hr {
+    transition: font-size 0.5s ease-in-out, margin 0.5s ease-in-out, opacity 0.3s ease;
+}
+
+.quizFeld button:not(.button-vollbild) .title {
+    margin-bottom: 8px;
+}
+
+.quizFeld button:not(.button-vollbild) hr {
+    margin: 8px auto 12px auto;
+    width: 75%;
+}
+
+.quizFeld button.button-vollbild .title {
+    font-size: 2.8rem !important;
+    margin-bottom: 20px !important;
+}
+
+.quizFeld button.button-vollbild .subtitle {
+    font-size: 2rem !important;
+    line-height: 1.4 !important;
+    max-width: 85vw;
+}
+
+.quizFeld button.button-vollbild hr {
+    width: 70%;
+    margin: 20px auto;
+}
+
+/* Standard-Bild in der Quizkarte (wenn Fragetext vorhanden) */
+.quizFeld button img {
+    max-height: 100px;
+    max-width: 85%;
+    object-fit: contain;
+    margin: 5px auto 0 auto;
+    border-radius: 6px;
+    display: block;
+    transition: max-height 0.5s ease-in-out, max-width 0.5s ease-in-out;
+}
+
+.quizFeld button.button-vollbild img {
+    max-height: 48vh !important;
+    max-width: 80vw !important;
+}
+
+/* Bildmodus auf der Stream-Quizkarte: Ausschließlich das Bild und ein kleiner Rand der Box */
+.quizFeld button.is-image-only-mode {
+    padding: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+}
+
+.quizFeld button.is-image-only-mode .title,
+.quizFeld button.is-image-only-mode hr,
+.quizFeld button.is-image-only-mode .subtitle {
+    display: none !important;
+}
+
+.quizFeld button.is-image-only-mode img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+    border-radius: 4px;
+    display: block;
+    transition: none !important;
+}
+
+.quizFeld button.is-image-only-mode.button-vollbild {
+    padding: 16px !important;
+}
+
+/* Audio-Modus (Reines Audio-Rätsel) auf der Stream-Quizkarte */
+.quizFeld button.is-audio-only-mode {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+}
+
+.quizFeld button.is-audio-only-mode:not(.button-vollbild) {
+    padding: 16px 20px 8px 20px !important;
+    justify-content: flex-start !important;
+}
+
+.quizFeld button.is-audio-only-mode:not(.button-vollbild) .title {
+    margin-bottom: 4px !important;
+    margin-top: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.quizFeld button.is-audio-only-mode:not(.button-vollbild) hr {
+    margin: 4px auto 10px auto !important;
+    width: 60% !important;
+    flex-shrink: 0 !important;
+}
+
+.quizFeld button.is-audio-only-mode:not(.button-vollbild) .subtitle {
+    display: none !important;
+}
+
+.quizFeld button.is-audio-only-mode.button-vollbild {
+    padding: 40px 30px !important;
+    justify-content: flex-start !important;
+}
+
+.quizFeld button.is-audio-only-mode.button-vollbild .title {
+    margin-bottom: 12px !important;
+    flex-shrink: 0 !important;
+}
+
+.quizFeld button.is-audio-only-mode.button-vollbild hr {
+    margin: 8px auto 24px auto !important;
+    width: 50% !important;
+    flex-shrink: 0 !important;
+}
+
+/* ==========================================================================
+   Audio-Effekte & Animationen für Quizkarte
+   ========================================================================== */
+
+@keyframes audioPulse {
+    0% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.85; }
+}
+
+.audio-icon-pulse {
+    display: inline-block;
+}
+
+.audio-icon-pulse.is-pulsing {
+    animation: audioPulse 1.2s infinite ease-in-out;
+}
+
+.audio-wave-container {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    height: 52px;
+    margin: 0 auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+/* Wenn Audio-Only aktiv ist, bleibt der Container mit fester Höhe im Layout verankert (Titel verschiebt sich nie!) */
+.quizFeld button.is-audio-only-mode .audio-wave-container {
+    display: flex !important;
+}
+
+.audio-wave-container.is-active-wave {
+    opacity: 1;
+}
+
+.audio-wave-container.is-paused {
+    opacity: 0.55;
+}
+
+.audio-wave-bar {
+    width: 10px;
+    height: 8px;
+    min-height: 6px;
+    background: #3e8ed0;
+    border-radius: 999px;
+    transition: box-shadow 0.2s ease;
+}
+
+.audio-wave-container.is-active-wave .audio-wave-bar {
+    box-shadow: 0 0 8px rgba(62, 142, 208, 0.45);
+}
+
+.audio-wave-bar:nth-child(3) {
+    background: #ffe08a; /* Center accent bar */
+}
+
+.audio-wave-container.is-active-wave .audio-wave-bar:nth-child(3) {
+    box-shadow: 0 0 12px rgba(255, 224, 138, 0.7);
+}
+
+.quizFeld button.button-vollbild .audio-wave-container {
+    height: 140px;
+    gap: 18px;
+    margin: 20px auto;
+}
+
+.quizFeld button.button-vollbild .audio-wave-bar {
+    width: 20px;
+    height: 12px;
+    min-height: 12px;
+    border-radius: 999px;
+}
+
+.quizFeld button.button-vollbild .audio-wave-container.is-active-wave .audio-wave-bar {
+    box-shadow: 0 0 16px rgba(62, 142, 208, 0.55);
+}
+
+.quizFeld button.button-vollbild .audio-wave-container.is-active-wave .audio-wave-bar:nth-child(3) {
+    box-shadow: 0 0 22px rgba(255, 224, 138, 0.85);
+}
+
+
+/* ==========================================================================
+   Slots im Stream-Overlay: Anklickbar
+   ========================================================================== */
+
+.zellen {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.zellen:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Klickbarer Header-Bereich im Slot */
+.slot-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 4px 2px 4px;
+    cursor: pointer;
+}
+
+.slot-header .title {
+    margin-bottom: 0 !important;
+}
+
+.slot-edit-hint {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.zellen:hover .slot-edit-hint {
+    opacity: 0.8;
+}
+
+/* Slot Body für iFrames */
+.slot-body {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+.slot-body iframe {
+    border: none;
+}
+
+/* Container für Textfeld und optionales Overlay */
+.slot-text-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slot-text-container .slot-text-iframe {
+    width: 315px;
+    max-width: 95%;
+    height: 100%;
+    border: none;
+    margin: 0 auto;
+}
+
+.slot-text-container .slot-overlay-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 2;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+/* Automatische VDO.ninja Erkennung: unsichtbar solange kein Stream aktiv */
+.slot-text-container .slot-overlay-iframe.is-vdo-inactive {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+.slot-text-container .slot-overlay-iframe.is-vdo-active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+}
+
+.slot-reactive-iframe {
+    width: 100%;
+    max-width: 100%;
+    flex: 1;
+    min-height: 140px;
+    border: none;
+    align-self: center;
+}
+
+/* Leerer Slot Platzhalter */
+.slot-empty-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #888888;
+}
+
+.slot-empty-container i {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+
+.slot-empty-container p {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Buzzer und Antwort Zustände */
+.zellen.slot-buzzed {
+    border: 2px solid #23d160 !important;
+}
+
+.zellen.slot-submitted {
+    border: 2px solid #b86b14 !important;
+}
+
+.buzzer-badge {
+    background-color: #23d160;
+    color: #000000;
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 4px;
+}
+
+
+/* ==========================================================================
+   Ausrichtung für die mittleren 4 Kacheln (Slot 2, 3, 6, 7)
+   wegen der Karte in der Mitte
+   ========================================================================== */
+
+/* Slot 2 (Oben Mitte-Links): Avatar weicht nach links aus, um der Mittelbox Platz zu machen */
+.zellen.slot-top-left-shift .slot-reactive-iframe {
+    width: 270px !important;
+    max-width: calc(100% - 210px) !important;
+    align-self: flex-start !important;
+    margin-left: 15px !important;
+    margin-right: auto !important;
+}
+
+/* Slot 3 (Oben Mitte-Rechts): Avatar weicht nach rechts aus, um der Mittelbox Platz zu machen */
+.zellen.slot-top-right-shift .slot-reactive-iframe {
+    width: 270px !important;
+    max-width: calc(100% - 210px) !important;
+    align-self: flex-end !important;
+    margin-right: 15px !important;
+    margin-left: auto !important;
+}
+
+/* Slot 6 (Unten Mitte-Links): Name weicht nach links aus, Textfeld & Cam darunter zentriert */
+.zellen.slot-bottom-left-shift .slot-header {
+    justify-content: flex-start !important;
+    padding-left: 20px !important;
+    margin-right: auto !important;
+}
+
+/* Slot 7 (Unten Mitte-Rechts): Name weicht nach rechts aus, Textfeld & Cam darunter zentriert */
+.zellen.slot-bottom-right-shift .slot-header {
+    justify-content: flex-end !important;
+    padding-right: 20px !important;
+    margin-left: auto !important;
+}
+
+.zellen.slot-bottom-left-shift .slot-body,
+.zellen.slot-bottom-right-shift .slot-body {
+    margin-top: 35px;
+    align-items: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.zellen.slot-bottom-left-shift .slot-reactive-iframe,
+.zellen.slot-bottom-right-shift .slot-reactive-iframe {
+    align-self: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+}
+
+
+/* ==========================================================================
+   Stream-Steuerungsleiste auf der /host Seite
+   ========================================================================== */
+
+.host-stream-bar {
+    background: #1e1e28;
+    border: 1px solid #3e3e50;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin: 12px 20px 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.stream-control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Slots Übersicht im Host-Modal */
+.slot-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    transition: all 0.25s ease;
+}
+
+@media (max-width: 768px) {
+    .slot-overview-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Dynamische Stream-Grid Anpassung */
+.fixed-grid.is-stream-single-row .zellen {
+    height: calc(100vh - 20px) !important;
+}
+
+.zellen.slot-top-center-shift .slot-reactive-iframe {
+    margin-top: 10px;
+}
+.zellen.slot-bottom-center-shift .slot-header {
+    margin-top: 20px;
+}
+.zellen.slot-bottom-center-shift .slot-body {
+    margin-top: 30px;
+}
+
+.slot-overview-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    text-align: center;
+}
+
+.slot-overview-card:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: #485fc7;
+}
+
+.slot-overview-card.is-assigned {
+    border-color: rgba(72, 95, 199, 0.6);
+    background: rgba(72, 95, 199, 0.12);
+}
+
+
+/* ==========================================================================
+   Moderne, dezente Scrollbar für Modals & Listen
+   ========================================================================== */
+
+/* Firefox & Standard */
+.modal-content,
+#cardManagerList,
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.28) rgba(0, 0, 0, 0.15);
+}
+
+/* WebKit-Browser (Chrome, Edge, Safari, Opera) */
+.modal-content::-webkit-scrollbar,
+#cardManagerList::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track,
+#cardManagerList::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    margin: 4px 0;
+}
+
+.modal-content::-webkit-scrollbar-thumb,
+#cardManagerList::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover,
+#cardManagerList::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.45);
+    background-clip: padding-box;
+}
+
+.modal-content::-webkit-scrollbar-thumb:active,
+#cardManagerList::-webkit-scrollbar-thumb:active,
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+    background: rgba(255, 255, 255, 0.65);
+    background-clip: padding-box;
+}
+
+.modal-content::-webkit-scrollbar-corner,
+#cardManagerList::-webkit-scrollbar-corner,
+.custom-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Card Manager Item Styling */
+.card-manager-item {
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.card-manager-item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.card-manager-item.is-selected {
+    background-color: rgba(72, 95, 199, 0.22) !important;
+    border-color: rgba(72, 95, 199, 0.6) !important;
+}
+
+/* ==========================================================================
+   Subtiles Hotkey Feedback (Button-Klick Effekt)
+   ========================================================================== */
+
+@keyframes hotkeyPulseAnim {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(0.96); filter: brightness(1.3); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+.hotkey-pulse {
+    animation: hotkeyPulseAnim 0.18s ease-in-out !important;
+}
+
+/* ==========================================================================
+   Modals immer oberhalb des Drawers
+   ========================================================================== */
+
+.modal {
+    z-index: 1050 !important;
+}
+
+/* ==========================================================================
+   Host Off-Canvas Control Panel Drawer
+   ========================================================================== */
+
+.side-control-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 440px;
+    max-width: calc(100vw - 44px);
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.side-control-drawer.is-open {
+    transform: translateX(0);
+}
+
+/* Fester Griff / Tab an der linken Kante der Leiste */
+.drawer-tab {
+    position: absolute;
+    top: 90px;
+    left: -44px;
+    width: 44px;
+    height: 52px;
+    background: #1e1e2d;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    color: #3e8ed0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: -4px 3px 12px rgba(0, 0, 0, 0.45);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    z-index: 10;
+    padding: 0;
+    outline: none;
+    pointer-events: auto;
+}
+
+.drawer-tab:hover {
+    background: #2b2b3f;
+    color: #48c78e;
+}
+
+.drawer-tab i {
+    font-size: 1.25rem;
+    pointer-events: none;
+    transition: transform 0.25s ease;
+}
+
+.side-control-drawer.is-open .drawer-tab {
+    background: #232336;
+    color: #48c78e;
+}
+
+/* Innerer scrollbarer Bereich */
+.side-control-drawer .drawer-inner {
+    width: 100%;
+    height: 100%;
+    background-color: #14141f;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: -8px 0 28px rgba(0, 0, 0, 0.6);
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+
+/* Control-Panel Komponenten */
+.panel-box {
+    background: #1a1a28;
+    border: 1px solid #2e2e44;
+    border-radius: 8px;
+}
+
+.panel-preview-card {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 14px;
+}
+
+/* Audio Slider Styling im Host Audio Panel */
+.audio-control-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: #363645;
+    outline: none;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.audio-control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #209cee;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(32, 156, 238, 0.6);
+    transition: transform 0.1s ease;
+}
+
+.audio-control-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+.audio-control-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #209cee;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(32, 156, 238, 0.6);
+}
+
+/* Dark-Mode Button Styling für Danger- und Disabled-Buttons */
+.button.is-dark.has-text-danger:hover {
+    background-color: rgba(241, 70, 104, 0.18) !important;
+    color: #ff3860 !important;
+}
+
+.button:disabled,
+.button[disabled] {
+    opacity: 0.45 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   SweetAlert2 Dark Theme Overrides
+   ========================================================================== */
+
+.swal2-container {
+    z-index: 2000 !important;
+}
+
+.swal2-popup {
+    background-color: #1a1a28 !important;
+    color: #f5f5f7 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6) !important;
+}
+
+.swal2-title {
+    color: #ffffff !important;
+}
+
+.swal2-html-container {
+    color: #d2d2dc !important;
+}
+
+.swal2-icon.swal2-question {
+    border-color: #3e8ed0 !important;
+    color: #3e8ed0 !important;
+}
+
+.swal2-actions button {
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+}
+
+.swal2-cancel {
+    background-color: #2b2b3b !important;
+    color: #e0e0e0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #38384d !important;
+}
+
+/* ==========================================================================
+   Fragen-Navigation (Pfeile & Zähler)
+   ========================================================================== */
+
+.card-nav-field {
+    display: flex !important;
+    align-items: stretch !important;
+    margin-bottom: 0.75rem !important;
+    width: 100% !important;
+}
+
+.card-nav-field .control {
+    display: flex !important;
+    align-items: stretch !important;
+    margin-bottom: 0 !important;
+}
+
+.card-nav-field .control.is-expanded {
+    flex-grow: 1 !important;
+}
+
+#prevCardBtn,
+#nextCardBtn,
+#cardCounterTag {
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#prevCardBtn,
+#nextCardBtn {
+    width: 54px !important;
+    min-width: 54px !important;
+    flex-shrink: 0 !important;
+    cursor: pointer;
+    background-color: #232334 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#prevCardBtn {
+    border-radius: 6px 0 0 6px !important;
+    border-right: none !important;
+}
+
+#nextCardBtn {
+    border-radius: 0 6px 6px 0 !important;
+    border-left: none !important;
+}
+
+#cardCounterTag {
+    border-radius: 0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background-color: #1a1a28 !important;
+    font-size: 1.05rem !important;
+    letter-spacing: 0.3px !important;
+    text-align: center !important;
+    user-select: none !important;
+    width: 100% !important;
+}
+
+#prevCardBtn i,
+#nextCardBtn i {
+    font-size: 1.55rem !important;
+    line-height: 1 !important;
+    display: block !important;
+}
+
+#prevCardBtn:not(:disabled):hover,
+#nextCardBtn:not(:disabled):hover {
+    background-color: #32324a !important;
+    color: #48c78e !important;
+}
+
+#prevCardBtn:not(:disabled):active,
+#nextCardBtn:not(:disabled):active {
+    background-color: #1a1a28 !important;
+}

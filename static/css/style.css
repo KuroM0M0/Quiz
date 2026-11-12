@@ -12,6 +12,11 @@
     justify-content: center;
     align-items: center;
 }
+.rechts {
+    text-align: right;
+    justify-content: right;
+    align-items: right;
+}
 .unsichtbar {
     visibility: hidden;
     display: none;
@@ -26,11 +31,35 @@
 .abstandOben {
     margin-top: 30px;
 }
+.abstandObenGrid {
+    padding-top: 10px;
+}
 .kleinAbstandOben {
     margin-top: 5px;
 }
 .abstandLinks {
     margin-left: 20px;
+}
+.abstandLinksGrid {
+    margin-left: 10px;
+}
+.RippchenName {
+    margin-left: 180px;
+}
+.RippchenText {
+    margin-top: 40px;
+}
+.HoogiName {
+    margin-right: 180px;
+}
+.HoogiText {
+    margin-top: 40px;
+}
+.abstandRechtsGrid {
+    margin-right: 10px;
+}
+.abstandRechts {
+    margin-right: 20px;
 }
 .buttonJoin {
     height: 100px;
@@ -92,6 +121,16 @@
     min-width: 300px;
     max-width: 300px;
     max-height: 300px;
+}
+
+.cardDashOverlay {
+    margin-left: 5px;
+    margin-top: 5px;
+    min-height: 150px;
+    min-width: 300px;
+    max-width: 300px;
+    max-height: 300px;
+    overflow: hidden;
 }
 
 .answerInput {
@@ -158,6 +197,35 @@
     justify-content: center;
 }
 
+.punkteBox {
+    width: 50px;
+    height: 50px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @keyframes slideBounce {
     0% { transform: translateY(-140px) scale(0.85); opacity: 0; }
     60% { transform: translateY(6px) scale(1.04); opacity: 1; }
@@ -212,4 +280,59 @@
     width: 1px;
     align-self: stretch;
     background-color: rgba(255, 255, 255, 0.15);
+}
+
+#bildButtonPlay {
+    margin-top: 50px;
+    padding: 100px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.grid {
+    border-left: 1px solid #868686;
+    border-top: 1px solid #868686;
+}
+.quizFeld {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+.zellen {
+    border-right: 1px solid #868686;
+    border-bottom: 1px solid #868686;
+    height: 528px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+
+.quizFeld button {
+    width: 400px;
+    height: 200px;
+    cursor: pointer;
+}
+.quizFeld button:focus {
+    /* animation controlled via JS class .button-vollbild / .button-klein */
+}
+@keyframes buttonVollbild {
+    0% {
+        width: 400px;
+        height: 200px;
+    }
+    20% {
+        width: 340px;
+        height: 176px;
+    }
+    100% {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+    }
 }

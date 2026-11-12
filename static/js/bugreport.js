@@ -28,26 +28,48 @@ async function addCard() {
 }
 
 
-async function deleteCard(buttonElement, name, text) {
-    if (!confirm("Wirklich löschen?")) return;
+async function deleteBugReportCard(buttonElement, name, text) {
+    const doDelete = async () => {
+        try {
+            const response = await fetch('/deleteCard', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, text: text })
+            });
 
-    try {
-        const response = await fetch('/deleteCard', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name, text: text })
-        });
-
-        if (response.ok) {
-            // Wir suchen das oberste Container-Element der Karte und entfernen es
-            const cardColumn = buttonElement.closest('.column');
-            cardColumn.remove();
-            
-            if (typeof ShowSuccesAlert === "function") {
-                ShowSuccesAlert("Karte entfernt!");
+            if (response.ok) {
+                // Wir suchen das oberste Container-Element der Karte und entfernen es
+                const cardColumn = buttonElement.closest('.column');
+                if (cardColumn) cardColumn.remove();
+                
+                if (typeof ShowSuccesAlert === "function") {
+                    ShowSuccesAlert("Karte entfernt!");
+                }
             }
+        } catch (error) {
+            console.error("Fehler:", error);
         }
-    } catch (error) {
-        console.error("Fehler:", error);
+    };
+
+    if (typeof ShowQuestionAlert === "function") {
+        ShowQuestionAlert("Löschen bestätigen", "Möchtest du diese Meldung wirklich löschen?").then((result) => {
+            if (result && result.isConfirmed) {
+                doDelete();
+            }
+        });
+    } else if (typeof Swal !== "undefined") {
+        Swal.fire({
+            title: "Löschen bestätigen",
+            text: "Möchtest du diese Meldung wirklich löschen?",
+            icon: "question",
+            confirmButtonText: "Löschen",
+            cancelButtonText: "Abbrechen",
+            showCancelButton: true,
+            theme: "dark"
+        }).then((result) => {
+            if (result && result.isConfirmed) {
+                doDelete();
+            }
+        });
     }
 }

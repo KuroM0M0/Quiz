@@ -14,8 +14,12 @@ function createRoom() {
 
         const roomCodeDiv = document.getElementById('roomCode');
         roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${data.roomID} <button class="subtitle" onclick="toggleCode()"><i class="fas fa-eye"></i></button></h1>`;
+        const drawerRoom = document.getElementById('drawerRoomID');
+        if (drawerRoom) drawerRoom.textContent = data.roomID;
 
         socket.emit('join_room', {roomID: data.roomID, host: data.host}); //Host tritt direkt neu erstellten Raum bei
+        if (typeof roomID !== 'undefined') roomID = data.roomID;
+        if (typeof window.initStreamRoom === 'function') window.initStreamRoom(data.roomID);
     })
     .catch(error => console.error('Fehler beim Erstellen vom Raum:', error));
 }

@@ -21,6 +21,15 @@ socketio = SocketIO(app, cors_allowed_origins="*")  # erlaubt auch lokale Tests
 rooms = {}
 players = [] #nötig für Prüfung ob Username bereits existiert
 
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range, Authorization"
+    return response
+
+upload_folder = os.path.join(app.static_folder, 'uploads')
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'wartung/login' # Wo soll man hin, wenn man nicht eingeloggt ist?
@@ -162,11 +171,39 @@ def updates():
     return render_template("updates.html")
 
 
+@app.route('/<roomID>/stream')
+def stream(roomID):
+    return render_template("stream.html", roomID=roomID)
+
+
+
+@app.route('/<roomID>/<username>/text')
+def playerText(roomID, username):
+    return render_template("playerText.html", username=username, roomID=roomID)
+
+
+@app.route('/<roomID>/<username>/punkte')
+def playerPoints(roomID, username):
+    return render_template("playerPoints.html", username=username, roomID=roomID)
+
+
 
 ################################################
 #### Hier sind die nicht aufrufbaren Routen ####
 ################################################
 
+
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    file = request.files.get('file')
+    if file:
+        # Dateiendung ermitteln (z.B. .jpg oder .png)
+        ext = os.path.splitext(file.filename)[1]
+        random_name = f"{secrets.token_hex(8)}{ext}"
+        file.save(os.path.join(upload_folder, random_name))
+        return jsonify({'url': f"/static/uploads/{random_name}"})
+    return jsonify({'error': 'Keine Datei'}), 400
 
 
 @app.route('/saveCard', methods=['POST'])
@@ -223,6 +260,8 @@ def create():
         "buzzerOrder": 0,
         "answerButton": False,
         "currentQuestion": "",
+        "currentAnswer": "",
+        "hasImage": False,
         "isOpenToJoin": True
     }
 
@@ -490,9 +529,64 @@ def submitAnswer(data):
 
 @socketio.on("sendQuestion")
 def sendQuestion(data):
-    roomID = data['room']
-    rooms[roomID]["currentQuestion"] = data['question']
-    socketio.emit("sendQuestion", data, room=data['room'])
+    target_room = data.get('room') or data.get('roomID')
+    if target_room and target_room in rooms:
+        rooms[target_room]["currentQuestion"] = data.get('question', '')
+        rooms[target_room]["currentAnswer"] = data.get('answer', '')
+    if target_room:
+        socketio.emit("sendQuestion", data, room=target_room)
+
+
+@socketio.on("sendImage")
+def sendImage(data):
+    roomID = data.get('room') or data.get('roomID')
+    imageURL = data.get('image')
+    if roomID and roomID in rooms:
+        rooms[roomID]["hasImage"] = True
+    if roomID:
+        socketio.emit("sendImage", {"image": imageURL}, room=roomID)
+
+
+@socketio.on("playAudio")
+def play_audio(data):
+    target_room = data.get('room') or data.get('roomID')
+    if target_room:
+        socketio.emit("playAudio", data, room=target_room)
+
+
+@socketio.on("pauseAudio")
+def pause_audio(data):
+    target_room = data.get('room') or data.get('roomID')
+    if target_room:
+        socketio.emit("pauseAudio", data, room=target_room)
+
+
+@socketio.on("stopAudio")
+def stop_audio(data):
+    target_room = data.get('room') or data.get('roomID')
+    if target_room:
+        socketio.emit("stopAudio", data, room=target_room)
+
+
+@socketio.on("seekAudio")
+def seek_audio(data):
+    target_room = data.get('room') or data.get('roomID')
+    if target_room:
+        socketio.emit("seekAudio", data, room=target_room)
+
+
+@socketio.on("streamAudioVisual")
+def stream_audio_visual(data):
+    target_room = data.get('room') or data.get('roomID')
+    if target_room:
+        socketio.emit("streamAudioVisual", data, room=target_room)
+
+
+@socketio.on("streamAudioLevels")
+def stream_audio_levels(data):
+    target_room = data.get('room') or data.get('roomID')
+    if target_room:
+        socketio.emit("streamAudioLevels", data, room=target_room)
 
 
 
@@ -565,7 +659,15 @@ def handle_timer(data):
     # Wir schicken die Dauer UND den aktuellen Server-Zeitstempel
     data["duration"] = duration
     data["serverTime"] = time.time() * 1000 
-    socketio.emit("timer", data, to=data.get("room"))
+    target_room = data.get("room") or data.get("roomID")
+    socketio.emit("timer", data, to=target_room)
+
+
+@socketio.on("stream_sync")
+def handle_stream_sync(data):
+    target_room = data.get("roomID") or data.get("room")
+    if target_room:
+        socketio.emit("stream_sync", data, room=target_room, include_self=False)
 
 
 

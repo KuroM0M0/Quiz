@@ -74,7 +74,10 @@
         </div>
     </div>
     <div class="column">
-        
+        <div id="bildContainer" class="zentriertFlex animiert unsichtbar">
+            <!--hier Button einfügen, der das Bild in Vollbild anzeigt-->
+            <button class="button" id="bildButtonPlay" onclick="openModal('bildModalPlay')">Bild anzeigen</button>
+        </div>
     </div>
 </div>
 
@@ -87,13 +90,28 @@
 <div class="zentriert">
     <div id="qCard" class="questionCard" style="opacity:0;">
         <span id="qText"></span>
+        <div id="playerAudioIndicator" class="tag is-info is-light mt-2 unsichtbar">
+            <i class="fas fa-volume-up mr-1 audio-icon-pulse"></i>&nbsp;<span>Audio läuft</span>
+        </div>
     </div>
 </div>
+<audio id="playerQuestionAudio" preload="auto" playsinline style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
 
 <div class="zentriert animiert delay2">
     <textarea class="input answerInput has-fixed-size" placeholder="Deine Antwort" name="InputField" id="{{ username }}Input" oninput="onTextChange(username)"></textarea>
     <br><br>
     <button class="button is-primary unsichtbar" id="submitAnswer" onclick="lockSubmitAnswer(username, this)">Antwort abgeben</button>
+</div>
+
+<div class="modal" id="bildModalPlay">
+    <div class="modal-background" onclick="closeModal('bildModal')"></div>
+    <div class="modal-content p-4">
+        <div class="box">
+            <label class="label">Bild dass den Teilnehmern angezeigt wird</label>
+            <input class="input" type="file" id="bildInput" accept="image/*">
+            <button class="button is-primary abstand" onclick="sendImage()">Bild senden</button>
+            <button class="button is-danger abstand" onclick="closeModal('bildModal')">Abbrechen</button>
+        </div>
 </div>
 
 

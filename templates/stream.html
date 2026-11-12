@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block head_meta %} 
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stream.css') }}">
+{% endblock %}
+
+{% block title %} KuroBuzz - Stream {% endblock %}
+{% block content %}
+
+<style>
+    /* Verhindert Scrollbalken im Stream */
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+</style>
+
+<!-- Spieler Grid (Spalten & Zeilen passen sich dynamisch an) - Kacheln sind anklickbar! -->
+<div class="fixed-grid has-4-cols abstandObenGrid abstandLinksGrid abstandRechtsGrid" id="streamFixedGrid">
+    <div class="grid is-gap-0" id="streamGrid">
+        <!-- Wird dynamisch durch stream.js befüllt (8 anklickbare Kacheln) -->
+    </div>
+</div>
+
+<!-- Interaktive Quizkarte in der Mitte (Klick zum Vergrößern / Verkleinern, Pfeiltasten zum Umschalten) -->
+<div class="quizFeld" id="quizFeld">
+    <button class="box" id="quizButton" onclick="toggleQuizCardFullscreen(event)" style="position: relative;">
+        <span id="quizCardTimerBadge" class="tag is-danger is-medium unsichtbar" style="position: absolute; top: 12px; right: 12px; font-weight: bold; z-index: 5;">
+            <i class="fas fa-stopwatch"></i>&nbsp;<span id="quizCardTimerText">30s</span>
+        </span>
+        <h1 class="title zentriert" id="quizCardCategory">Quiz</h1>
+        <hr>
+        <p class="subtitle" id="quizCardText">Keine Fragen vorhanden. Erstelle Fragen über die Host-Seite.</p>
+        <img id="quizCardImage" class="unsichtbar" src="" alt="Quiz Bild">
+        <div id="quizCardAudioWave" class="audio-wave-container">
+            <div class="audio-wave-bar" id="audioBar0"></div>
+            <div class="audio-wave-bar" id="audioBar1"></div>
+            <div class="audio-wave-bar" id="audioBar2"></div>
+            <div class="audio-wave-bar" id="audioBar3"></div>
+            <div class="audio-wave-bar" id="audioBar4"></div>
+        </div>
+    </button>
+</div>
+<audio id="streamQuestionAudio" preload="auto" playsinline style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
+
+<!-- Modal: Spieler einem angeklickten Slot zuweisen -->
+<div class="modal" id="slotAssignModal">
+    <div class="modal-background" onclick="closeModal('slotAssignModal')"></div>
+    <div class="modal-content p-4" style="max-height: calc(100vh - 60px);">
+        <div class="box p-5">
+            <h1 class="title is-4 mb-4" id="slotModalTitle">Slot zuweisen</h1>
+            <div class="field mb-4">
+                <label class="label">Spieler für diese Kachel auswählen</label>
+                <div class="select is-fullwidth">
+                    <select id="slotPlayerSelect">
+                        <option value="">-- Kein Spieler (Slot leeren) --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field mb-4">
+                <label class="label">Discord-Reactive / Kamera URL (Optional)</label>
+                <input class="input" type="text" id="slotReactiveInput" placeholder="https://reactive.fugi.tech/... oder https://vdo.ninja/...">
+            </div>
+            <div class="field mb-5">
+                <label class="label">Textfeld-Overlay URL (Optional)</label>
+                <input class="input" type="text" id="slotOverlayInput" placeholder="https://... (Wird über das Textfeld des Spielers gelegt)">
+            </div>
+            <div class="is-flex is-justify-content-space-between is-align-items-center pt-2" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="buttons mb-0">
+                    <button class="button is-primary" onclick="saveCurrentSlot()">Speichern</button>
+                    <button class="button is-warning" onclick="clearCurrentSlot()">Slot leeren</button>
+                </div>
+                <div>
+                    <button class="button is-dark has-text-danger" onclick="closeModal('slotAssignModal')" style="border: 1px solid rgba(241, 70, 104, 0.35);">Abbrechen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Raum- und Hostdaten für stream.js bereitstellen
+    window.STREAM_ROOM_ID = "{{ roomID }}";
+    window.CURRENT_USERNAME = "{{ session.get('username', '') }}";
+
+    // Sagt dem Browser: Beim Neuladen IMMER stur bei Position 0 bleiben!
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+</script>
+
+<script src="{{ url_for('static', filename='js/stream.js') }}"></script>
+
+{% endblock %}

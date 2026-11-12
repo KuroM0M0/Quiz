@@ -36,7 +36,7 @@ socket.on("timer", function(data) {
         // 1. Prüfen, ob der Timer abgelaufen ist
         if(timeLeft <= 0) {
             clearInterval(countdown); // Intervall stoppen
-            display.innerText = "00:00"; // Kurz 0 anzeigen
+            if (display) display.innerText = "00:00"; // Kurz 0 anzeigen
 
             // Die Sperr-Logik ausführen
             if(lockTextButton) {
@@ -62,6 +62,6 @@ socket.on("timer", function(data) {
         let mins = Math.floor(totalSeconds / 60);
         let secs = totalSeconds % 60;
 
-        display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        if (display) display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }, 200);
 });

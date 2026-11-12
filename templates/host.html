@@ -2,6 +2,7 @@
 
 {% block head_meta %} 
     <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stream.css') }}">
 {% endblock %}
 
 {% block title %} KuroBuzz - Host {% endblock %}
@@ -19,7 +20,6 @@
     <div class="column is-one-fifth zentriertFlex">
         <div class="dropdown is-right" id="settings">
         <div class="dropdown-trigger">
-            <!-- Das Zahnrad-Icon in hellem Text für den Dark Mode -->
             <button class="button is-ghost p-0" onclick="toggleSettingsMenu()">
                 <span class="icon is-large">
                     <i class="fas fa-cog fa-2x has-text-light"></i>
@@ -27,10 +27,9 @@
             </button>
         </div>
         <div class="dropdown-menu" role="menu">
-            <!-- p-3 für den schwebenden Look. Der Hintergrund passt sich deinem restlichen Darkmode an -->
             <div class="dropdown-content p-3" style="width: 240px;">
                 
-                <!-- Haupt-Trigger für die Sounds (Jetzt passend in is-dark) -->
+                <!-- Haupt-Trigger für die Sounds -->
                 <button class="button is-dark is-fullwidth is-justify-content-space-between mb-2" onclick="toggleBuzzerSounds()">
                     <span class="has-text-weight-semibold has-text-light">Sound Settings</span>
                     <span class="icon is-small">
@@ -38,9 +37,8 @@
                     </span>
                 </button>
                 
-                <!-- Eingerücktes Untermenü mit sattem, dunklem Hintergrund -->
+                <!-- Eingerücktes Untermenü -->
                 <div id="buzzer-sounds-list" class="is-hidden py-2 px-1 mb-2 has-background-grey-darker" style="border-radius: 6px;">
-                    <!-- Die Buttons nutzen jetzt is-dark, um sich dezent vom Hintergrund abzuheben -->
                     <button class="button is-dark is-small is-fullwidth mb-1" onclick="changeBuzzerSound('BuzzerLang')">BuzzerLang</button>
                     <button class="button is-dark is-small is-fullwidth mb-1" onclick="changeBuzzerSound('BuzzerKurz')">BuzzerShort</button>
                     <button class="button is-dark is-small is-fullwidth mb-1" onclick="changeBuzzerSound('Meow')">Meow</button>
@@ -48,7 +46,6 @@
                     
                     <hr class="dropdown-divider my-2" style="background-color: #4a4a4a;" />
                     
-                    <!-- Textfarbe explizit auf hell gesetzt -->
                     <p class="subtitle is-6 mb-2 pl-1 has-text-light">Lautstärke:</p>
                     <div class="px-1">
                         <input type="range" id="volumeSlider" min="0" max="100" value="100" oninput="changeBuzzerVolume(this.value)" class="slider is-fullwidth">
@@ -57,7 +54,13 @@
 
                 <hr class="dropdown-divider my-2" />
                 
-                <!-- "Spieler entfernen" in sattem Rot (is-danger) statt hellem Rosa -->
+                <button class="button is-dark is-fullwidth mb-2" onclick="openHotkeySettingsModal()">
+                    <span class="icon is-small">
+                        <i class="fas fa-keyboard"></i>
+                    </span>
+                    <span>Hotkeys einstellen</span>
+                </button>
+
                 <button class="button is-danger is-fullwidth mb-2" onclick="kickPlayer()">
                     <span class="icon is-small">
                         <i class="fas fa-user-slash"></i>
@@ -94,7 +97,7 @@
     <div class="column">
         <div class="toolbar-groups">
             <div class="buttons">
-                <button class="button is-primary abstandLinks" onclick="sendQuestion()"><span title="Jeder Spieler sieht gleichzeitig die eingegebene Frage">Sende Frage</span></button>
+                <button class="button is-primary abstandLinks" onclick="openModal('frageModal')"><span title="Jeder Spieler sieht gleichzeitig die eingegebene Frage"><i class="fas fa-question"></i>&nbsp;Sende Frage</span></button>
                 <button class="button is-primary" onclick="startTimer()"><span title="Wenn Timer abgelaufen: Textfeld sperrt sich"><i class="fas fa-hourglass-half"></i>&nbsp;Starte Timer</span></button>
             </div>
             <div class="toolbar-divider"></div>
@@ -110,12 +113,13 @@
             </div>
             <h1 id="timerDisplay" class="subtitle is-3">00:00</h1>
         </div>
+        <br>
+        <div class="buttons">
+            <button class="button is-primary abstandLinks" onclick="openModal('bildModal')" id="imageButton"><span title="Sendet ein Bild an alle Spieler"><i class="fas fa-image"></i>&nbsp;Sende Bild</span></button>
+            <button class="button is-dark abstandLinks" onclick="openStreamView()" title="Stream-Ansicht in neuem Tab öffnen"><i class="fas fa-external-link-alt"></i>&nbsp;Stream öffnen</button>
+        </div>
     </div>
 </div>
-
-
-
-<!--<button id="firstBuzz" class="button" onclick="buttonActiveToggle(this)">Only first Buzz</button> Button hat keine funktion -->
 
 <div class="columns">
     <div class="column is-four-fifths">
@@ -145,29 +149,459 @@
     </div>
 </div>
 
-    
+<!-- Modal: Frage senden -->
+<div class="modal" id="frageModal">
+    <div class="modal-background" onclick="closeModal('frageModal')"></div>
+    <div class="modal-content p-4">
+        <div class="box">
+            <label class="label">Welche Frage möchtest du stellen?</label>
+            <input class="input" type="text" id="frageInput" placeholder="Frage eingeben">
+            <br><br>
+            <label class="label">Was ist die richtige Antwort? (Optional)</label>
+            <input class="input" type="text" id="antwortInput" placeholder="Richtige Antwort eingeben">
+            <br><br>
+            <div>
+                <button class="button is-primary abstand" onclick="sendQuestion()">Frage senden</button>
+                <button class="button is-danger abstand" onclick="closeModal('frageModal')">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Bild senden -->
+<div class="modal" id="bildModal">
+    <div class="modal-background" onclick="closeModal('bildModal')"></div>
+    <div class="modal-content p-4">
+        <div class="box">
+            <label class="label">Bild dass den Teilnehmern angezeigt wird</label>
+            <input class="input" type="file" id="bildInput" accept="image/*">
+            <button class="button is-primary abstand" onclick="sendImage()">Bild senden</button>
+            <button class="button is-danger abstand" onclick="closeModal('bildModal')">Abbrechen</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Off-Canvas Seiten-Drawer: Control Panel -->
+<aside class="side-control-drawer" id="controlDrawer" aria-label="Control Panel Seitenleiste" aria-hidden="true">
+    <button class="drawer-tab" id="drawerTab" onclick="toggleControlDrawer()" aria-label="Control Panel umschalten" title="Control Panel öffnen/schließen">
+        <i class="fas fa-sliders-h" id="drawerTabIcon"></i>
+    </button>
+    <div class="drawer-inner custom-scrollbar">
+        <!-- Kopfbereich -->
+        <div class="is-flex is-align-items-center is-justify-content-space-between mb-3 pb-2" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <div class="is-flex is-align-items-center" style="gap: 10px;">
+                <span class="icon is-medium has-text-info">
+                    <i class="fas fa-sliders-h fa-lg"></i>
+                </span>
+                <div>
+                    <h2 class="title is-5 mb-0 has-text-white">Control Panel</h2>
+                    <span class="is-size-7 has-text-grey-light">Raum: <strong class="has-text-info" id="drawerRoomID">{{ roomID if (roomID and roomID != 'None') else 'Wird geladen...' }}</strong></span>
+                </div>
+            </div>
+            <button class="delete is-medium" onclick="closeControlDrawer()" aria-label="Schließen" title="Schließen (Esc)"></button>
+        </div>
+
+        <!-- 1. Fragen-Steuerung & Navigation -->
+        <div class="box panel-box p-4 mb-4">
+            <div class="is-flex is-align-items-center is-justify-content-space-between mb-3">
+                <span class="tag is-info is-medium has-text-weight-bold">
+                    <i class="fas fa-tv mr-2"></i>Stream-Fragen
+                </span>
+            </div>
+
+            <!-- Navigation Buttons & Zähler -->
+            <div class="field has-addons mb-3 card-nav-field">
+                <p class="control">
+                    <button class="button is-dark" id="prevCardBtn" onclick="prevCard()" title="Vorherige Frage (Pfeil Links)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </p>
+                <p class="control is-expanded">
+                    <span class="button is-static is-fullwidth has-background-dark has-text-grey" id="cardCounterTag">
+                        Noch keine Fragen
+                    </span>
+                </p>
+                <p class="control">
+                    <button class="button is-dark" id="nextCardBtn" onclick="nextCard()" title="Nächste Frage (Pfeil Rechts)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </p>
+            </div>
+
+            <!-- Dropdown aller Fragen -->
+            <div class="field mb-3">
+                <div class="select is-dark is-fullwidth">
+                    <select id="cardSelectDropdown" onchange="selectCardFromDropdown(this.value)"></select>
+                </div>
+            </div>
+
+            <!-- Live-Vorschau der aktuellen Frage -->
+            <div class="panel-preview-card">
+                <div class="is-flex is-align-items-center is-justify-content-space-between mb-1">
+                    <h3 class="subtitle is-6 has-text-warning has-text-weight-bold mb-0" id="quizCardCategory">Quiz</h3>
+                    <span id="quizCardTimerBadge" class="tag is-danger is-small unsichtbar">
+                        <i class="fas fa-stopwatch mr-1"></i><span id="quizCardTimerText">30s</span>
+                    </span>
+                </div>
+                <p class="is-size-6 has-text-white mb-2" id="quizCardText" style="min-height: 44px; word-break: break-word;">Keine Fragen vorhanden. Klicke unten auf 'Fragen verwalten', um Aufgaben anzulegen.</p>
+                <img id="quizCardImage" class="unsichtbar mb-2" src="" alt="Quiz Bild" style="max-height: 120px; max-width: 100%; border-radius: 4px; display: block; margin: 0 auto;">
+                
+                <!-- Lösung ein-/ausblenden -->
+                <div class="is-flex is-align-items-center is-justify-content-space-between pt-2" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                    <button class="button is-dark is-small" id="toggleSolutionBtn" onclick="toggleSolution()" title="Lösung ein-/ausblenden" style="border: 1px solid rgba(255, 255, 255, 0.15);">
+                        <i class="fas fa-lightbulb mr-1 has-text-warning"></i> <span class="has-text-white">Lösung</span>
+                    </button>
+                    <span id="streamSolutionDisplay" class="tag is-dark has-text-warning unsichtbar" style="border: 1px solid rgba(255, 221, 87, 0.35); max-width: 65%; overflow: hidden; text-overflow: ellipsis;">
+                        Lösung:&nbsp;<strong id="solutionAnswerText" class="has-text-white"></strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Audio-Steuerung für den Host (nur sichtbar, wenn die aktive Frage ein Audio hat) -->
+            <div id="hostAudioBar" class="box panel-box p-3 mb-3 is-hidden" style="background: rgba(32, 156, 238, 0.08); border: 1px solid rgba(32, 156, 238, 0.3);">
+                <!-- Zeile 1: Titel und Zeit-Anzeige -->
+                <div class="is-flex is-align-items-center is-justify-content-space-between mb-2">
+                    <span class="has-text-info has-text-weight-bold is-size-7">
+                        <i class="fas fa-music mr-1"></i> Audio-Track
+                    </span>
+                    <span id="hostAudioTime" class="tag is-dark is-small" style="font-family: monospace; font-size: 0.75rem;">0:00 / 0:00</span>
+                </div>
+
+                <!-- Zeile 2: Timeline-Fortschritt / Vor- und Zurückspulen per Slider -->
+                <div class="mb-2 is-flex is-align-items-center" style="gap: 6px;">
+                    <input type="range" id="hostAudioSeekSlider" class="audio-control-slider" min="0" max="100" step="0.1" value="0"
+                           oninput="onHostAudioSeekInput(this.value)" onchange="onHostAudioSeekChange(this.value)"
+                           style="width: 100%;" title="Audio-Position: Klicken oder Ziehen zum Spulen">
+                </div>
+
+                <!-- Zeile 3: Steuerungs-Buttons & Lautstärke -->
+                <div class="is-flex is-align-items-center" style="gap: 6px;">
+                    <button class="button is-info is-small" id="hostAudioPlayBtn" onclick="toggleHostAudioPlay()" title="Audio abspielen / pausieren" style="width: 32px; height: 32px; padding: 0;">
+                        <i class="fas fa-play" id="hostAudioPlayIcon"></i>
+                    </button>
+                    <button class="button is-dark is-small" id="hostAudioStopBtn" onclick="hostStopAudio()" title="Audio stoppen" style="width: 32px; height: 32px; padding: 0;">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                    <button class="button is-dark is-small" id="hostAudioRewindBtn" onclick="hostSeekRelative(-5)" title="5 Sekunden zurückspulen" style="width: 32px; height: 32px; padding: 0;">
+                        <i class="fas fa-backward"></i>
+                    </button>
+                    <button class="button is-dark is-small" id="hostAudioForwardBtn" onclick="hostSeekRelative(5)" title="5 Sekunden vorspulen" style="width: 32px; height: 32px; padding: 0;">
+                        <i class="fas fa-forward"></i>
+                    </button>
+
+                    <div class="is-flex-grow-1 is-flex is-align-items-center ml-1" style="gap: 5px;">
+                        <i class="fas fa-volume-down has-text-grey is-size-7"></i>
+                        <input type="range" id="hostAudioVolumeSlider" class="audio-control-slider" min="0" max="1" step="0.05" value="0.8" oninput="setHostAudioVolume(this.value)" style="width: 100%;" title="Lautstärke">
+                        <i class="fas fa-volume-up has-text-grey is-size-7"></i>
+                    </div>
+                </div>
+
+                <!-- Hinweis, ob Audio / Frage bereits an die Spieler übertragen wurde (dynamisch gesteuert) -->
+                <div id="hostAudioSentStatus" class="mt-2 pt-2 is-size-7" style="display: none;"></div>
+            </div>
+            <audio id="hostAudioPlayer" preload="auto" crossorigin="anonymous" style="display: none;"></audio>
+
+            <!-- Aktions-Buttons für die Frage -->
+            <div class="buttons is-flex mb-0" style="gap: 8px;">
+                <button class="button is-warning" id="streamTimerBtn" onclick="startCardTimer()" style="flex: 1;" title="Timer für diese Aufgabe starten">
+                    <i class="fas fa-stopwatch mr-1"></i><span id="streamTimerBtnText">Timer</span>
+                </button>
+                <button class="button is-primary" id="sendCardBtn" onclick="sendCardToPlayers()" style="flex: 2;" title="Aktive Frage und Bild an alle Teilnehmer übertragen">
+                    <i class="fas fa-paper-plane mr-1"></i> An Spieler senden
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Verwaltung (Fragen & Stream-Slots) -->
+        <div class="box panel-box p-4 mb-4">
+            <h3 class="subtitle is-6 has-text-weight-bold has-text-grey-light mb-3">
+                <i class="fas fa-cogs mr-1"></i> Verwaltung & Setup
+            </h3>
+            <div class="buttons mb-3">
+                <button class="button is-success is-fullwidth" onclick="openCardManagerModal()" title="Fragen bearbeiten, erstellen, importieren oder exportieren">
+                    <i class="fas fa-list mr-2"></i> Fragen & Aufgaben verwalten
+                </button>
+                <button class="button is-link is-fullwidth" onclick="openSlotOverviewModal()" title="Stream-Slots verwalten und Spieler/Kameras zuweisen">
+                    <i class="fas fa-th-large mr-2"></i> Stream-Slots verwalten (<span id="drawerSlotCountDisplay">8</span> Kacheln)
+                </button>
+                <button class="button is-dark is-fullwidth" onclick="openHotkeySettingsModal()" title="Hotkeys für Buzzer und Quizfeld konfigurieren">
+                    <i class="fas fa-keyboard mr-2"></i> Hotkeys einstellen
+                </button>
+            </div>
+            <div class="buttons are-small is-flex mb-3" style="gap: 8px;">
+                <button class="button is-dark" onclick="autoAssignSlots()" style="flex: 1;" title="Freie Kacheln automatisch mit beigetretenen Spielern füllen">
+                    <i class="fas fa-magic mr-1"></i> Auto-Slots
+                </button>
+                <button class="button is-dark has-text-danger" onclick="clearAllSlots()" style="flex: 1; border: 1px solid rgba(241, 70, 104, 0.35);" title="Alle 8 Slots leeren">
+                    <i class="fas fa-user-times mr-1"></i> Slots leeren
+                </button>
+            </div>
+            <div>
+                <button class="button is-dark is-fullwidth" id="btnToggleMiddleCard" onclick="toggleStreamMiddleCard()" title="Mittelkarte im Stream ein- oder ausblenden" style="border: 1px solid rgba(255, 255, 255, 0.15);">
+                    <i class="fas fa-eye-slash mr-2 has-text-warning" id="btnToggleMiddleCardIcon"></i>
+                    <span id="btnToggleMiddleCardText">Mittelkarte ausblenden</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Modal: Übersicht aller 8 Stream-Slots -->
+<div class="modal" id="slotOverviewModal">
+    <div class="modal-background" onclick="closeModal('slotOverviewModal')"></div>
+    <div class="modal-content p-4" style="max-width: 780px; max-height: calc(100vh - 60px);">
+        <div class="box p-5">
+            <div class="is-flex is-justify-content-space-between is-align-items-center mb-4" style="gap: 12px; flex-wrap: wrap;">
+                <h1 class="title is-4 mb-0">Stream-Slots verwalten (<span id="slotCountDisplay">8</span> Kacheln)</h1>
+                <div class="buttons mb-0">
+                    <button class="button is-dark is-small" id="btnAddSlot" onclick="addSlot()" title="Einen weiteren Slot hinzufügen (max. 8)">
+                        <i class="fas fa-plus mr-1 has-text-success"></i>&nbsp;Slot hinzufügen
+                    </button>
+                    <button class="button is-dark is-small" id="btnRemoveSlot" onclick="removeSlot()" title="Letzten Slot entfernen (min. 1)">
+                        <i class="fas fa-minus mr-1 has-text-danger"></i>&nbsp;Slot entfernen
+                    </button>
+                    <button class="button is-dark is-small" onclick="autoAssignSlots()" title="Freie Kacheln automatisch mit beigetretenen Spielern füllen">
+                        <i class="fas fa-magic mr-1"></i>&nbsp;Auto-Slots
+                    </button>
+                    <button class="button is-dark is-small has-text-danger" onclick="clearAllSlots()" style="border: 1px solid rgba(241, 70, 104, 0.35);" title="Alle Slots leeren">
+                        <i class="fas fa-user-times mr-1"></i>&nbsp;Alle leeren
+                    </button>
+                </div>
+            </div>
+            <p class="subtitle is-6 has-text-grey-light mb-4">Klicke auf einen Slot, um ihm einen Spieler und optional einen Discord-Reactive / Kamera-Link zuzuweisen.</p>
+            <div class="slot-overview-grid mb-4" id="slotOverviewGrid">
+                <!-- Dynamisch durch stream.js befüllt -->
+            </div>
+            <div class="is-flex is-justify-content-flex-end pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <button class="button is-dark has-text-danger" onclick="closeModal('slotOverviewModal')" style="border: 1px solid rgba(241, 70, 104, 0.35);">
+                    <i class="fas fa-times"></i>&nbsp;Schließen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Spieler einem angeklickten Slot zuweisen -->
+<div class="modal" id="slotAssignModal">
+    <div class="modal-background" onclick="closeModal('slotAssignModal')"></div>
+    <div class="modal-content p-4" style="max-height: calc(100vh - 60px);">
+        <div class="box p-5">
+            <h1 class="title is-4 mb-4" id="slotModalTitle">Slot zuweisen</h1>
+            <div class="field mb-4">
+                <label class="label">Spieler für diese Kachel auswählen</label>
+                <div class="select is-fullwidth">
+                    <select id="slotPlayerSelect">
+                        <option value="">-- Kein Spieler (Slot leeren) --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field mb-4">
+                <label class="label">Discord-Reactive / Kamera URL (Optional)</label>
+                <input class="input" type="text" id="slotReactiveInput" placeholder="https://reactive.fugi.tech/... oder https://vdo.ninja/...">
+            </div>
+            <div class="field mb-5">
+                <label class="label">Textfeld-Overlay URL (Optional)</label>
+                <input class="input" type="text" id="slotOverlayInput" placeholder="https://... (Wird über das Textfeld des Spielers gelegt)">
+            </div>
+            <div class="is-flex is-justify-content-space-between is-align-items-center pt-2" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="buttons mb-0">
+                    <button class="button is-primary" onclick="saveCurrentSlot()">Speichern</button>
+                    <button class="button is-warning" onclick="clearCurrentSlot()">Slot leeren</button>
+                </div>
+                <div>
+                    <button class="button is-dark has-text-danger" onclick="closeModal('slotAssignModal')" style="border: 1px solid rgba(241, 70, 104, 0.35);">Abbrechen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Fragen & Aufgaben verwalten / erstellen -->
+<div class="modal" id="cardManagerModal">
+    <div class="modal-background" onclick="closeModal('cardManagerModal')"></div>
+    <div class="modal-content p-4" style="max-width: 1200px; width: 95vw; max-height: calc(100vh - 40px); overflow-y: auto;">
+        <div class="box p-5">
+            <!-- Kopfbereich: Titel & Paket-Aktionen (Export/Import) -->
+            <div class="is-flex is-justify-content-space-between is-align-items-center mb-4 pb-2" style="gap: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <h1 class="title is-4 mb-0" style="white-space: nowrap;">
+                    <i class="fas fa-tasks mr-2 has-text-info"></i>Fragen & Aufgaben verwalten
+                </h1>
+                <div class="is-flex is-align-items-center" style="gap: 10px; flex-shrink: 0; flex-wrap: nowrap;">
+                    <button class="button is-info is-small" onclick="exportQuizPackage()" title="Fragen und Slot-Belegung als Datei herunterladen" style="white-space: nowrap;">
+                        <i class="fas fa-file-export mr-1"></i>&nbsp;Export
+                    </button>
+                    <label class="button is-warning is-small mb-0" title="Quiz-Paket aus Datei laden" style="white-space: nowrap; cursor: pointer;">
+                        <i class="fas fa-file-import mr-1"></i>&nbsp;Import
+                        <input type="file" id="quizPackageFileInput" accept=".json,application/json" style="display: none;" onchange="importQuizPackage(this)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- 2-Spalten-Layout: Links Fragenliste, Rechts Formular -->
+            <div class="columns is-variable is-5 mb-0">
+                <!-- Linke Spalte: Vorhandene Fragen / Aufgaben -->
+                <div class="column is-5 is-flex is-flex-direction-column" style="border-right: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div class="is-flex is-justify-content-space-between is-align-items-center mb-3">
+                        <label class="label mb-0 has-text-weight-bold">
+                            <i class="fas fa-list-ol mr-1 has-text-grey-light"></i>Vorhandene Fragen/Aufgaben
+                        </label>
+                        <button class="button is-small is-dark" onclick="resetCardForm()" title="Neue Frage anlegen">
+                            <i class="fas fa-plus mr-1 has-text-success"></i>Neu
+                        </button>
+                    </div>
+                    <div id="cardManagerList" class="custom-scrollbar" style="flex: 1; overflow-y: auto; padding-right: 6px; min-height: 440px; max-height: 520px;">
+                        <!-- Dynamisch erzeugt -->
+                    </div>
+                </div>
+
+                <!-- Rechte Spalte: Frage erstellen / bearbeiten Formular -->
+                <div class="column is-7">
+                    <h2 class="title is-5 mb-4" id="cardFormTitle">Frage erstellen / bearbeiten</h2>
+
+                    <div class="field mb-4">
+                        <label class="label is-small">Kategorie / Überschrift</label>
+                        <input class="input is-small" type="text" id="cardTitleInput" placeholder="z. B. Runde 1: Retro Gaming">
+                    </div>
+
+                    <div class="field mb-4">
+                        <label class="label is-small">Frage / Aufgabe <span id="cardQuestionRequiredLabel" class="has-text-grey is-size-7">(Erforderlich)</span></label>
+                        <textarea class="textarea is-small" id="cardQuestionInput" rows="3" placeholder="Fragetext oder Aufgabe hier eingeben..."></textarea>
+                    </div>
+
+                    <div class="columns is-variable is-3 mb-4">
+                        <div class="column is-half">
+                            <div class="field">
+                                <label class="label is-small">Richtige Antwort / Lösung (Optional)</label>
+                                <input class="input is-small" type="text" id="cardAnswerInput" placeholder="Lösung für den Host...">
+                            </div>
+                        </div>
+                        <div class="column is-half">
+                            <div class="field">
+                                <label class="label is-small">Timer in Sekunden (Optional)</label>
+                                <input class="input is-small" type="number" id="cardTimerInput" placeholder="Kein Timer (z. B. 30)" min="1" max="600">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field mb-4">
+                        <label class="label is-small">Bild für diese Frage (Datei-Upload oder Bild-URL)</label>
+                        <div class="field has-addons mb-2">
+                            <div class="control is-expanded">
+                                <input class="input is-small" type="text" id="cardImageInput" placeholder="Bild-URL (https://...) oder Datei auswählen..." oninput="onCardImageUrlChange(this.value)">
+                            </div>
+                            <div class="control">
+                                <label class="button is-dark is-small" style="cursor: pointer;" title="Bild vom Computer hochladen">
+                                    <i class="fas fa-upload mr-1"></i> Datei...
+                                    <input type="file" id="cardImageFileInput" accept="image/*" style="display: none;" onchange="uploadCardImage(this)">
+                                </label>
+                            </div>
+                        </div>
+                        <div class="is-flex is-align-items-center is-justify-content-space-between mb-0" style="flex-wrap: wrap; gap: 8px;">
+                            <label class="checkbox is-size-7">
+                                <input type="checkbox" id="cardImageOnlyInput" onchange="onToggleImageOnly(this.checked)">
+                                <strong class="ml-1 has-text-warning"><i class="fas fa-image mr-1"></i>Bild statt Frage anzeigen</strong>
+                            </label>
+                            <p id="cardImageStatus" class="help is-info mb-0 is-size-7"></p>
+                        </div>
+                    </div>
+
+                    <!-- Audio für diese Frage -->
+                    <div class="field mb-4">
+                        <label class="label is-small">Audio für diese Frage (Datei-Upload oder Audio-URL)</label>
+                        <div class="field has-addons mb-2">
+                            <div class="control is-expanded">
+                                <input class="input is-small" type="text" id="cardAudioInput" placeholder="Audio-URL (https://...) oder Audiodatei auswählen..." oninput="onCardAudioUrlChange(this.value)">
+                            </div>
+                            <div class="control">
+                                <label class="button is-dark is-small" style="cursor: pointer;" title="Audiodatei vom Computer hochladen (.mp3, .wav, .ogg, .m4a)">
+                                    <i class="fas fa-upload mr-1"></i> Audio...
+                                    <input type="file" id="cardAudioFileInput" accept="audio/*" style="display: none;" onchange="uploadCardAudio(this)">
+                                </label>
+                            </div>
+                            <div class="control">
+                                <button type="button" class="button is-info is-outlined is-small" id="cardAudioPreviewBtn" onclick="toggleCardAudioPreview()" title="Audio vorab probehören" disabled>
+                                    <i class="fas fa-play" id="cardAudioPreviewIcon"></i>&nbsp;Probehören
+                                </button>
+                            </div>
+                        </div>
+                        <div class="is-flex is-align-items-center is-justify-content-space-between mb-0" style="flex-wrap: wrap; gap: 8px;">
+                            <label class="checkbox is-size-7">
+                                <input type="checkbox" id="cardAudioLoopInput">
+                                <span class="ml-1 has-text-info"><i class="fas fa-redo mr-1"></i>Audio wiederholen (Loop)</span>
+                            </label>
+                            <p id="cardAudioStatus" class="help is-info mb-0 is-size-7"></p>
+                        </div>
+                        <audio id="cardAudioPreviewPlayer" style="display: none;"></audio>
+                    </div>
+
+                    <!-- Formular Aktionen direkt rechts unter dem Formular -->
+                    <div class="is-flex is-align-items-center is-justify-content-space-between mt-4 pt-3" style="flex-wrap: wrap; gap: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                        <div class="buttons mb-0">
+                            <button class="button is-primary is-small" id="cardFormSubmitBtn" onclick="saveCardForm()">
+                                <i class="fas fa-save mr-1"></i>&nbsp;Frage speichern
+                            </button>
+                            <button class="button is-small" onclick="resetCardForm()">
+                                <i class="fas fa-eraser mr-1"></i>&nbsp;Formular leeren
+                            </button>
+                        </div>
+                        <div>
+                            <button class="button is-dark is-small" onclick="addPlaceholderCard()" title="Fügt einen unsichtbaren Platzhalter ein, der das Mittelfeld im Stream komplett ausblendet">
+                                <i class="fas fa-eye-slash mr-1 has-text-warning"></i>&nbsp;Platzhalter hinzufügen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fußzeile: Nur Schließen-Button rechts unten -->
+            <div class="is-flex is-justify-content-flex-end is-align-items-center mt-3 pt-2" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <button class="button is-dark has-text-danger" onclick="closeModal('cardManagerModal')" style="border: 1px solid rgba(241, 70, 104, 0.35);">
+                    <i class="fas fa-times mr-1"></i>&nbsp;Schließen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script> 
     let roomID = "{{ roomID }}";
     const username = "{{ session['username'] }}";
+    window.STREAM_ROOM_ID = (roomID && roomID !== "None") ? roomID : "";
+    window.CURRENT_USERNAME = username;
 
     window.addEventListener('DOMContentLoaded', () => {
         if (roomID && roomID !== "None") {
             const roomCodeDiv = document.getElementById('roomCode');
             roomCodeDiv.innerHTML = `<h1 class="title roomCode">Room Code: ${roomID} <button class="subtitle" onclick="toggleCode()"><i class="fas fa-eye"></i></button></h1>`;
+            const drawerRoom = document.getElementById('drawerRoomID');
+            if (drawerRoom) drawerRoom.textContent = roomID;
             socket.emit('join_room', {roomID: roomID, host: username});
             socket.emit("playLoaded", {roomID: roomID});
+            if (typeof window.initStreamRoom === 'function') {
+                window.initStreamRoom(roomID);
+            }
         } else {
-            createRoom(); //Beim seiten neuladen wird neuer Raum erstellt, wenn noch keiner existiert
+            createRoom(); // Beim Neuladen wird neuer Raum erstellt, falls noch keiner existiert
         }
     });
 
     setTimeout(() => {
         if (!roomID || roomID === "None") {
-            roomID = document.getElementById("roomCode").textContent.split("Room Code:")[1].trim();
+            const rcElem = document.getElementById("roomCode");
+            if (rcElem && rcElem.textContent.includes("Room Code:")) {
+                roomID = rcElem.textContent.split("Room Code:")[1].trim();
+                const drawerRoom = document.getElementById('drawerRoomID');
+                if (drawerRoom) drawerRoom.textContent = roomID;
+                if (typeof window.initStreamRoom === 'function') {
+                    window.initStreamRoom(roomID);
+                }
+            }
         }
         console.log(roomID);
     }, 5000);
 </script>
+
+<script src="{{ url_for('static', filename='js/stream.js') }}"></script>
 
 {% endblock %}

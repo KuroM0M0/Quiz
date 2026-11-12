@@ -49,6 +49,14 @@ function toggleCode() {
     }
 }
 
+function openModal(modalID) {
+    document.getElementById(modalID).classList.add("is-active");
+}
+
+function closeModal(modalID) {
+    document.getElementById(modalID).classList.remove("is-active");
+}
+
 
 socket.on("kicked", function(data) {
     // Prüfen, ob man selbst der gekickte Spieler ist

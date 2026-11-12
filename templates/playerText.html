@@ -1,0 +1,70 @@
+{% extends "overlayBase.html" %}
+
+{% block title %} KuroBuzz - Textoverlay ({{ username }}) {% endblock %}
+{% block content %}
+
+<style>
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+        background: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .cardDashOverlay {
+        margin: 0 auto !important;
+    }
+</style>
+
+<div name="card" class="card cardDashOverlay" id="{{username}}Card">
+    <div class="card-content">
+        <div class="content">
+            <textarea class="textarea hostAnswerInput has-fixed-size" placeholder="Textfeld" id="{{username}}Input" readonly></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentUsername = "{{ username }}";
+    const currentRoomID = "{{ roomID }}";
+
+    function joinRoomSafe() {
+        socket.emit('join_room', { roomID: currentRoomID, username: currentUsername });
+    }
+
+    if (socket.connected) {
+        joinRoomSafe();
+    }
+    socket.on('connect', joinRoomSafe);
+
+    // Initialen Text abrufen (falls der Spieler bereits etwas eingegeben hat)
+    fetch('/get_rooms')
+        .then(res => res.json())
+        .then(allRooms => {
+            if (allRooms && allRooms[currentRoomID] && allRooms[currentRoomID].players && allRooms[currentRoomID].players[currentUsername]) {
+                const initialText = allRooms[currentRoomID].players[currentUsername].textFeld;
+                const inputField = document.getElementById(currentUsername + "Input");
+                if (inputField && initialText) {
+                    inputField.value = initialText;
+                }
+            }
+        })
+        .catch(err => console.error("Fehler beim Laden des initialen Texts:", err));
+
+    // Live Text-Update verarbeiten
+    socket.on('text_update', function(data) {
+        if (data.username === currentUsername) {
+            const inputField = document.getElementById(currentUsername + "Input");
+            if (inputField) {
+                inputField.value = data.text;
+            }
+        }
+    });
+</script>
+
+{% endblock %}
