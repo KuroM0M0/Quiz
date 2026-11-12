@@ -700,10 +700,40 @@
         const outClass = dir === 'next' ? 'card-switch-out-next' : 'card-switch-out-prev';
         const inClass = dir === 'next' ? 'card-switch-in-next' : 'card-switch-in-prev';
 
-        // Bei sehr schnellem Durchklicken sofort Inhalt tauschen und Eingangsanimation abspielen
+        const targetCard = (cards && cards.length > 0) ? cards[Math.min(activeCardIndex, cards.length - 1)] : null;
+        const isTargetPlaceholder = targetCard ? !!(targetCard.isPlaceholder || (targetCard.title && targetCard.title.trim().toLowerCase() === '[platzhalter]') || targetCard.placeholder) : false;
+        const targetShouldHide = isMiddleCardHidden || isTargetPlaceholder || !targetCard;
+
+        const quizFeld = document.getElementById('quizFeld');
+        const wasHidden = quizFeld ? quizFeld.classList.contains('is-card-hidden') : false;
+
+        // Bei sehr schnellem Durchklicken laufenden Timer abbrechen
         if (cardSwitchOutTimer) {
             clearTimeout(cardSwitchOutTimer);
             cardSwitchOutTimer = null;
+        }
+
+        // Fall A: Wechsel zu einem Platzhalter (vorherige Karte wischt nach links weg, aber KEINE neue Karte fliegt rein!)
+        if (targetShouldHide) {
+            if (!wasHidden) {
+                quizBtn.classList.remove('card-switch-out-next', 'card-switch-out-prev', 'card-switch-in-next', 'card-switch-in-prev');
+                void quizBtn.offsetWidth;
+                quizBtn.classList.add(outClass);
+
+                cardSwitchOutTimer = setTimeout(() => {
+                    cardSwitchOutTimer = null;
+                    applyMiddleCardDOM();
+                    quizBtn.classList.remove('card-switch-out-next', 'card-switch-out-prev', 'card-switch-in-next', 'card-switch-in-prev');
+                }, 135);
+            } else {
+                applyMiddleCardDOM();
+                quizBtn.classList.remove('card-switch-out-next', 'card-switch-out-prev', 'card-switch-in-next', 'card-switch-in-prev');
+            }
+            return;
+        }
+
+        // Fall B: Wechsel von einem Platzhalter zu einer sichtbaren Frage (kein Rauswischen der leeren Mitte, neue Karte fliegt sauber rein)
+        if (wasHidden) {
             applyMiddleCardDOM();
             quizBtn.classList.remove('card-switch-out-next', 'card-switch-out-prev', 'card-switch-in-next', 'card-switch-in-prev');
             void quizBtn.offsetWidth;
@@ -715,6 +745,7 @@
             return;
         }
 
+        // Fall C: Regulärer Wechsel zwischen zwei sichtbaren Fragen (Rauswischen -> Reinwischen)
         quizBtn.classList.remove('card-switch-out-next', 'card-switch-out-prev', 'card-switch-in-next', 'card-switch-in-prev');
         void quizBtn.offsetWidth;
         quizBtn.classList.add(outClass);
