@@ -40,15 +40,24 @@ jobs:
             git fetch origin "$BRANCH"
             git checkout -B "$BRANCH" "origin/$BRANCH"
             git reset --hard "origin/$BRANCH"
-            INTERPRETER="python3"
+
+            # 1. Virtuelle Python-Umgebung erstellen/nutzen
+            if [ ! -d "venv" ]; then
+              python3 -m venv venv || virtualenv venv
+            fi
+
             if [ -d "venv" ]; then
               source venv/bin/activate
               INTERPRETER="./venv/bin/python"
-            elif [ -d "env" ]; then
-              source env/bin/activate
-              INTERPRETER="./env/bin/python"
+            else
+              INTERPRETER="python3"
             fi
+
+            # 2. Pakete in die Umgebung installieren
+            pip install --upgrade pip
             pip install -r requirements.txt
-            # Mit PM2 neustarten (oder starten, falls noch nicht aktiv)
-            pm2 restart buzzertest || pm2 start app.py --name "buzzertest" --interpreter "$INTERPRETER"
+
+            # 3. PM2-Prozess sauber neu registrieren & starten
+            pm2 delete buzzertest 2>/dev/null || true
+            pm2 start app.py --name "buzzertest" --interpreter "$INTERPRETER"
             pm2 save
