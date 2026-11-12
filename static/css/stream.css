@@ -4,9 +4,11 @@
 
 /* Platzhalter-Karte im Stream (versteckt die Mittelkarte komplett) */
 .quizFeld.is-card-hidden {
+    display: none !important;
     opacity: 0 !important;
     pointer-events: none !important;
     visibility: hidden !important;
+    transition: none !important;
 }
 
 .quizFeld {
@@ -15,7 +17,6 @@
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 10;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .quizFeld button {

@@ -41,6 +41,19 @@
         if (m) m.classList.remove('is-active');
     };
 
+    // Universelle Erkennung von Platzhalter-Karten (Mitte im Stream ausgeblendet)
+    function isCardPlaceholder(card) {
+        if (!card) return false;
+        if (card.isPlaceholder || card.placeholder || card.is_placeholder) return true;
+        if (typeof card.title === 'string') {
+            const cleanTitle = card.title.trim().toLowerCase();
+            if (cleanTitle === '[platzhalter]' || cleanTitle === 'platzhalter' || cleanTitle.includes('platzhalter') || cleanTitle.includes('[placeholder]') || cleanTitle.includes('placeholder')) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Alert-Hilfsfunktionen: Nutzen immer SweetAlert2 aus alerts.js (keine nativen alerts/confirms)
     function triggerErrorAlert(title, text) {
         if (typeof ShowErrorAlert === 'function') {
@@ -502,7 +515,7 @@
         const current = cards[activeCardIndex];
 
         // Platzhalter-Erkennung (z. B. isPlaceholder Flag oder Titel "[Platzhalter]")
-        const isPlaceholder = !!(current.isPlaceholder || (current.title && current.title.trim().toLowerCase() === '[platzhalter]') || current.placeholder);
+        const isPlaceholder = isCardPlaceholder(current);
         const shouldHideOnStream = isMiddleCardHidden || isPlaceholder;
 
         if (isStreamPage && quizFeld) {
@@ -523,6 +536,20 @@
                 if (textElem) {
                     textElem.textContent = current.question ? `[Notiz für Host] ${current.question}` : "Das Mittelfeld im Stream ist bei dieser Karte komplett ausgeblendet.";
                     textElem.classList.remove('unsichtbar');
+                }
+                if (imgElem) {
+                    imgElem.src = "";
+                    imgElem.classList.add('unsichtbar');
+                }
+            } else {
+                // Auf /stream: Text und Bild sofort leeren, damit keinerlei Geister-Inhalte verbleiben
+                if (catElem) {
+                    catElem.textContent = "";
+                    catElem.classList.add('unsichtbar');
+                }
+                if (textElem) {
+                    textElem.textContent = "";
+                    textElem.classList.add('unsichtbar');
                 }
                 if (imgElem) {
                     imgElem.src = "";
@@ -701,19 +728,23 @@
         const inClass = dir === 'next' ? 'card-switch-in-next' : 'card-switch-in-prev';
 
         const targetCard = (cards && cards.length > 0) ? cards[Math.min(activeCardIndex, cards.length - 1)] : null;
-        const isTargetPlaceholder = targetCard ? !!(targetCard.isPlaceholder || (targetCard.title && targetCard.title.trim().toLowerCase() === '[platzhalter]') || targetCard.placeholder) : false;
+        const isTargetPlaceholder = isCardPlaceholder(targetCard);
         const targetShouldHide = isMiddleCardHidden || isTargetPlaceholder || !targetCard;
 
         const quizFeld = document.getElementById('quizFeld');
-        const wasHidden = quizFeld ? quizFeld.classList.contains('is-card-hidden') : false;
+        const wasHidden = quizFeld ? (quizFeld.classList.contains('is-card-hidden') || quizFeld.style.display === 'none' || getComputedStyle(quizFeld).display === 'none') : false;
 
-        // Bei sehr schnellem Durchklicken laufenden Timer abbrechen
+        // Bei schnellem Durchklicken laufende Animationstimer abbrechen
         if (cardSwitchOutTimer) {
             clearTimeout(cardSwitchOutTimer);
             cardSwitchOutTimer = null;
         }
+        if (cardSwitchCleanupTimer) {
+            clearTimeout(cardSwitchCleanupTimer);
+            cardSwitchCleanupTimer = null;
+        }
 
-        // Fall A: Wechsel zu einem Platzhalter (vorherige Karte wischt nach links weg, aber KEINE neue Karte fliegt rein!)
+        // Fall A: Wechsel zu einem Platzhalter (vorherige Karte wischt nach links weg, danach ist die Mitte sofort unsichtbar)
         if (targetShouldHide) {
             if (!wasHidden) {
                 quizBtn.classList.remove('card-switch-out-next', 'card-switch-out-prev', 'card-switch-in-next', 'card-switch-in-prev');
@@ -724,7 +755,7 @@
                     cardSwitchOutTimer = null;
                     applyMiddleCardDOM();
                     quizBtn.classList.remove('card-switch-out-next', 'card-switch-out-prev', 'card-switch-in-next', 'card-switch-in-prev');
-                }, 135);
+                }, 140);
             } else {
                 applyMiddleCardDOM();
                 quizBtn.classList.remove('card-switch-out-next', 'card-switch-out-prev', 'card-switch-in-next', 'card-switch-in-prev');
@@ -2446,7 +2477,7 @@
             const isSelected = (idx === activeCardIndex);
             row.className = 'p-3 mb-2 is-flex is-align-items-center is-justify-content-space-between card-manager-item' + (isSelected ? ' is-selected' : '');
 
-            const isPlaceholder = !!(card.isPlaceholder || (card.title && card.title.trim().toLowerCase() === '[platzhalter]') || card.placeholder);
+            const isPlaceholder = isCardPlaceholder(card);
 
             const timerBadge = (card.timer && parseInt(card.timer, 10) > 0)
                 ? `<span class="tag is-small is-warning is-light ml-2"><i class="fas fa-stopwatch"></i>&nbsp;${card.timer}s</span>`
@@ -2752,7 +2783,7 @@
         const timerVal = document.getElementById('cardTimerInput').value.trim();
         const timer = (timerVal && parseInt(timerVal, 10) > 0) ? parseInt(timerVal, 10) : null;
         const imageOnly = document.getElementById('cardImageOnlyInput') ? document.getElementById('cardImageOnlyInput').checked : false;
-        const isPlaceholder = (title.trim().toLowerCase() === '[platzhalter]');
+        const isPlaceholder = isCardPlaceholder({ title: title });
 
         if (imageOnly && !image) {
             triggerErrorAlert("Bild fehlt", "Bitte wähle ein Bild aus (oder trage eine Bild-URL ein), da 'Bild statt Frage anzeigen' aktiviert ist.");
@@ -3033,9 +3064,10 @@
                     return;
                 }
 
-                // Sicherstellen, dass jede importierte Karte eine eindeutige ID besitzt
+                // Sicherstellen, dass jede importierte Karte eine eindeutige ID besitzt & Platzhalter markiert sind
                 importedCards.forEach((c, idx) => {
                     if (!c.id) c.id = Date.now() + idx;
+                    if (isCardPlaceholder(c)) c.isPlaceholder = true;
                 });
 
                 function checkAndPromptSlots() {
