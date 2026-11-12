@@ -242,18 +242,27 @@
     }
 
     function saveSlots() {
+        if (!activeRoomId || activeRoomId === 'None') {
+            activeRoomId = window.STREAM_ROOM_ID || (typeof roomID !== 'undefined' && roomID !== 'None' ? roomID : '');
+        }
         if (!activeRoomId || activeRoomId === 'None') return;
         localStorage.setItem('kurobuzz_slots_' + activeRoomId, JSON.stringify(slots));
         broadcastSync({ type: 'slots_updated', slots: slots });
     }
 
     function saveCards() {
+        if (!activeRoomId || activeRoomId === 'None') {
+            activeRoomId = window.STREAM_ROOM_ID || (typeof roomID !== 'undefined' && roomID !== 'None' ? roomID : '');
+        }
         if (!activeRoomId || activeRoomId === 'None') return;
         localStorage.setItem('kurobuzz_cards_' + activeRoomId, JSON.stringify(cards));
         broadcastSync({ type: 'cards_updated', cards: cards });
     }
 
     function saveActiveCardIndex() {
+        if (!activeRoomId || activeRoomId === 'None') {
+            activeRoomId = window.STREAM_ROOM_ID || (typeof roomID !== 'undefined' && roomID !== 'None' ? roomID : '');
+        }
         if (!activeRoomId || activeRoomId === 'None') return;
         localStorage.setItem('kurobuzz_active_card_' + activeRoomId, activeCardIndex);
         broadcastSync({ type: 'active_card_updated', activeCardIndex: activeCardIndex });
@@ -1985,7 +1994,7 @@
         hostAudioPlayer.onerror = function () {
             const timeElem = document.getElementById('hostAudioTime');
             if (timeElem) {
-                timeElem.innerHTML = `<span class="has-text-danger" title="Datei nicht erreichbar oder 404"><i class="fas fa-exclamation-triangle mr-1"></i>Audio nicht gefunden (404)</span>`;
+                timeElem.innerHTML = `<span class="has-text-danger" title="Datei nicht geladen"><i class="fas fa-exclamation-triangle mr-1"></i>Audio nicht verfügbar</span>`;
             }
             updateHostAudioButtons(false);
             stopHostAudioAnalyzerLoop();
@@ -2497,9 +2506,8 @@
             const imageBadge = (card.imageOnly && card.image)
                 ? `<span class="tag is-small is-warning is-light ml-2"><i class="fas fa-image"></i>&nbsp;Nur Bild</span>`
                 : (card.image ? `<span class="tag is-small is-dark ml-2"><i class="fas fa-image"></i></span>` : '');
-            const audioFileName = (card.audio && card.audio.trim().length > 0) ? card.audio.split('/').pop().split('?')[0] : '';
-            const audioBadge = audioFileName
-                ? `<span class="tag is-small is-info is-light ml-2" title="Audiodatei: ${audioFileName}"><i class="fas fa-music mr-1"></i>${audioFileName.length > 20 ? audioFileName.slice(0, 17) + '...' : audioFileName}${card.audioLoop ? '&nbsp;<i class="fas fa-redo" style="font-size:0.7em;"></i>' : ''}</span>`
+            const audioBadge = (card.audio && card.audio.trim().length > 0)
+                ? `<span class="tag is-small is-info is-light ml-2" title="Audio hinterlegt"><i class="fas fa-music"></i>${card.audioLoop ? '&nbsp;<i class="fas fa-redo" style="font-size:0.7em;"></i>' : ''}</span>`
                 : '';
             const placeholderBadge = isPlaceholder
                 ? `<span class="tag is-small is-dark has-text-warning ml-2" title="Mitte im Stream ausgeblendet"><i class="fas fa-eye-slash mr-1"></i>Platzhalter</span>`
@@ -2615,8 +2623,7 @@
         const audioStatus = document.getElementById('cardAudioStatus');
         const previewBtn = document.getElementById('cardAudioPreviewBtn');
         if (card.audio && card.audio.trim().length > 0) {
-            const fileName = card.audio.split('/').pop().split('?')[0];
-            if (audioStatus) audioStatus.innerHTML = `<span class="has-text-success"><i class="fas fa-check-circle mr-1"></i>Audio aktiv: <strong>${fileName}</strong></span> &bull; <a href="javascript:void(0)" onclick="removeCardAudio()" class="has-text-danger ml-1"><i class="fas fa-trash-alt"></i> Entfernen</a>`;
+            if (audioStatus) audioStatus.innerHTML = `Audio vorhanden &bull; <a href="javascript:void(0)" onclick="removeCardAudio()" class="has-text-danger ml-1"><i class="fas fa-trash-alt"></i> Entfernen</a>`;
             if (previewBtn) previewBtn.disabled = false;
         } else {
             if (audioStatus) audioStatus.textContent = '';
@@ -3126,8 +3133,7 @@
                     if (isCardPlaceholder(c)) c.isPlaceholder = true;
                 });
 
-                const audioCardsCount = importedCards.filter(c => c.audio && c.audio.length > 0).length;
-                const audioNote = audioCardsCount > 0 ? ` (${audioCardsCount} mit Audio 🎵)` : '';
+
 
                 function checkAndPromptSlots() {
                     if (Array.isArray(importedData.slots) && importedData.slots.length >= 1 && importedData.slots.length <= 8) {
@@ -3181,7 +3187,7 @@
                             renderCardManagerList();
                             renderMiddleCard();
                             updateControlBar();
-                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `Quiz-Paket mit ${importedCards.length} Fragen geladen!${audioNote}`);
+                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `Quiz-Paket mit ${importedCards.length} Fragen geladen!`);
                             checkAndPromptSlots();
                         } else if (result.isDenied) {
                             const maxId = cards.reduce((max, c) => Math.max(max, c.id || 0), 0);
@@ -3195,7 +3201,7 @@
                             renderCardManagerList();
                             renderMiddleCard();
                             updateControlBar();
-                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `${importedCards.length} Fragen wurden angehängt!${audioNote}`);
+                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `${importedCards.length} Fragen wurden angehängt!`);
                         }
                         fileInput.value = "";
                     });
