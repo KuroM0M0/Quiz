@@ -2862,10 +2862,22 @@
         updateControlBar();
     };
 
+    const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
+
     window.uploadCardImage = async function (fileInput) {
         if (!fileInput.files || fileInput.files.length === 0) return;
+        const file = fileInput.files[0];
+
+        // Sofortige clientseitige Prüfung der Dateigröße
+        if (file.size > MAX_UPLOAD_BYTES) {
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+            fileInput.value = "";
+            triggerErrorAlert("Datei zu groß", `Die ausgewählte Bilddatei ist ${sizeMb} MB groß. Das Upload-Limit beträgt maximal 10 MB.`);
+            return;
+        }
+
         const formData = new FormData();
-        formData.append("file", fileInput.files[0]);
+        formData.append("file", file);
 
         const status = document.getElementById('cardImageStatus');
         if (status) status.textContent = "Wird hochgeladen...";
@@ -2874,7 +2886,7 @@
             const res = await fetch("/upload", { method: "POST", body: formData });
             if (!res.ok) {
                 if (res.status === 413) {
-                    throw new Error("Die Bilddatei ist zu groß für den Webserver (Nginx/Server-Limit überschritten).");
+                    throw new Error("Die Bilddatei ist zu groß (maximal 10 MB erlaubt).");
                 }
                 const text = await res.text();
                 let errJson;
@@ -2900,8 +2912,18 @@
 
     window.uploadCardAudio = async function (fileInput) {
         if (!fileInput.files || fileInput.files.length === 0) return;
+        const file = fileInput.files[0];
+
+        // Sofortige clientseitige Prüfung der Dateigröße
+        if (file.size > MAX_UPLOAD_BYTES) {
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+            fileInput.value = "";
+            triggerErrorAlert("Datei zu groß", `Die ausgewählte Audiodatei ist ${sizeMb} MB groß. Das Upload-Limit beträgt maximal 10 MB.`);
+            return;
+        }
+
         const formData = new FormData();
-        formData.append("file", fileInput.files[0]);
+        formData.append("file", file);
 
         const status = document.getElementById('cardAudioStatus');
         if (status) status.textContent = "Wird hochgeladen...";
@@ -2910,7 +2932,7 @@
             const res = await fetch("/upload", { method: "POST", body: formData });
             if (!res.ok) {
                 if (res.status === 413) {
-                    throw new Error("Die Audiodatei ist zu groß für den Webserver (Nginx client_max_body_size überschritten).");
+                    throw new Error("Die Audiodatei ist zu groß (maximal 10 MB erlaubt).");
                 }
                 const text = await res.text();
                 let errJson;

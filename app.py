@@ -30,7 +30,11 @@ def add_cors_headers(response):
 
 upload_folder = os.path.join(app.static_folder, 'uploads')
 os.makedirs(upload_folder, exist_ok=True)
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({'error': 'Die Datei ist zu groß (maximal 10 MB erlaubt).'}), 413
 
 login_manager = LoginManager()
 login_manager.init_app(app)
