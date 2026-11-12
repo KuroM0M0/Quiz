@@ -177,12 +177,12 @@ def stream(roomID):
 
 
 
-@app.route('/<roomID>/<username>/text')
+@app.route('/<roomID>/<path:username>/text')
 def playerText(roomID, username):
     return render_template("playerText.html", username=username, roomID=roomID)
 
 
-@app.route('/<roomID>/<username>/punkte')
+@app.route('/<roomID>/<path:username>/punkte')
 def playerPoints(roomID, username):
     return render_template("playerPoints.html", username=username, roomID=roomID)
 
