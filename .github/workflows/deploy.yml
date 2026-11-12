@@ -40,11 +40,15 @@ jobs:
             git fetch origin "$BRANCH"
             git checkout -B "$BRANCH" "origin/$BRANCH"
             git reset --hard "origin/$BRANCH"
+            INTERPRETER="python3"
             if [ -d "venv" ]; then
               source venv/bin/activate
+              INTERPRETER="./venv/bin/python"
             elif [ -d "env" ]; then
               source env/bin/activate
+              INTERPRETER="./env/bin/python"
             fi
             pip install -r requirements.txt
-            # Service neustarten (passe den Servicenamen ggf. in deinen Secrets an)
-            sudo systemctl restart ${{ secrets.SYSTEMD_SERVICE_NAME || 'buzzertest' }}
+            # Mit PM2 neustarten (oder starten, falls noch nicht aktiv)
+            pm2 restart buzzertest || pm2 start app.py --name "buzzertest" --interpreter "$INTERPRETER"
+            pm2 save
