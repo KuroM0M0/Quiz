@@ -18,8 +18,8 @@
     align-items: right;
 }
 .unsichtbar {
-    visibility: hidden;
-    display: none;
+    display: none !important;
+    visibility: hidden !important;
 }
 .überschrift {
     margin-top: 20px;
@@ -183,21 +183,23 @@
     background: #1a1830;
     border: 2px solid #6c63ff;
     border-radius: 12px;
-    padding: 20px 36px;
+    padding: 16px 28px;
     margin: 0 auto 24px;
+    width: fit-content;
     max-width: 900px;
-    font-size: 1.5rem;
+    min-width: min(90vw, 420px);
+    font-size: 1.4rem;
     font-weight: bold;
     color: #f0eefc;
     box-shadow: 0 0 24px rgba(108, 99, 255, 0.35);
-    min-height: 100px;
+    min-height: auto;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .punkteBox {
@@ -294,6 +296,19 @@
     width: 100%;
     margin-top: 8px;
     position: relative;
+}
+
+.player-image-wrapper.unsichtbar {
+    display: none !important;
+}
+
+#playerQuestionImage:not([src]),
+#playerQuestionImage[src=""] {
+    display: none !important;
+}
+
+#playerAudioIndicator.unsichtbar {
+    display: none !important;
 }
 
 #playerQuestionImage {
