@@ -2,7 +2,7 @@
 
 {% block head_meta %} 
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/stream.css') }}?v=20261112_04">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stream.css') }}?v=20261113_01">
 {% endblock %}
 
 {% block title %} KuroBuzz - Host {% endblock %}
@@ -457,7 +457,7 @@
 
                 <!-- Rechte Spalte: Frage erstellen / bearbeiten Formular -->
                 <div class="column is-7">
-                    <h2 class="title is-5 mb-4" id="cardFormTitle">Frage erstellen / bearbeiten</h2>
+                    <h2 class="title is-5 mb-4 is-flex is-align-items-center is-flex-wrap-wrap" id="cardFormTitle" style="gap: 8px;">Frage erstellen / bearbeiten</h2>
 
                     <div class="field mb-4">
                         <label class="label is-small">Kategorie / Überschrift</label>
@@ -602,6 +602,6 @@
     }, 5000);
 </script>
 
-<script src="{{ url_for('static', filename='js/stream.js') }}?v=20261112_05"></script>
+<script src="{{ url_for('static', filename='js/stream.js') }}?v=20261113_01"></script>
 
 {% endblock %}

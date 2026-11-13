@@ -757,6 +757,21 @@
     border-color: rgba(72, 95, 199, 0.6) !important;
 }
 
+.card-manager-item.is-editing {
+    background-color: rgba(62, 142, 208, 0.25) !important;
+    border-color: rgba(62, 142, 208, 0.8) !important;
+    box-shadow: 0 0 10px rgba(62, 142, 208, 0.25);
+}
+
+.card-insert-marker {
+    animation: insertMarkerFadeIn 0.2s ease-out;
+}
+
+@keyframes insertMarkerFadeIn {
+    from { opacity: 0; transform: translateY(-3px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* ==========================================================================
    Subtiles Hotkey Feedback (Button-Klick Effekt)
    ========================================================================== */

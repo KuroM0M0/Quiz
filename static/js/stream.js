@@ -16,6 +16,7 @@
     let timerHideTimeout = null;
     let currentEditingSlotIndex = null;
     let editingCardId = null;
+    let insertTargetIndex = null;
 
     let slots = createEmptySlots();
     let cards = [];
@@ -841,6 +842,11 @@
             saveActiveCardIndex();
             renderMiddleCard();
             updateControlBar();
+
+            if (!editingCardId) {
+                insertTargetIndex = activeCardIndex + 1;
+                if (typeof updateCardFormHeader === 'function') updateCardFormHeader();
+            }
             renderCardManagerList();
         }
     };
@@ -2473,14 +2479,29 @@
     // =========================================================================
 
     window.openCardManagerModal = function () {
+        insertTargetIndex = (cards && activeCardIndex >= 0 && activeCardIndex < cards.length) ? activeCardIndex + 1 : (cards ? cards.length : 0);
+        resetCardForm(insertTargetIndex);
         renderCardManagerList();
-        resetCardForm();
         openModal('cardManagerModal');
     };
 
     window.closeCardManagerModal = function () {
         closeModal('cardManagerModal');
     };
+
+    function createInsertMarkerElement(pos) {
+        const marker = document.createElement('div');
+        marker.className = 'card-insert-marker my-2 is-flex is-align-items-center';
+        marker.style.cursor = 'default';
+        marker.innerHTML = `
+            <div style="flex: 1; height: 2px; background: linear-gradient(90deg, transparent, rgba(72, 199, 142, 0.8), rgba(62, 142, 208, 0.8)); border-radius: 2px;"></div>
+            <span class="tag is-success is-light is-rounded is-small" style="font-size: 0.72rem; padding: 2px 10px; border: 1px dashed #48c78e; font-weight: 600; box-shadow: 0 2px 8px rgba(72, 199, 142, 0.25); background-color: rgba(72, 199, 142, 0.15); color: #48c78e;">
+                <i class="fas fa-plus-circle mr-1"></i>Hier einfügen (Position ${pos + 1})
+            </span>
+            <div style="flex: 1; height: 2px; background: linear-gradient(90deg, rgba(62, 142, 208, 0.8), rgba(72, 199, 142, 0.8), transparent); border-radius: 2px;"></div>
+        `;
+        return marker;
+    }
 
     function renderCardManagerList() {
         const listContainer = document.getElementById('cardManagerList');
@@ -2493,10 +2514,21 @@
             return;
         }
 
+        const effectiveInsertIndex = (typeof insertTargetIndex === 'number' && insertTargetIndex >= 0 && insertTargetIndex <= cards.length)
+            ? insertTargetIndex
+            : ((activeCardIndex >= 0 && activeCardIndex < cards.length) ? activeCardIndex + 1 : cards.length);
+
+        if (!editingCardId && effectiveInsertIndex === 0) {
+            listContainer.appendChild(createInsertMarkerElement(0));
+        }
+
         cards.forEach((card, idx) => {
             const row = document.createElement('div');
             const isSelected = (idx === activeCardIndex);
-            row.className = 'p-3 mb-2 is-flex is-align-items-center is-justify-content-space-between card-manager-item' + (isSelected ? ' is-selected' : '');
+            const isEditing = (editingCardId && String(card.id) === String(editingCardId));
+            row.className = 'p-3 mb-2 is-flex is-align-items-center is-justify-content-space-between card-manager-item' 
+                + (isSelected ? ' is-selected' : '') 
+                + (isEditing ? ' is-editing' : '');
 
             const isPlaceholder = isCardPlaceholder(card);
 
@@ -2538,6 +2570,10 @@
                 </div>
             `;
             listContainer.appendChild(row);
+
+            if (!editingCardId && effectiveInsertIndex === (idx + 1)) {
+                listContainer.appendChild(createInsertMarkerElement(idx + 1));
+            }
         });
     }
 
@@ -2647,8 +2683,8 @@
         updateQuestionRequiredLabel();
 
         document.getElementById('cardFormSubmitBtn').innerHTML = '<i class="fas fa-save"></i>&nbsp;Änderungen speichern';
-        const formTitle = document.getElementById('cardFormTitle');
-        if (formTitle) formTitle.textContent = "Frage #" + (cards.findIndex(c => String(c.id) === String(cardId)) + 1) + " bearbeiten";
+        updateCardFormHeader();
+        renderCardManagerList();
     };
 
     window.removeCardImage = function () {
@@ -2720,8 +2756,78 @@
         }
     };
 
-    function resetCardForm() {
+    function updateCardFormHeader() {
+        const formTitle = document.getElementById('cardFormTitle');
+        if (!formTitle) return;
+
+        if (editingCardId) {
+            const editIdx = cards.findIndex(c => String(c.id) === String(editingCardId));
+            formTitle.innerHTML = `<span><i class="fas fa-edit mr-2 has-text-info"></i>Frage #${editIdx + 1} bearbeiten</span>`;
+        } else {
+            const effectiveInsertIndex = (typeof insertTargetIndex === 'number' && insertTargetIndex >= 0 && insertTargetIndex <= (cards ? cards.length : 0))
+                ? insertTargetIndex
+                : ((cards && activeCardIndex >= 0 && activeCardIndex < cards.length) ? activeCardIndex + 1 : (cards ? cards.length : 0));
+
+            if (!cards || cards.length === 0) {
+                formTitle.innerHTML = `<span><i class="fas fa-plus-circle mr-2 has-text-success"></i>Erste Frage erstellen</span>`;
+            } else if (effectiveInsertIndex === 0) {
+                formTitle.innerHTML = `
+                    <span><i class="fas fa-plus-circle mr-2 has-text-success"></i>Neue Frage erstellen</span>
+                    <span class="tag is-info is-light">Ganz an den Anfang</span>
+                    <span class="is-size-7 ml-2" style="font-weight: normal;">
+                        <a href="javascript:void(0)" onclick="setInsertTargetPosition('end')" class="has-text-info"><i class="fas fa-arrow-down mr-1"></i>Stattdessen ans Ende</a>
+                    </span>
+                `;
+            } else if (effectiveInsertIndex >= cards.length) {
+                const afterActiveLink = (activeCardIndex < cards.length - 1)
+                    ? `<span class="has-text-grey-light mx-1">&bull;</span><a href="javascript:void(0)" onclick="setInsertTargetPosition(${activeCardIndex + 1})" class="has-text-info"><i class="fas fa-level-down-alt mr-1"></i>Nach aktiver Frage (#${activeCardIndex + 1})</a>`
+                    : '';
+                formTitle.innerHTML = `
+                    <span><i class="fas fa-plus-circle mr-2 has-text-success"></i>Neue Frage erstellen</span>
+                    <span class="tag is-info is-light">Wird am Ende angehängt (Pos. ${cards.length + 1})</span>
+                    <span class="is-size-7 ml-2" style="font-weight: normal;">
+                        <a href="javascript:void(0)" onclick="setInsertTargetPosition('start')" class="has-text-info"><i class="fas fa-arrow-up mr-1"></i>Ganz an den Anfang</a>
+                        ${afterActiveLink}
+                    </span>
+                `;
+            } else {
+                const prevCard = cards[effectiveInsertIndex - 1];
+                const prevTitle = prevCard && prevCard.title ? ` (${prevCard.title.length > 18 ? prevCard.title.slice(0, 16) + '...' : prevCard.title})` : '';
+                formTitle.innerHTML = `
+                    <span><i class="fas fa-plus-circle mr-2 has-text-success"></i>Neue Frage erstellen</span>
+                    <span class="tag is-success is-light">Wird nach Frage #${effectiveInsertIndex}${prevTitle} eingefügt</span>
+                    <span class="is-size-7 ml-2" style="font-weight: normal;">
+                        <a href="javascript:void(0)" onclick="setInsertTargetPosition('end')" class="has-text-info mr-2"><i class="fas fa-arrow-down mr-1"></i>Ans Ende</a>
+                        <span class="has-text-grey-light mr-2">&bull;</span>
+                        <a href="javascript:void(0)" onclick="setInsertTargetPosition('start')" class="has-text-info"><i class="fas fa-arrow-up mr-1"></i>Ganz oben</a>
+                    </span>
+                `;
+            }
+        }
+    }
+
+    window.setInsertTargetPosition = function (pos) {
+        if (!cards || cards.length === 0) {
+            insertTargetIndex = 0;
+        } else if (pos === 'end') {
+            insertTargetIndex = cards.length;
+        } else if (pos === 'start') {
+            insertTargetIndex = 0;
+        } else if (typeof pos === 'number') {
+            insertTargetIndex = Math.max(0, Math.min(pos, cards.length));
+        }
+        updateCardFormHeader();
+        renderCardManagerList();
+    };
+
+    function resetCardForm(explicitTargetIndex) {
         editingCardId = null;
+        if (typeof explicitTargetIndex === 'number') {
+            insertTargetIndex = Math.max(0, Math.min(explicitTargetIndex, cards ? cards.length : 0));
+        } else {
+            insertTargetIndex = (cards && activeCardIndex >= 0 && activeCardIndex < cards.length) ? activeCardIndex + 1 : (cards ? cards.length : 0);
+        }
+
         const titleInput = document.getElementById('cardTitleInput');
         if (!titleInput) return;
 
@@ -2764,8 +2870,7 @@
         updateQuestionRequiredLabel();
 
         document.getElementById('cardFormSubmitBtn').innerHTML = '<i class="fas fa-save"></i>&nbsp;Frage speichern';
-        const formTitle = document.getElementById('cardFormTitle');
-        if (formTitle) formTitle.textContent = "Frage erstellen / bearbeiten";
+        updateCardFormHeader();
     }
 
     window.addPlaceholderCard = function () {
@@ -2781,15 +2886,23 @@
             timer: null,
             isPlaceholder: true
         };
-        cards.push(newCard);
-        activeCardIndex = cards.length - 1;
+
+        const targetPos = (typeof insertTargetIndex === 'number' && insertTargetIndex >= 0 && insertTargetIndex <= cards.length)
+            ? insertTargetIndex
+            : ((activeCardIndex >= 0 && activeCardIndex < cards.length) ? activeCardIndex + 1 : cards.length);
+
+        cards.splice(targetPos, 0, newCard);
+        activeCardIndex = targetPos;
+        insertTargetIndex = activeCardIndex + 1;
+
         saveCards();
         saveActiveCardIndex();
         renderCardManagerList();
         renderMiddleCard();
         updateControlBar();
-        resetCardForm();
-        triggerSuccessAlert("Platzhalter hinzugefügt", "Der Platzhalter blendet das Mittelfeld auf /stream komplett aus.");
+        resetCardForm(insertTargetIndex);
+        renderCardManagerList();
+        triggerSuccessAlert("Platzhalter hinzugefügt", `Platzhalter an Position ${targetPos + 1} eingefügt.`);
     };
 
     window.resetCardForm = resetCardForm;
@@ -2842,14 +2955,23 @@
                 timer: timer,
                 isPlaceholder: isPlaceholder
             };
-            cards.push(newCard);
+
+            const targetPos = (typeof insertTargetIndex === 'number' && insertTargetIndex >= 0 && insertTargetIndex <= cards.length)
+                ? insertTargetIndex
+                : ((activeCardIndex >= 0 && activeCardIndex < cards.length) ? activeCardIndex + 1 : cards.length);
+
+            cards.splice(targetPos, 0, newCard);
+            activeCardIndex = targetPos;
+            insertTargetIndex = activeCardIndex + 1;
         }
 
         saveCards();
+        saveActiveCardIndex();
         renderCardManagerList();
         renderMiddleCard();
         updateControlBar();
-        resetCardForm();
+        resetCardForm(insertTargetIndex);
+        renderCardManagerList();
         triggerSuccessAlert("Gespeichert", "Frage/Aufgabe erfolgreich gespeichert.");
     };
 
@@ -2877,6 +2999,10 @@
                 resetCardForm();
             }
             activeCardIndex = Math.max(0, Math.min(activeCardIndex, cards.length - 1));
+            if (!editingCardId) {
+                insertTargetIndex = (cards && cards.length > 0) ? activeCardIndex + 1 : 0;
+                updateCardFormHeader();
+            }
             saveCards();
             saveActiveCardIndex();
             renderCardManagerList();
@@ -2905,6 +3031,11 @@
             activeCardIndex = targetIndex;
         } else if (activeCardIndex === targetIndex) {
             activeCardIndex = index;
+        }
+
+        if (!editingCardId) {
+            insertTargetIndex = activeCardIndex + 1;
+            updateCardFormHeader();
         }
 
         saveCards();
