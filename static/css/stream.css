@@ -423,13 +423,44 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
     padding: 6px 4px 2px 4px;
     cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.slot-header-content {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
 }
 
 .slot-header .title {
     margin-bottom: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.slot-player-name {
+    display: inline-block;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.slot-points-wrapper {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
 }
 
 .slot-edit-hint {
@@ -576,18 +607,33 @@
     margin-left: auto !important;
 }
 
-/* Slot 6 (Unten Mitte-Links): Name weicht nach links aus, Textfeld & Cam darunter zentriert */
+/* Slot 6 (Unten Mitte-Links): Name und Punkte gemeinsam zentriert im Bereich zwischen Kartenrand und Mittelkarte */
 .zellen.slot-bottom-left-shift .slot-header {
-    justify-content: flex-start !important;
-    padding-left: 20px !important;
+    width: calc(100% - 210px) !important;
+    max-width: calc(100% - 210px) !important;
     margin-right: auto !important;
+    margin-left: 0 !important;
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
-/* Slot 7 (Unten Mitte-Rechts): Name weicht nach rechts aus, Textfeld & Cam darunter zentriert */
+/* Slot 7 (Unten Mitte-Rechts): Name und Punkte gemeinsam zentriert im Bereich zwischen Mittelkarte und Kartenrand */
 .zellen.slot-bottom-right-shift .slot-header {
-    justify-content: flex-end !important;
-    padding-right: 20px !important;
+    width: calc(100% - 210px) !important;
+    max-width: calc(100% - 210px) !important;
     margin-left: auto !important;
+    margin-right: 0 !important;
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Bei Slot 6 & 7: Punkte gemeinsam mit dem Namen im sichtbaren Bereich zentrieren */
+.zellen.slot-bottom-left-shift .slot-points-wrapper,
+.zellen.slot-bottom-right-shift .slot-points-wrapper {
+    position: static !important;
+    transform: none !important;
 }
 
 .zellen.slot-bottom-left-shift .slot-body,

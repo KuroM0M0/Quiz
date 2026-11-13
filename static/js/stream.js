@@ -2362,12 +2362,16 @@
                 // Belegter Slot: Klick auf den Header öffnet das Modal
                 cell.innerHTML = `
                     <div class="slot-header" onclick="onSlotClick(${index}, event)" title="Klicken um Spieler für diesen Slot zu ändern">
-                        <h1 class="title zentriert kleinAbstandOben">
-                            <span class="buzzer-badge is-hidden" id="buzzerBadge_${index}"></span>
-                            <span>${username}</span>
-                        </h1>
-                        <span class="tag is-primary ml-2" id="slotPoints_${index}">${points} Pkt</span>
-                        <span class="icon is-small slot-edit-hint ml-1"><i class="fas fa-edit"></i></span>
+                        <div class="slot-header-content">
+                            <h1 class="title zentriert kleinAbstandOben slot-title">
+                                <span class="buzzer-badge is-hidden" id="buzzerBadge_${index}"></span>
+                                <span class="slot-player-name">${username}</span>
+                            </h1>
+                            <div class="slot-points-wrapper">
+                                <span class="tag is-primary ml-2" id="slotPoints_${index}">${points} Pkt</span>
+                                <span class="icon is-small slot-edit-hint ml-1"><i class="fas fa-edit"></i></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="slot-body">
                         <div class="slot-text-container">
