@@ -5,6 +5,24 @@
 
 (function () {
     const isStreamPage = !!document.getElementById('streamGrid');
+
+    // Auf der /stream Seite sind sämtliche Sounds komplett deaktiviert und stummgeschaltet
+    if (isStreamPage) {
+        try {
+            const origPlay = HTMLMediaElement.prototype.play;
+            HTMLMediaElement.prototype.play = function () {
+                this.muted = true;
+                this.volume = 0;
+                return origPlay.apply(this, arguments);
+            };
+        } catch (e) {}
+
+        const initialStreamAudio = document.getElementById('streamQuestionAudio');
+        if (initialStreamAudio) {
+            initialStreamAudio.muted = true;
+            initialStreamAudio.volume = 0;
+        }
+    }
     let activeRoomId = window.STREAM_ROOM_ID || (isStreamPage ? (window.location.pathname.split('/')[1] || '') : '');
     let syncChannel = null;
 
@@ -1702,6 +1720,8 @@
     function initStreamVisualizerAudio() {
         const audioEl = document.getElementById('streamQuestionAudio');
         if (!audioEl) return;
+        audioEl.muted = true;
+        audioEl.volume = 0;
         if (!streamAudioCtx) {
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
             if (!AudioContextClass) return;
@@ -1888,6 +1908,8 @@
 
             if (isStreamPage) {
                 if (streamAudio && audioUrl) {
+                    streamAudio.muted = true;
+                    streamAudio.volume = 0;
                     initStreamVisualizerAudio();
                     if (streamAudioCtx && streamAudioCtx.state === 'suspended') {
                         streamAudioCtx.resume().catch(() => {});

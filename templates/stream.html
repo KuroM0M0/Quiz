@@ -43,7 +43,7 @@
         </div>
     </button>
 </div>
-<audio id="streamQuestionAudio" preload="auto" playsinline style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
+<audio id="streamQuestionAudio" preload="auto" playsinline muted style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
 
 <!-- Modal: Spieler einem angeklickten Slot zuweisen -->
 <div class="modal" id="slotAssignModal">
@@ -91,6 +91,6 @@
     }
 </script>
 
-<script src="{{ url_for('static', filename='js/stream.js') }}?v=20261113_03"></script>
+<script src="{{ url_for('static', filename='js/stream.js') }}?v=20261113_05"></script>
 
 {% endblock %}

@@ -25,8 +25,11 @@ document.addEventListener('keydown', function(event) {
 });
 
 function playBuzzerSound() {
+    // Auf der Stream-Seite niemals Sounds abspielen
+    if (window.location.pathname.startsWith('/stream')) return;
     var cookie = getCookie("buzzerSound") || "BuzzerKurz"; // Standard-Sound, falls kein Cookie gesetzt ist
     var sound = document.getElementById(cookie);
+    if (!sound) return;
     var volume = parseFloat(getCookie("buzzerVolume"));
     sound.volume = isNaN(volume) ? 1 : volume; // Standard: volle Lautstärke
     sound.play().catch(function(error) {
@@ -67,7 +70,9 @@ socket.on("buzzer", function(data) {
     if(hostBuzzerOrder != null) {
         hostBuzzerOrder.innerHTML = data.buzzerOrder + ". ";
     }
-    playBuzzerSound();
+    if (!window.location.pathname.startsWith('/stream')) {
+        playBuzzerSound();
+    }
 })
 
 function onBuzzerReset() {
