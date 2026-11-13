@@ -2550,14 +2550,11 @@
                 : (card.question || (card.imageOnly ? '[Bild statt Fragetext]' : (card.audio ? '[Audio-Rätsel]' : '')));
 
             row.innerHTML = `
-                <div style="flex: 1; overflow: hidden; padding-right: 12px; cursor: pointer;" onclick="selectCardFromDropdown(${idx})" title="Klicken um diese Frage als aktiv auszuwählen">
+                <div style="flex: 1; overflow: hidden; padding-right: 12px; cursor: pointer;" onclick="editCardInForm('${card.id}', ${idx})" title="Klicken um diese Frage zu bearbeiten und auszuwählen">
                     <strong>${idx + 1}. ${card.title || 'Kein Titel'}</strong> ${placeholderBadge} ${imageBadge} ${audioBadge} ${timerBadge}
                     <div class="is-size-7" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.8;">${displayText}</div>
                 </div>
-                <div class="buttons are-small mb-0" style="flex-shrink: 0;">
-                    <button class="button is-info is-small" onclick="editCardInForm('${card.id}', ${idx})" title="Bearbeiten">
-                        <i class="fas fa-edit"></i>
-                    </button>
+                <div class="buttons are-small mb-0" style="flex-shrink: 0;" onclick="event.stopPropagation()">
                     <button class="button is-small" onclick="moveCard(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Nach oben">
                         <i class="fas fa-arrow-up"></i>
                     </button>
@@ -2645,6 +2642,17 @@
         if (!card) return;
 
         editingCardId = card.id;
+
+        // Als aktive Frage synchronisieren
+        let cardIdx = cards.findIndex(c => String(c.id) === String(card.id));
+        if (cardIdx === -1 && typeof fallbackIndex === 'number') cardIdx = fallbackIndex;
+        if (cardIdx >= 0 && activeCardIndex !== cardIdx) {
+            if (typeof window.hostStopAudio === 'function') window.hostStopAudio();
+            activeCardIndex = cardIdx;
+            saveActiveCardIndex();
+            renderMiddleCard();
+            updateControlBar();
+        }
         document.getElementById('cardTitleInput').value = card.title || '';
         document.getElementById('cardQuestionInput').value = card.question || '';
         document.getElementById('cardAnswerInput').value = card.answer || '';
