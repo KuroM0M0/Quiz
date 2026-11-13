@@ -2572,6 +2572,15 @@
                 listContainer.appendChild(createInsertMarkerElement(idx + 1));
             }
         });
+
+        if (!editingCardId) {
+            const marker = listContainer.querySelector('.card-insert-marker');
+            if (marker) {
+                try {
+                    marker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch (e) {}
+            }
+        }
     }
 
     function updateQuestionRequiredLabel() {
@@ -2879,6 +2888,7 @@
 
         document.getElementById('cardFormSubmitBtn').innerHTML = '<i class="fas fa-save"></i>&nbsp;Frage speichern';
         updateCardFormHeader();
+        renderCardManagerList();
     }
 
     window.addPlaceholderCard = function () {
