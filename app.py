@@ -287,6 +287,8 @@ def create():
         "currentQuestion": "",
         "currentAnswer": "",
         "hasImage": False,
+        "currentImage": "",
+        "imageOnly": False,
         "isOpenToJoin": True
     }
 
@@ -395,9 +397,21 @@ def playLoaded(data):
     answerButton = rooms[roomID]["answerButton"]
     question = rooms[roomID]["currentQuestion"]
     isJoinable = rooms[roomID]["isOpenToJoin"]
-    hasImage = rooms[roomID]["hasImage"]
+    hasImage = rooms[roomID].get("hasImage", False)
+    currentImage = rooms[roomID].get("currentImage", "")
+    imageOnly = rooms[roomID].get("imageOnly", False)
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton, "question": question, "isJoinable": isJoinable, "hasImage": hasImage}, to=flask_request.sid)
+    socketio.emit("playLoaded", {
+        "buzzerStatus": buzzerStatus,
+        "buzzed_by": buzzed_by,
+        "textLocked": textLocked,
+        "answerButton": answerButton,
+        "question": question,
+        "isJoinable": isJoinable,
+        "hasImage": hasImage,
+        "image": currentImage,
+        "imageOnly": imageOnly
+    }, to=flask_request.sid)
 
 
 @socketio.on("closeRoom")
@@ -514,7 +528,11 @@ def lockBuzzer(data):
 @socketio.on("clearText")
 def clearText(data):
     roomID = data['roomID']
-    rooms[roomID]["currentQuestion"] = ""
+    if roomID in rooms:
+        rooms[roomID]["currentQuestion"] = ""
+        rooms[roomID]["currentImage"] = ""
+        rooms[roomID]["hasImage"] = False
+        rooms[roomID]["imageOnly"] = False
     socketio.emit("clearText", data, room=roomID)
 
 
@@ -558,6 +576,11 @@ def sendQuestion(data):
     if target_room and target_room in rooms:
         rooms[target_room]["currentQuestion"] = data.get('question', '')
         rooms[target_room]["currentAnswer"] = data.get('answer', '')
+        image = data.get('image', '')
+        image_only = bool(data.get('imageOnly', False))
+        rooms[target_room]["currentImage"] = image
+        rooms[target_room]["hasImage"] = bool(image)
+        rooms[target_room]["imageOnly"] = image_only
     if target_room:
         socketio.emit("sendQuestion", data, room=target_room)
 
@@ -565,11 +588,14 @@ def sendQuestion(data):
 @socketio.on("sendImage")
 def sendImage(data):
     roomID = data.get('room') or data.get('roomID')
-    imageURL = data.get('image')
+    imageURL = data.get('image', '')
+    image_only = bool(data.get('imageOnly', False))
     if roomID and roomID in rooms:
-        rooms[roomID]["hasImage"] = True
+        rooms[roomID]["hasImage"] = bool(imageURL)
+        rooms[roomID]["currentImage"] = imageURL
+        rooms[roomID]["imageOnly"] = image_only
     if roomID:
-        socketio.emit("sendImage", {"image": imageURL}, room=roomID)
+        socketio.emit("sendImage", {"image": imageURL, "imageOnly": image_only}, room=roomID)
 
 
 @socketio.on("playAudio")

@@ -150,34 +150,57 @@ socket.on("playLoaded", function(data) {
         answerButton.classList.remove("unsichtbar");
     }
 
-    if(data.question) {
-        const questionCard = document.getElementById("qCard");
-        const questionText = document.getElementById("qText");
-        questionText.textContent = data.question;
-        questionCard.classList.add('delay4');
-        questionCard.classList.remove('qcard-slide');
-        questionCard.style.opacity = '0';
-        void questionCard.offsetWidth; // Reflow erzwingen, damit die Animation auch bei gleicher Frage erneut läuft
-        questionCard.classList.add('qcard-slide');
-        setTimeout(() => {
-            questionCard.classList.remove('delay4');
-        }, 1500);
-    }
+    const questionCard = document.getElementById("qCard");
+    const questionText = document.getElementById("qText");
+    const imgWrapper = document.getElementById('qImageWrapper');
+    const playerImg = document.getElementById('playerQuestionImage');
+    const lightboxImg = document.getElementById('playerLightboxImage');
 
-    if(data.isJoinable == true) {
-        toggleJoinButton.classList.replace('is-success', 'is-danger');
-        joinIcon.className = 'fas fa-lock';
-        joinText.innerText = 'Gesperrt';
+    const hasQuestion = !!(data.question && data.question.trim().length > 0);
+    const hasImage = !!(data.hasImage && data.image && typeof data.image === 'string' && data.image.trim().length > 0);
+
+    // Bild synchronisieren
+    if (hasImage) {
+        if (playerImg) playerImg.src = data.image;
+        if (lightboxImg) lightboxImg.src = data.image;
+        if (imgWrapper) imgWrapper.classList.remove('unsichtbar');
     } else {
-        toggleJoinButton.classList.replace('is-danger', 'is-success');
-        joinIcon.className = 'fas fa-unlock';
-        joinText.innerText = 'Offen';
+        if (playerImg) playerImg.removeAttribute('src');
+        if (lightboxImg) lightboxImg.removeAttribute('src');
+        if (imgWrapper) imgWrapper.classList.add('unsichtbar');
     }
 
-    if(data.hasImage == true) {
-        const bildContainer = document.getElementById('bildContainer');
-        bildContainer.classList.remove('unsichtbar');
-        bildContainer.src = data.image;
+    if (hasQuestion || hasImage) {
+        if (questionCard) {
+            if (hasQuestion && questionText) {
+                questionText.textContent = data.question;
+                questionText.classList.remove('unsichtbar');
+            } else if (questionText) {
+                questionText.textContent = "";
+                questionText.classList.add('unsichtbar');
+            }
+            questionCard.classList.remove('unsichtbar');
+            questionCard.classList.add('delay4');
+            questionCard.classList.remove('qcard-slide');
+            questionCard.style.opacity = '0';
+            void questionCard.offsetWidth; // Reflow erzwingen
+            questionCard.classList.add('qcard-slide');
+            setTimeout(() => {
+                questionCard.classList.remove('delay4');
+            }, 1500);
+        }
+    }
+
+    if (toggleJoinButton && joinIcon && joinText) {
+        if (data.isJoinable == true) {
+            toggleJoinButton.classList.replace('is-success', 'is-danger');
+            joinIcon.className = 'fas fa-lock';
+            joinText.innerText = 'Gesperrt';
+        } else {
+            toggleJoinButton.classList.replace('is-danger', 'is-success');
+            joinIcon.className = 'fas fa-unlock';
+            joinText.innerText = 'Offen';
+        }
     }
 })
 

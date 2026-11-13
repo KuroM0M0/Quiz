@@ -44,7 +44,7 @@
 </div>
 
 <div class="columns">
-    <div class="column animiert">
+    <div class="column is-one-third-tablet is-one-quarter-desktop animiert">
         <div id="app">
             <table class="table playerList is-striped is-hoverable is-bordered">
                 <tbody id="playerList">
@@ -73,12 +73,6 @@
             <button class="button buzzer" id="buzzer" onclick="onBuzzerClick()">Buzzer</button>
         </div>
     </div>
-    <div class="column">
-        <div id="bildContainer" class="zentriertFlex animiert unsichtbar">
-            <!--hier Button einfügen, der das Bild in Vollbild anzeigt-->
-            <button class="button" id="bildButtonPlay" onclick="openModal('bildModalPlay')">Bild anzeigen</button>
-        </div>
-    </div>
 </div>
 
 <div class="zentriert animiert delay2">
@@ -90,6 +84,12 @@
 <div class="zentriert">
     <div id="qCard" class="questionCard" style="opacity:0;">
         <span id="qText"></span>
+        <div id="qImageWrapper" class="player-image-wrapper unsichtbar">
+            <img id="playerQuestionImage" src="" alt="Quiz Bild" onclick="openPlayerImageLightbox()" title="Klicke für Vollbild-Ansicht">
+            <div class="player-image-hint" onclick="openPlayerImageLightbox()">
+                <i class="fas fa-search-plus mr-1"></i><span>Klick zum Vergrößern</span>
+            </div>
+        </div>
         <div id="playerAudioIndicator" class="tag is-info is-light mt-2 unsichtbar">
             <i class="fas fa-volume-up mr-1 audio-icon-pulse"></i>&nbsp;<span>Audio läuft</span>
         </div>
@@ -103,15 +103,15 @@
     <button class="button is-primary unsichtbar" id="submitAnswer" onclick="lockSubmitAnswer(username, this)">Antwort abgeben</button>
 </div>
 
-<div class="modal" id="bildModalPlay">
-    <div class="modal-background" onclick="closeModal('bildModal')"></div>
-    <div class="modal-content p-4">
-        <div class="box">
-            <label class="label">Bild dass den Teilnehmern angezeigt wird</label>
-            <input class="input" type="file" id="bildInput" accept="image/*">
-            <button class="button is-primary abstand" onclick="sendImage()">Bild senden</button>
-            <button class="button is-danger abstand" onclick="closeModal('bildModal')">Abbrechen</button>
-        </div>
+<!-- Vollbild-Lightbox für das Quiz-Bild der Teilnehmer -->
+<div class="modal" id="playerImageModal">
+    <div class="modal-background" onclick="closePlayerImageLightbox()"></div>
+    <div class="modal-content player-lightbox-content">
+        <p class="image">
+            <img id="playerLightboxImage" src="" alt="Quiz Bild Großansicht" onclick="closePlayerImageLightbox()" style="cursor: zoom-out;">
+        </p>
+    </div>
+    <button class="modal-close is-large" aria-label="close" onclick="closePlayerImageLightbox()"></button>
 </div>
 
 

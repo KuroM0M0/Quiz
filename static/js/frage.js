@@ -11,7 +11,7 @@ function sendQuestion() {
 async function sendImage() {
     const Bild = document.getElementById("bildInput");
     let bildURL = "";
-    if (Bild.files.length > 0) {
+    if (Bild && Bild.files && Bild.files.length > 0) {
         const formData = new FormData();
         formData.append("file", Bild.files[0]);
         const res = await fetch("/upload", { method: "POST", body: formData });
@@ -19,6 +19,10 @@ async function sendImage() {
         bildURL = data.url;
 
         socket.emit("sendImage", { room: roomID, image: bildURL });
+        if (typeof closeModal === 'function') {
+            closeModal("bildModal");
+        }
+        Bild.value = "";
     } else {
         ShowErrorAlert("Kein Bild ausgewählt", "Bitte wähle ein Bild aus, das du senden möchtest.");
         return;
@@ -34,10 +38,18 @@ socket.on('sendQuestion', function(data) {
     const card = document.getElementById('qCard');
     const audioElem = document.getElementById('playerQuestionAudio');
     const audioIndicator = document.getElementById('playerAudioIndicator');
+    const imgWrapper = document.getElementById('qImageWrapper');
+    const playerImg = document.getElementById('playerQuestionImage');
+    const lightboxImg = document.getElementById('playerLightboxImage');
+    const text = document.getElementById('qText');
 
     if (!data) return;
     const hasAudio = !!(data.audio && data.audio.trim().length > 0);
+    const hasImage = !!(data.image && typeof data.image === 'string' && data.image.trim().length > 0);
+    const isImageOnly = !!data.imageOnly;
+    const hasText = !!(data.question && data.question.trim().length > 0);
 
+    // Audio-Synchronisation
     if (hasAudio) {
         if (audioElem) {
             if (audioElem.src !== data.audio && !audioElem.src.endsWith(data.audio)) {
@@ -56,19 +68,46 @@ socket.on('sendQuestion', function(data) {
         if (audioIndicator) audioIndicator.classList.add('unsichtbar');
     }
 
+    // Bild-Synchronisation
+    if (hasImage) {
+        if (playerImg) playerImg.src = data.image;
+        if (lightboxImg) lightboxImg.src = data.image;
+        if (imgWrapper) imgWrapper.classList.remove('unsichtbar');
+    } else {
+        if (playerImg) playerImg.removeAttribute('src');
+        if (lightboxImg) lightboxImg.removeAttribute('src');
+        if (imgWrapper) imgWrapper.classList.add('unsichtbar');
+        closePlayerImageLightbox();
+    }
+
+    // Fragekarten-Darstellung
     if (card != null) {
-        if (data.question && data.question.trim().length > 0) {
+        if (hasText) {
             card.classList.remove('unsichtbar');
-            const text = document.getElementById('qText');
-            text.textContent = data.question;
+            if (text) {
+                text.textContent = data.question;
+                text.classList.remove('unsichtbar');
+            }
+            card.classList.remove('qcard-slide');
+            card.style.opacity = '0';
+            void card.offsetWidth;
+            card.classList.add('qcard-slide');
+        } else if (hasImage) {
+            card.classList.remove('unsichtbar');
+            if (text) {
+                text.textContent = "";
+                text.classList.add('unsichtbar');
+            }
             card.classList.remove('qcard-slide');
             card.style.opacity = '0';
             void card.offsetWidth;
             card.classList.add('qcard-slide');
         } else if (hasAudio) {
             card.classList.remove('unsichtbar');
-            const text = document.getElementById('qText');
-            text.textContent = "Audio-Rätsel";
+            if (text) {
+                text.textContent = "Audio-Rätsel";
+                text.classList.remove('unsichtbar');
+            }
             card.classList.remove('qcard-slide');
             card.style.opacity = '0';
             void card.offsetWidth;
@@ -147,7 +186,7 @@ socket.on('buzzer', function() {
     }
 });
 
-// Wenn der Host "Clear Text" klickt: Audio auf dem Spielergerät ebenfalls stoppen und Karte verstecken
+// Wenn der Host "Clear Text" klickt: Audio auf dem Spielergerät ebenfalls stoppen, Bild leeren und Karte verstecken
 socket.on('clearText', function() {
     const audioElem = document.getElementById('playerQuestionAudio');
     const audioIndicator = document.getElementById('playerAudioIndicator');
@@ -159,6 +198,15 @@ socket.on('clearText', function() {
     }
     if (audioIndicator) audioIndicator.classList.add('unsichtbar');
 
+    // Bild bereinigen und verstecken
+    const imgWrapper = document.getElementById('qImageWrapper');
+    const playerImg = document.getElementById('playerQuestionImage');
+    const lightboxImg = document.getElementById('playerLightboxImage');
+    if (playerImg) playerImg.removeAttribute('src');
+    if (lightboxImg) lightboxImg.removeAttribute('src');
+    if (imgWrapper) imgWrapper.classList.add('unsichtbar');
+    closePlayerImageLightbox();
+
     const card = document.getElementById('qCard');
     if (card) {
         card.classList.remove('qcard-slide');
@@ -168,11 +216,41 @@ socket.on('clearText', function() {
 });
 
 socket.on('sendImage', function(data) {
-    const bildContainer = document.getElementById('bildContainer');
-    if(bildContainer != null) {
-        bildContainer.classList.remove('unsichtbar');
-        const bild = document.getElementById('bild');
-        const bildURL = data.image;
-        bild.src = bildURL;
+    if (!data || !data.image) return;
+    const card = document.getElementById('qCard');
+    const imgWrapper = document.getElementById('qImageWrapper');
+    const playerImg = document.getElementById('playerQuestionImage');
+    const lightboxImg = document.getElementById('playerLightboxImage');
+    const text = document.getElementById('qText');
+
+    if (playerImg) playerImg.src = data.image;
+    if (lightboxImg) lightboxImg.src = data.image;
+    if (imgWrapper) imgWrapper.classList.remove('unsichtbar');
+
+    if (data.imageOnly && text) {
+        text.textContent = "";
+        text.classList.add('unsichtbar');
+    }
+
+    if (card != null) {
+        card.classList.remove('unsichtbar');
+        card.classList.remove('qcard-slide');
+        card.style.opacity = '0';
+        void card.offsetWidth;
+        card.classList.add('qcard-slide');
     }
 });
+
+window.openPlayerImageLightbox = function() {
+    const modal = document.getElementById('playerImageModal');
+    if (modal) {
+        modal.classList.add('is-active');
+    }
+};
+
+window.closePlayerImageLightbox = function() {
+    const modal = document.getElementById('playerImageModal');
+    if (modal) {
+        modal.classList.remove('is-active');
+    }
+};

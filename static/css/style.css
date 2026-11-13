@@ -193,8 +193,11 @@
     min-height: 100px;
     box-sizing: border-box;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    gap: 12px;
 }
 
 .punkteBox {
@@ -282,13 +285,81 @@
     background-color: rgba(255, 255, 255, 0.15);
 }
 
-#bildButtonPlay {
-    margin-top: 50px;
-    padding: 100px 20px;
-    font-size: 16px;
+/* Spieler-Bildanzeige in der Fragekarte */
+.player-image-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 8px;
+    position: relative;
+}
+
+#playerQuestionImage {
+    max-height: 260px;
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    cursor: zoom-in;
+    object-fit: contain;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#playerQuestionImage:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(108, 99, 255, 0.45);
+}
+
+.player-image-hint {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: #a5a1e2;
     cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    user-select: none;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+}
+
+.player-image-hint:hover {
+    opacity: 1;
+    color: #ffffff;
+}
+
+/* Lightbox Styling */
+.player-lightbox-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 92vw !important;
+    max-height: 90vh !important;
+    width: auto !important;
+    overflow: hidden;
+    background: transparent !important;
+}
+
+.player-lightbox-content img {
+    max-width: 90vw;
+    max-height: 85vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+    .questionCard {
+        padding: 16px 20px;
+        font-size: 1.2rem;
+    }
+    #playerQuestionImage {
+        max-height: 180px;
+    }
 }
 
 .grid {

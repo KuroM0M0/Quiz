@@ -866,18 +866,24 @@
         const isAudioPlaying = !!(hostAudioPlaying && hostPlayer && !hostPlayer.paused);
         const currentSeek = (hostPlayer && typeof hostPlayer.currentTime === 'number') ? hostPlayer.currentTime : 0;
 
+        const cardImage = current.image || "";
+        const isImageOnly = !!current.imageOnly;
+
         socket.emit("sendQuestion", {
             room: targetRoom,
             question: current.question || "",
             answer: current.answer || "",
             audio: current.audio || "",
-            loop: !!current.audioLoop
+            loop: !!current.audioLoop,
+            image: cardImage,
+            imageOnly: isImageOnly
         });
 
-        if (current.image) {
+        if (cardImage) {
             socket.emit("sendImage", {
                 room: targetRoom,
-                image: current.image
+                image: cardImage,
+                imageOnly: isImageOnly
             });
         }
 
