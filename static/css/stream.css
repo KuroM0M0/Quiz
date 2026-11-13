@@ -211,6 +211,7 @@
 .quizFeld button .subtitle {
     word-break: break-word;
     overflow-wrap: break-word;
+    margin-bottom: 0 !important;
 }
 
 .quizFeld button.button-vollbild .title {

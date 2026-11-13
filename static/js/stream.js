@@ -490,16 +490,13 @@
         const textElem = document.getElementById('quizCardText');
         if (!quizBtn || !textElem) return false;
 
-        // 1. scrollHeight-Prüfung der gesamten Mittelkarte (mit 1.5px Toleranz)
-        if (quizBtn.scrollHeight > quizBtn.clientHeight + 1.5) {
-            return true;
-        }
-
-        // 2. Geometrische Prüfung des tiefsten sichtbaren Elements
         const btnRect = quizBtn.getBoundingClientRect();
-        const paddingBottom = parseFloat(window.getComputedStyle(quizBtn).paddingBottom) || 16;
-        const maxAllowedBottom = btnRect.bottom - paddingBottom + 1.5;
+        if (btnRect.height <= 0) return false;
 
+        // Sicherheitsabstand zur physischen Unterkante der Mittelbox (6px)
+        const maxAllowedBottom = btnRect.bottom - 6;
+
+        // 1. Tiefstes sichtbares Element ermitteln
         const imgElem = document.getElementById('quizCardImage');
         const hasImage = imgElem && !imgElem.classList.contains('unsichtbar') && imgElem.src && imgElem.src.trim() && !imgElem.src.endsWith('#');
 
@@ -509,12 +506,18 @@
         const lowestElem = hasWave ? audioWave : (hasImage ? imgElem : textElem);
         const lowestRect = lowestElem.getBoundingClientRect();
 
+        // Ragt das unterste sichtbare Element über die Unterkante hinaus?
         if (lowestRect.bottom > maxAllowedBottom) {
             return true;
         }
 
-        // 3. Horizontale Prüfung
-        if (textElem.scrollWidth > textElem.clientWidth + 2) {
+        // 2. scrollHeight der Box gegen clientHeight prüfen (mit 6px Toleranz)
+        if (quizBtn.scrollHeight > quizBtn.clientHeight + 6) {
+            return true;
+        }
+
+        // 3. Horizontale Prüfung (nur bei extrem langen, unbrechbaren Wörtern mit 10px Puffer)
+        if (textElem.scrollWidth > textElem.clientWidth + 10) {
             return true;
         }
 
@@ -534,13 +537,14 @@
             return;
         }
 
-        // Zunächst auf Standard-Größe zurücksetzen
-        textElem.style.fontSize = '';
-        textElem.style.lineHeight = '';
-
-        // Transition vorübergehend ausschalten, damit die Messungen im selben Frame exakt sind
+        // Transition vorübergehend ausschalten für synchrone Messung
         const prevTransition = textElem.style.transition;
         textElem.style.transition = 'none';
+
+        // Zunächst auf Standard-Größe zurücksetzen und Reflow erzwingen
+        textElem.style.fontSize = '';
+        textElem.style.lineHeight = '';
+        void textElem.offsetHeight;
 
         // Basis-Schriftgröße (Standardwert) ermitteln
         const computedStyle = window.getComputedStyle(textElem);
@@ -550,7 +554,7 @@
             return;
         }
 
-        // Falls der Text mit der Standard-Schriftgröße nicht abgeschnitten wird: Standard beibehalten!
+        // Falls der Text mit der Standard-Schriftgröße vollständig hineinpasst: Standard beibehalten!
         if (!isMiddleCardOverflowing()) {
             textElem.style.transition = prevTransition;
             return;
@@ -562,6 +566,7 @@
             const candidateSize = Math.max(10, baseFontSize - reduction);
             textElem.style.setProperty('font-size', candidateSize + 'px', 'important');
             textElem.style.lineHeight = '1.3';
+            void textElem.offsetHeight; // Reflow erzwingen für präzise Überlaufprüfung
 
             if (!isMiddleCardOverflowing()) {
                 break; // Text passt nun ohne Abschneiden hinein!
