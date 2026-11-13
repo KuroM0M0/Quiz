@@ -159,6 +159,35 @@
     margin-top: 50px;
 }
 
+/* Spielerliste Status-Hervorhebung (Buzzer = Grün, Antwort abgegeben = Braun) */
+.table.playerList tr,
+.table.playerList tr th,
+.table.playerList tr td {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.table.playerList tr.green,
+.table.playerList tr.green th,
+.table.playerList tr.green td,
+#playerList tr.green,
+#playerList tr.green th,
+#playerList tr.green td {
+    background-color: green !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.table.playerList tr.brown,
+.table.playerList tr.brown th,
+.table.playerList tr.brown td,
+#playerList tr.brown,
+#playerList tr.brown th,
+#playerList tr.brown td {
+    background-color: rgb(78, 44, 0) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
 .faqBaseBox {
     margin-left: 40%;
     margin-right: 40%;

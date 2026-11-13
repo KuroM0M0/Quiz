@@ -76,7 +76,9 @@ const app = createApp({
     data() {
         return {
             players: {},
-            sortDescending: true // Standardmäßig: Höchste Punkte oben
+            sortDescending: true, // Standardmäßig: Höchste Punkte oben
+            buzzedPlayers: {},    // { [username]: true }
+            submittedPlayers: {}  // { [username]: true }
         };
     },
     computed: {
@@ -104,13 +106,80 @@ const app = createApp({
         // Diese Funktion rufen wir auf, wenn man auf "Punkte" klickt
         toggleSort() {
             this.sortDescending = !this.sortDescending;
+        },
+        getPlayerClass(playerName) {
+            if (this.buzzedPlayers && this.buzzedPlayers[playerName]) {
+                return 'green';
+            }
+            if (this.submittedPlayers && this.submittedPlayers[playerName]) {
+                return 'brown';
+            }
+            return '';
         }
     },
     mounted() {
         socket.on('playerList', data => {
-            this.players = data.players;
+            if (data && data.players) {
+                this.players = data.players;
+            }
+        });
+
+        // Wenn ein Spieler buzzert: in Spielerliste grün markieren
+        socket.on('buzzer', data => {
+            if (data && data.username) {
+                this.buzzedPlayers = { ...this.buzzedPlayers, [data.username]: true };
+            }
+        });
+
+        // Wenn Buzzer zurückgesetzt wird: grün entfernen
+        socket.on('buzzerReset', data => {
+            if (data && (data.lockBuzzer === true || data.lockBuzzer === false)) {
+                return;
+            }
+            this.buzzedPlayers = {};
+        });
+
+        // Wenn Teilnehmer Antwort abgeben: in Spielerliste braun markieren
+        socket.on('submitAnswer', data => {
+            if (data && data.username) {
+                this.submittedPlayers = { ...this.submittedPlayers, [data.username]: true };
+            }
+        });
+
+        // Wenn Host Antwort-Eingabe sperrt/deaktiviert: braun entfernen
+        socket.on('answerInputToggle', data => {
+            if (data && data.answerInput === false) {
+                this.submittedPlayers = {};
+            }
+        });
+
+        // Wenn Texte gelöscht werden (z. B. Clear Text Button): Markierungen entfernen
+        socket.on('clearText', () => {
+            this.submittedPlayers = {};
+            this.buzzedPlayers = {};
+        });
+
+        // Auch beim Absenden einer neuen Frage zurücksetzen
+        socket.on('sendQuestion', () => {
+            this.buzzedPlayers = {};
+            this.submittedPlayers = {};
+        });
+
+        // Wenn ein Spieler entfernt / gekickt wird
+        socket.on('playerRemoved', data => {
+            if (data && data.username) {
+                const newBuzzed = { ...this.buzzedPlayers };
+                delete newBuzzed[data.username];
+                this.buzzedPlayers = newBuzzed;
+
+                const newSubmitted = { ...this.submittedPlayers };
+                delete newSubmitted[data.username];
+                this.submittedPlayers = newSubmitted;
+            }
         });
     }
 });
 
-app.mount('#app');
+if (document.getElementById('app')) {
+    app.mount('#app');
+}
