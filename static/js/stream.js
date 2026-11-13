@@ -437,6 +437,7 @@
         quizBtn.classList.remove('button-klein');
         quizBtn.classList.add('button-vollbild');
         isCardFullscreen = true;
+        setTimeout(fitMiddleCardText, 520);
     }
 
     function shrinkQuizCard() {
@@ -458,6 +459,7 @@
                 quizFeld.style.zIndex = '10';
             }
             shrinkTimeout = null;
+            fitMiddleCardText();
         }, 500);
     }
 
@@ -482,6 +484,94 @@
     let lastRenderedCardIndex = 0;
     let cardSwitchOutTimer = null;
     let cardSwitchCleanupTimer = null;
+
+    function isMiddleCardOverflowing() {
+        const quizBtn = document.getElementById('quizButton');
+        const textElem = document.getElementById('quizCardText');
+        if (!quizBtn || !textElem) return false;
+
+        // 1. scrollHeight-Prüfung der gesamten Mittelkarte (mit 1.5px Toleranz)
+        if (quizBtn.scrollHeight > quizBtn.clientHeight + 1.5) {
+            return true;
+        }
+
+        // 2. Geometrische Prüfung des tiefsten sichtbaren Elements
+        const btnRect = quizBtn.getBoundingClientRect();
+        const paddingBottom = parseFloat(window.getComputedStyle(quizBtn).paddingBottom) || 16;
+        const maxAllowedBottom = btnRect.bottom - paddingBottom + 1.5;
+
+        const imgElem = document.getElementById('quizCardImage');
+        const hasImage = imgElem && !imgElem.classList.contains('unsichtbar') && imgElem.src && imgElem.src.trim() && !imgElem.src.endsWith('#');
+
+        const audioWave = document.getElementById('quizCardAudioWave');
+        const hasWave = audioWave && audioWave.classList.contains('is-active-wave');
+
+        const lowestElem = hasWave ? audioWave : (hasImage ? imgElem : textElem);
+        const lowestRect = lowestElem.getBoundingClientRect();
+
+        if (lowestRect.bottom > maxAllowedBottom) {
+            return true;
+        }
+
+        // 3. Horizontale Prüfung
+        if (textElem.scrollWidth > textElem.clientWidth + 2) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function fitMiddleCardText() {
+        if (!isStreamPage) return;
+        const textElem = document.getElementById('quizCardText');
+        const quizBtn = document.getElementById('quizButton');
+        if (!textElem || !quizBtn) return;
+
+        // Wenn kein Fragetext sichtbar ist, zurücksetzen und abbrechen
+        if (textElem.classList.contains('unsichtbar') || !textElem.textContent || !textElem.textContent.trim()) {
+            textElem.style.fontSize = '';
+            textElem.style.lineHeight = '';
+            return;
+        }
+
+        // Zunächst auf Standard-Größe zurücksetzen
+        textElem.style.fontSize = '';
+        textElem.style.lineHeight = '';
+
+        // Transition vorübergehend ausschalten, damit die Messungen im selben Frame exakt sind
+        const prevTransition = textElem.style.transition;
+        textElem.style.transition = 'none';
+
+        // Basis-Schriftgröße (Standardwert) ermitteln
+        const computedStyle = window.getComputedStyle(textElem);
+        const baseFontSize = parseFloat(computedStyle.fontSize);
+        if (!baseFontSize || isNaN(baseFontSize)) {
+            textElem.style.transition = prevTransition;
+            return;
+        }
+
+        // Falls der Text mit der Standard-Schriftgröße nicht abgeschnitten wird: Standard beibehalten!
+        if (!isMiddleCardOverflowing()) {
+            textElem.style.transition = prevTransition;
+            return;
+        }
+
+        // Falls Text abgeschnitten wird: Schriftgröße schrittweise (1px-Schritte, max. 6px kleiner) verkleinern
+        const maxReduction = 6;
+        for (let reduction = 1; reduction <= maxReduction; reduction++) {
+            const candidateSize = Math.max(10, baseFontSize - reduction);
+            textElem.style.setProperty('font-size', candidateSize + 'px', 'important');
+            textElem.style.lineHeight = '1.3';
+
+            if (!isMiddleCardOverflowing()) {
+                break; // Text passt nun ohne Abschneiden hinein!
+            }
+        }
+
+        // Layout erzwingen und Transition wiederherstellen
+        void textElem.offsetHeight;
+        textElem.style.transition = prevTransition;
+    }
 
     function applyMiddleCardDOM() {
         const catElem = document.getElementById('quizCardCategory');
@@ -673,12 +763,18 @@
                 if (current.image) {
                     imgElem.src = current.image;
                     imgElem.classList.remove('unsichtbar');
+                    imgElem.onload = function () {
+                        fitMiddleCardText();
+                    };
                 } else {
                     imgElem.src = "";
                     imgElem.classList.add('unsichtbar');
                 }
             }
         }
+
+        // Dynamische Schriftgrößen-Anpassung bei Text-Überlauf (max. 6px kleiner)
+        fitMiddleCardText();
     }
 
     function renderMiddleCard() {
@@ -782,6 +878,7 @@
             cardSwitchCleanupTimer = setTimeout(() => {
                 quizBtn.classList.remove('card-switch-in-next', 'card-switch-in-prev');
                 cardSwitchCleanupTimer = null;
+                fitMiddleCardText();
             }, 440);
             return;
         }
@@ -801,6 +898,7 @@
             cardSwitchCleanupTimer = setTimeout(() => {
                 quizBtn.classList.remove('card-switch-in-next', 'card-switch-in-prev');
                 cardSwitchCleanupTimer = null;
+                fitMiddleCardText();
             }, 440);
         }, 135);
     }
@@ -3742,6 +3840,12 @@
     // =========================================================================
     // Initialisierung
     // =========================================================================
+
+    window.addEventListener('resize', function () {
+        if (isStreamPage) {
+            fitMiddleCardText();
+        }
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
         initHostAudioPlayer();

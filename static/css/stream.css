@@ -208,14 +208,19 @@
     width: 75%;
 }
 
+.quizFeld button .subtitle {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
 .quizFeld button.button-vollbild .title {
     font-size: 2.8rem !important;
     margin-bottom: 20px !important;
 }
 
 .quizFeld button.button-vollbild .subtitle {
-    font-size: 2rem !important;
-    line-height: 1.4 !important;
+    font-size: 2rem;
+    line-height: 1.4;
     max-width: 85vw;
 }
 
