@@ -257,7 +257,7 @@ window.StreamApp = window.StreamApp || {
             try { syncChannel.postMessage(msg); } catch (e) {}
         }
         if (typeof socket !== 'undefined' && socket && socket.connected) {
-            socket.emit('stream_sync', msg);
+            socket.emit('streamSync', msg);
         }
     }
 
@@ -488,7 +488,7 @@ window.StreamApp = window.StreamApp || {
         }
     });
 
-    socket.on('stream_sync', function (data) {
+    socket.on('streamSync', function (data) {
         handleSyncMessage(data);
     });
 

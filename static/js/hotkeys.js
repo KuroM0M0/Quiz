@@ -155,7 +155,7 @@
             } else if (settings.crossWindow && targetRoom) {
                 // Fensterübergreifend an /stream senden
                 if (typeof socket !== 'undefined' && socket && socket.connected) {
-                    socket.emit('stream_sync', { type: 'toggle_fullscreen', roomID: targetRoom });
+                    socket.emit('streamSync', { type: 'toggle_fullscreen', roomID: targetRoom });
                 }
                 triggerSubtleFeedback(null);
             }
