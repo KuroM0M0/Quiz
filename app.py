@@ -11,15 +11,34 @@ import time
 import json
 import secrets
 import os
+import re
+import urllib.request
+import urllib.error
 
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = "geheimes-passwort"
 password = os.getenv("pw")
+discord_webhook = os.getenv("DISCORD_WEBHOOK")
 app.permanent_session_lifetime = timedelta(hours=8)
 socketio = SocketIO(app, cors_allowed_origins="*")  # erlaubt auch lokale Tests
 rooms = {}
 players = [] #nötig für Prüfung ob Username bereits existiert
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range, Authorization"
+    return response
+
+upload_folder = os.path.join(app.static_folder, 'uploads')
+os.makedirs(upload_folder, exist_ok=True)
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({'error': 'Die Datei ist zu groß (maximal 10 MB erlaubt).'}), 413
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -162,11 +181,57 @@ def updates():
     return render_template("updates.html")
 
 
+@app.route('/<roomID>/stream')
+def stream(roomID):
+    return render_template("stream.html", roomID=roomID)
+
+
+
+@app.route('/<roomID>/<path:username>/text')
+def playerText(roomID, username):
+    return render_template("playerText.html", username=username, roomID=roomID)
+
+
+@app.route('/<roomID>/<path:username>/punkte')
+def playerPoints(roomID, username):
+    return render_template("playerPoints.html", username=username, roomID=roomID)
+
+
 
 ################################################
 #### Hier sind die nicht aufrufbaren Routen ####
 ################################################
 
+
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    try:
+        file = request.files.get('file')
+        if not file or not file.filename:
+            return jsonify({'error': 'Keine Datei ausgewählt'}), 400
+
+        os.makedirs(upload_folder, exist_ok=True)
+        # Dateiendung ermitteln (z.B. .jpg oder .mp3)
+        ext = os.path.splitext(file.filename)[1].lower()
+
+        # Optional: Erlaube gezielten Dateinamen bei Sync/Migration (sicher validiert)
+        custom_name = request.form.get('custom_name')
+        if custom_name:
+            clean_name = os.path.basename(custom_name)
+            if re.match(r'^[a-f0-9]{16}\.[a-zA-Z0-9]+$', clean_name):
+                filename = clean_name
+            else:
+                filename = f"{secrets.token_hex(8)}{ext}"
+        else:
+            filename = f"{secrets.token_hex(8)}{ext}"
+
+        save_path = os.path.join(upload_folder, filename)
+        file.save(save_path)
+        return jsonify({'url': f"/static/uploads/{filename}"})
+    except Exception as e:
+        print(f"Upload-Fehler: {e}")
+        return jsonify({'error': f'Fehler beim Speichern: {str(e)}'}), 500
 
 
 @app.route('/saveCard', methods=['POST'])
@@ -182,6 +247,8 @@ def save_card():
     
     with open(cardsFile, 'w') as f:
         json.dump(cards, f)
+
+    notify_bugreport_discord(data.get('name', 'Anonym'), data.get('text', ''))
         
     return jsonify({"status": "success"})
 
@@ -223,6 +290,10 @@ def create():
         "buzzerOrder": 0,
         "answerButton": False,
         "currentQuestion": "",
+        "currentAnswer": "",
+        "hasImage": False,
+        "currentImage": "",
+        "imageOnly": False,
         "isOpenToJoin": True
     }
 
@@ -331,9 +402,21 @@ def playLoaded(data):
     answerButton = rooms[roomID]["answerButton"]
     question = rooms[roomID]["currentQuestion"]
     isJoinable = rooms[roomID]["isOpenToJoin"]
-    hasImage = rooms[roomID]["hasImage"]
+    hasImage = rooms[roomID].get("hasImage", False)
+    currentImage = rooms[roomID].get("currentImage", "")
+    imageOnly = rooms[roomID].get("imageOnly", False)
 
-    socketio.emit("playLoaded", {"buzzerStatus": buzzerStatus, "buzzed_by": buzzed_by, "textLocked": textLocked, "answerButton": answerButton, "question": question, "isJoinable": isJoinable, "hasImage": hasImage}, to=flask_request.sid)
+    socketio.emit("playLoaded", {
+        "buzzerStatus": buzzerStatus,
+        "buzzed_by": buzzed_by,
+        "textLocked": textLocked,
+        "answerButton": answerButton,
+        "question": question,
+        "isJoinable": isJoinable,
+        "hasImage": hasImage,
+        "image": currentImage,
+        "imageOnly": imageOnly
+    }, to=flask_request.sid)
 
 
 @socketio.on("closeRoom")
@@ -450,7 +533,11 @@ def lockBuzzer(data):
 @socketio.on("clearText")
 def clearText(data):
     roomID = data['roomID']
-    rooms[roomID]["currentQuestion"] = ""
+    if roomID in rooms:
+        rooms[roomID]["currentQuestion"] = ""
+        rooms[roomID]["currentImage"] = ""
+        rooms[roomID]["hasImage"] = False
+        rooms[roomID]["imageOnly"] = False
     socketio.emit("clearText", data, room=roomID)
 
 
@@ -490,9 +577,72 @@ def submitAnswer(data):
 
 @socketio.on("sendQuestion")
 def sendQuestion(data):
-    roomID = data['room']
-    rooms[roomID]["currentQuestion"] = data['question']
-    socketio.emit("sendQuestion", data, room=data['room'])
+    targetRoom = data.get('room') or data.get('roomID')
+    if targetRoom and targetRoom in rooms:
+        rooms[targetRoom]["currentQuestion"] = data.get('question', '')
+        rooms[targetRoom]["currentAnswer"] = data.get('answer', '')
+        image = data.get('image', '')
+        imageOnly = bool(data.get('imageOnly', False))
+        rooms[targetRoom]["currentImage"] = image
+        rooms[targetRoom]["hasImage"] = bool(image)
+        rooms[targetRoom]["imageOnly"] = imageOnly
+    if targetRoom:
+        socketio.emit("sendQuestion", data, room=targetRoom)
+
+
+@socketio.on("sendImage")
+def sendImage(data):
+    roomID = data.get('room') or data.get('roomID')
+    imageURL = data.get('image', '')
+    imageOnly = bool(data.get('imageOnly', False))
+    if roomID and roomID in rooms:
+        rooms[roomID]["hasImage"] = bool(imageURL)
+        rooms[roomID]["currentImage"] = imageURL
+        rooms[roomID]["imageOnly"] = imageOnly
+    if roomID:
+        socketio.emit("sendImage", {"image": imageURL, "imageOnly": imageOnly}, room=roomID)
+
+
+@socketio.on("playAudio")
+def playAudio(data):
+    targetRoom = data.get('room') or data.get('roomID')
+    if targetRoom:
+        socketio.emit("playAudio", data, room=targetRoom)
+
+
+@socketio.on("pauseAudio")
+def pauseAudio(data):
+    targetRoom = data.get('room') or data.get('roomID')
+    if targetRoom:
+        socketio.emit("pauseAudio", data, room=targetRoom)
+
+
+@socketio.on("stopAudio")
+def stopAudio(data):
+    targetRoom = data.get('room') or data.get('roomID')
+    if targetRoom:
+        socketio.emit("stopAudio", data, room=targetRoom)
+
+
+@socketio.on("seekAudio")
+def seekAudio(data):
+    targetRoom = data.get('room') or data.get('roomID')
+    if targetRoom:
+        socketio.emit("seekAudio", data, room=targetRoom)
+
+
+@socketio.on("streamAudioVisual")
+def streamAudioVisual(data):
+    targetRoom = data.get('room') or data.get('roomID')
+    if targetRoom:
+        socketio.emit("streamAudioVisual", data, room=targetRoom)
+
+
+@socketio.on("streamAudioLevels")
+def streamAudioLevels(data):
+    targetRoom = data.get('room') or data.get('roomID')
+    if targetRoom:
+        socketio.emit("streamAudioLevels", data, room=targetRoom)
 
 
 
@@ -565,7 +715,15 @@ def handle_timer(data):
     # Wir schicken die Dauer UND den aktuellen Server-Zeitstempel
     data["duration"] = duration
     data["serverTime"] = time.time() * 1000 
-    socketio.emit("timer", data, to=data.get("room"))
+    targetRoom = data.get("room") or data.get("roomID")
+    socketio.emit("timer", data, to=targetRoom)
+
+
+@socketio.on("streamSync")
+def handleStreamSync(data):
+    targetRoom = data.get("roomID") or data.get("room")
+    if targetRoom:
+        socketio.emit("streamSync", data, room=targetRoom, include_self=False)
 
 
 
@@ -594,5 +752,36 @@ def loadWartung():
     return {'message': '', 'active': False}
 
 
+def send_discord_webhook(content):
+    """Sendet eine Nachricht an den in .env hinterlegten Discord-Webhook."""
+    if not discord_webhook:
+        return
+    payload = json.dumps({"content": content}).encode("utf-8")
+    req = urllib.request.Request(
+        discord_webhook,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "KuroBuzz-Webhook/1.0"
+        },
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            resp.read()
+    except Exception as e:
+        print(f"Discord-Webhook Fehler: {e}")
+
+
+def notify_bugreport_discord(name, text):
+    """Sendet einen neuen Bug-Report / Feature-Request im Hintergrund an Discord."""
+    if not discord_webhook:
+        return
+    message = f"🐛 **Neuer Bug-Report / Feature-Request**\n**Von:** {name}\n**Nachricht:**\n{text}"
+    socketio.start_background_task(send_discord_webhook, message)
+
+
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5500, debug=True)
+    port = int(os.environ.get('PORT', 5500))
+    debug = os.environ.get('FLASK_DEBUG', 'true').lower() in ('true', '1')
+    socketio.run(app, host='0.0.0.0', port=port, debug=debug)

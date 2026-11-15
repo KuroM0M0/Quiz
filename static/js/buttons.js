@@ -17,6 +17,9 @@ function onlyFirstBuzz() {
 function clearText() {
     const text = "";
     socket.emit('clearText', {text: text, roomID: roomID});
+    if (typeof window.onClearTextTriggered === 'function') {
+        window.onClearTextTriggered();
+    }
 }
 
 

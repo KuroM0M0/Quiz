@@ -8,6 +8,9 @@ function onBuzzerClick() {
 
 document.addEventListener('keydown', function(event) {
     if(event.code === 'Space') {
+        const buzzerBtn = document.getElementById("buzzer");
+        if (!buzzerBtn) return;
+
         const activeElem = document.activeElement;
         const isInputField = activeElem.tagName === 'INPUT' || 
                              activeElem.tagName === 'TEXTAREA' || 
@@ -22,8 +25,10 @@ document.addEventListener('keydown', function(event) {
 });
 
 function playBuzzerSound() {
-    var cookie = getCookie("buzzerSound") || "BuzzerKurz"; // Standard-Sound, falls kein Cookie gesetzt ist
+    if (window.location.pathname.startsWith('/stream')) return;
+    var cookie = getCookie("buzzerSound") || "Quak"; // Standard Sound, falls kein Cookie gesetzt ist
     var sound = document.getElementById(cookie);
+    if (!sound) return;
     var volume = parseFloat(getCookie("buzzerVolume"));
     sound.volume = isNaN(volume) ? 1 : volume; // Standard: volle Lautstärke
     sound.play().catch(function(error) {
@@ -64,7 +69,9 @@ socket.on("buzzer", function(data) {
     if(hostBuzzerOrder != null) {
         hostBuzzerOrder.innerHTML = data.buzzerOrder + ". ";
     }
-    playBuzzerSound();
+    if (!window.location.pathname.startsWith('/stream')) {
+        playBuzzerSound();
+    }
 })
 
 function onBuzzerReset() {
@@ -113,6 +120,10 @@ socket.on("playLoaded", function(data) {
     const buzzer = document.getElementById("buzzer");
     const inputField = document.getElementsByName("InputField")[0];
     const toggleJoinButton = document.getElementById('btn-toggle-join');
+    const joinIcon = document.getElementById('join-icon');
+    const joinText = document.getElementById('join-text');
+    const bildContainer = document.getElementById('bildContainer');
+    const bildURL = data.image;
 
     //Verhindert fehlermeldung für den Host
     if(buzzer != null) {
@@ -143,28 +154,57 @@ socket.on("playLoaded", function(data) {
         answerButton.classList.remove("unsichtbar");
     }
 
-    if(data.question) {
-        const questionCard = document.getElementById("qCard");
-        const questionText = document.getElementById("qText");
-        questionText.textContent = data.question;
-        questionCard.classList.add('delay4');
-        questionCard.classList.remove('qcard-slide');
-        questionCard.style.opacity = '0';
-        void questionCard.offsetWidth; // Reflow erzwingen, damit die Animation auch bei gleicher Frage erneut läuft
-        questionCard.classList.add('qcard-slide');
-        setTimeout(() => {
-            questionCard.classList.remove('delay4');
-        }, 1500);
+    const questionCard = document.getElementById("qCard");
+    const questionText = document.getElementById("qText");
+    const imgWrapper = document.getElementById('qImageWrapper');
+    const playerImg = document.getElementById('playerQuestionImage');
+    const lightboxImg = document.getElementById('playerLightboxImage');
+
+    const hasQuestion = !!(data.question && data.question.trim().length > 0);
+    const hasImage = !!(data.hasImage && data.image && typeof data.image === 'string' && data.image.trim().length > 0);
+
+    // Bild synchronisieren
+    if (hasImage) {
+        if (playerImg) playerImg.src = data.image;
+        if (lightboxImg) lightboxImg.src = data.image;
+        if (imgWrapper) imgWrapper.classList.remove('unsichtbar');
+    } else {
+        if (playerImg) playerImg.removeAttribute('src');
+        if (lightboxImg) lightboxImg.removeAttribute('src');
+        if (imgWrapper) imgWrapper.classList.add('unsichtbar');
     }
 
-    if(data.isJoinable == true) {
-        toggleJoinButton.classList.replace('is-success', 'is-danger');
-        joinIcon.className = 'fas fa-lock';
-        joinText.innerText = 'Gesperrt';
-    } else {
-        toggleJoinButton.classList.replace('is-danger', 'is-success');
-        joinIcon.className = 'fas fa-unlock';
-        joinText.innerText = 'Offen';
+    if (hasQuestion || hasImage) {
+        if (questionCard) {
+            if (hasQuestion && questionText) {
+                questionText.textContent = data.question;
+                questionText.classList.remove('unsichtbar');
+            } else if (questionText) {
+                questionText.textContent = "";
+                questionText.classList.add('unsichtbar');
+            }
+            questionCard.classList.remove('unsichtbar');
+            questionCard.classList.add('delay4');
+            questionCard.classList.remove('qcard-slide');
+            questionCard.style.opacity = '0';
+            void questionCard.offsetWidth; // Reflow erzwingen
+            questionCard.classList.add('qcard-slide');
+            setTimeout(() => {
+                questionCard.classList.remove('delay4');
+            }, 1500);
+        }
+    }
+
+    if (toggleJoinButton && joinIcon && joinText) {
+        if (data.isJoinable == true) {
+            toggleJoinButton.classList.replace('is-success', 'is-danger');
+            joinIcon.className = 'fas fa-lock';
+            joinText.innerText = 'Gesperrt';
+        } else {
+            toggleJoinButton.classList.replace('is-danger', 'is-success');
+            joinIcon.className = 'fas fa-unlock';
+            joinText.innerText = 'Offen';
+        }
     }
 })
 

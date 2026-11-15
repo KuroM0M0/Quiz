@@ -4,7 +4,8 @@ const SuccessAlert = Swal.mixin({
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
-    theme: 'dark',
+    background: '#1a1a28',
+    color: '#ffffff',
     didOpen: (toast) => {
         toast.addEventListener('mouseenter', Swal.stopTimer)
         toast.addEventListener('mouseleave', Swal.resumeTimer)
@@ -22,6 +23,14 @@ function ShowSuccesAlert(text) {
         title: text
     })
 }
+
+window.ShowSuccessAlert = function(title, text) {
+    return SuccessAlert.fire({
+        icon: 'success',
+        title: title,
+        text: text || ''
+    });
+};
 
 /**
  * Shows an error alert dialog with a single 'Ok' button

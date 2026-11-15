@@ -22,21 +22,19 @@ socket.on("timer", function(data) {
     const display = document.getElementById('timerDisplay');
     const lockTextButton = document.getElementById("lockTextButton");
     
-    const clientNow = Date.now();
-    const serverOffset = data.serverTime - clientNow;
-    const durationInMs = parseInt(data.duration) * 1000;
-    const endTime = clientNow + durationInMs + serverOffset;
+    const duration = parseInt(data.duration || data.timer, 10);
+    if (isNaN(duration) || duration <= 0) return;
+    const endTime = Date.now() + duration * 1000;
 
     clearInterval(countdown);
     
     countdown = setInterval(() => {
-        const now = Date.now() + serverOffset; 
-        const timeLeft = endTime - now;
+        const timeLeft = endTime - Date.now();
 
         // 1. Prüfen, ob der Timer abgelaufen ist
         if(timeLeft <= 0) {
             clearInterval(countdown); // Intervall stoppen
-            display.innerText = "00:00"; // Kurz 0 anzeigen
+            if (display) display.innerText = "00:00"; // Kurz 0 anzeigen
 
             // Die Sperr-Logik ausführen
             if(lockTextButton) {
@@ -62,6 +60,6 @@ socket.on("timer", function(data) {
         let mins = Math.floor(totalSeconds / 60);
         let secs = totalSeconds % 60;
 
-        display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        if (display) display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }, 200);
 });
