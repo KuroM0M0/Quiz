@@ -353,21 +353,21 @@
                         <!-- Dynamisch generiert -->
                     </div>
 
-                    <!-- Einstellungs-Option: Fensterübergreifend -->
+                    <!-- Einstellungs Option: Fensterübergreifend -->
                     <div class="field mb-4 p-3" style="background: rgba(255, 255, 255, 0.04); border-radius: 6px;">
                         <label class="checkbox has-text-white is-size-7 is-flex is-align-items-flex-start" style="gap: 8px; cursor: pointer;">
                             <input type="checkbox" id="hotkeyCrossWindowCheckbox" onchange="toggleHotkeyCrossWindow(this.checked)" style="margin-top: 2px;">
                             <div>
                                 <strong class="has-text-light">Aktionen fensterübergreifend ausführen</strong>
                                 <div class="has-text-grey mt-1">
-                                    Ermöglicht z. B. das Vergrößern der Stream-Karte vom Host-Fenster aus oder das Zurücksetzen des Buzzers aus dem Stream-Overlay.
+                                    Ermöglicht z. B. das Vergrößern der Stream Karte vom Host Fenster aus oder das Zurücksetzen des Buzzers aus dem Stream Overlay.
                                 </div>
                             </div>
                         </label>
                     </div>
 
                     <div class="is-flex is-justify-content-space-between is-align-items-center pt-3" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                        <button class="button is-danger is-small is-light" onclick="resetHotkeysToDefault()" title="Alle Tastenbelegungen entfernen">
+                        <button class="button is-danger is-small" onclick="resetHotkeysToDefault()" title="Alle Tastenbelegungen entfernen">
                             <i class="fas fa-undo mr-1"></i> Alle deaktivieren
                         </button>
                         <button class="button is-primary is-small" onclick="closeHotkeySettingsModal()">
@@ -412,7 +412,7 @@
             right.style.gap = '6px';
 
             const btn = document.createElement('button');
-            btn.className = 'button is-small ' + (isRecording ? 'is-warning is-light' : (currentCode ? 'is-info' : 'is-dark'));
+            btn.className = 'button is-small ' + (isRecording ? 'is-warning' : (currentCode ? 'is-info' : 'is-dark'));
             btn.style.minWidth = '130px';
             if (isRecording) {
                 btn.innerHTML = '<span class="has-text-weight-bold"><i class="fas fa-circle-notch fa-spin mr-1"></i>Taste drücken...</span>';
@@ -432,7 +432,7 @@
 
             if (currentCode) {
                 const clearBtn = document.createElement('button');
-                clearBtn.className = 'button is-small is-danger is-light';
+                clearBtn.className = 'button is-small is-danger';
                 clearBtn.title = 'Hotkey entfernen';
                 clearBtn.innerHTML = '<i class="fas fa-times"></i>';
                 clearBtn.onclick = function () {

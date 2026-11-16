@@ -33,18 +33,82 @@
     <article class="message faqAbrunden">
         <details>
             <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Wie stelle ich Fragen, sende Bilder und hinterlege Antworten?
+            </summary>
+            <div class="message-body">
+                Sende Frage:<br>
+                Die eingegebene Frage wird bei allen Teilnehmern gleichzeitig angezeigt. Optional kannst du eine richtige Antwort hinterlegen. Diese sehen nur du und der Server, die Teilnehmer nicht.<br><br>
+                Sende Bild:<br>
+                Du wählst ein Bild aus (maximal 10 MB). Alle Teilnehmer erhalten es direkt in ihrer Ansicht und können es per Klick im Vollbild ansehen.<br><br>
+                Fragen vorbereiten:<br>
+                Im Control Panel (Reiter am Rand der Host Seite) gibt es "Fragen &amp; Aufgaben verwalten". Dort kannst du Fragen mit Antwort, Bild, Audio und Timer anlegen, bearbeiten, umsortieren und als Quiz Paket exportieren oder importieren. Mit "An Spieler senden" schickst du die aktive Frage ab.
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Was ist die Stream Ansicht und wie binde ich sie in OBS ein?
+            </summary>
+            <div class="message-body">
+                Stream Ansicht:<br>
+                Über "Stream öffnen" beim Host öffnet sich die Seite <b>/RAUMCODE/stream</b>. Sie zeigt bis zu 8 Kacheln für deine Teilnehmer und eine Karte mit der aktuellen Frage in der Mitte. Auf dieser Seite sind alle Sounds stummgeschaltet.<br><br>
+                Slots einrichten:<br>
+                Im Control Panel unter "Stream Slots verwalten" weist du jeder Kachel einen Spieler zu und kannst eine Discord Reactive / Kamera URL (zum Beispiel VDO.Ninja) und eine Textfeld Overlay URL eintragen. "Auto Slots" füllt freie Kacheln automatisch mit den beigetretenen Spielern.<br><br>
+                Overlays für OBS:<br>
+                Für jeden Spieler gibt es zwei transparente Seiten, die du in OBS als Browserquelle einfügst:<br>
+                <b>/RAUMCODE/NAME/text</b> zeigt nur das Textfeld des Spielers.<br>
+                <b>/RAUMCODE/NAME/punkte</b> zeigt nur die Punktzahl des Spielers.<br>
+                Der Raum muss dafür existieren und der Spieler beigetreten sein.
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
+                Wie funktionieren Hotkeys?
+            </summary>
+            <div class="message-body">
+                Du kannst Tastenkürzel für das Quizfeld (groß / klein), das Zurücksetzen des Buzzers und das Sperren des Buzzers festlegen. Standardmäßig sind alle deaktiviert.<br><br>
+                Einstellen:<br>
+                Über das Zahnrad Menü oder das Control Panel öffnest du "Hotkeys einstellen". Klicke auf ein Tastenfeld und drücke deine Wunschtaste oder Kombination (zum Beispiel Strg + R).<br><br>
+                Fensterübergreifend:<br>
+                Ist diese Option aktiv, funktionieren Aktionen auch dann, wenn du dich nicht im passenden Fenster befindest, zum Beispiel das Vergrößern der Stream Karte vom Host Fenster aus.<br><br>
+                Fest belegt:<br>
+                Mit den Pfeiltasten (links / rechts) wechselst du zwischen den Fragen. Mit Esc schließt du Fenster und das Control Panel. Hotkeys greifen nicht, solange du in ein Textfeld schreibst.
+            </div>
+        </details>
+    </article>
+</div>
+
+<br>
+
+<div class="faqBox zentriert">
+    <article class="message faqAbrunden">
+        <details>
+            <summary class="zentriert message-header is-clickable has-text-weight-bold">
                 Welche Probleme gibt es aktuell noch?
             </summary>
             <div class="message-body">
                 Probleme beim Host: <br>
                 Beim neu laden der Seite, könnten noch Probleme auftauchen:<br>
                 -Farben werden entfernt (zb. grün vom Buzzern)<br>
-                -Timer wird nicht mehr angezeigt
-                Wenn "Lock Text" und "Antwort Abgeben" gleichzeitig an sind, kann es zu Problemen kommen
+                -Timer wird nicht mehr angezeigt<br>
+                Wenn "Lock Text" und "Antwort Abgeben" gleichzeitig an sind, kann es zu Problemen kommen.
                 <br><br>
                 Probleme beim Teilnehmer:<br>
                 Das Textfeld macht selten Probleme, wenn man etwas mitten drin bearbeiten möchte.<br>
-                beim neu laden der Seite, wird der Timer nicht mehr angezeigt
+                Beim Neuladen der Seite wird der Timer nicht mehr angezeigt.<br>
                 Manchmal kann es vorkommen, dass 2 Teilnehmer gleichzeitig buzzern (sehr selten)
             </div>
         </details>
@@ -72,7 +136,15 @@
                 Die Teilnehmer erhalten einen Button mit dem sie ihre Antwort abgeben können. Sie können den Text danach nicht mehr bearbeiten.<br>
                 Damit die Teilnehmer wieder schreiben können, muss der Host den Button wieder deaktivieren. Wer abgegeben hat, wird braun hinterlegt.<br><br>
                 Starte Timer:<br>
-                Du kannst in Sekunden angeben, wie lange der Timer laufen soll. Dieser wird dann bei dir und bei jedem Spieler angezeigt. Sobald er abläuft, sperrt sich das Textfeld bei jedem Spieler
+                Du kannst in Sekunden angeben, wie lange der Timer laufen soll. Dieser wird dann bei dir und bei jedem Spieler angezeigt. Sobald er abläuft, sperrt sich das Textfeld bei jedem Spieler.<br><br>
+                Sende Frage / Sende Bild:<br>
+                Zeigt allen Teilnehmern gleichzeitig eine Frage beziehungsweise ein Bild an.<br><br>
+                Stream öffnen:<br>
+                Öffnet die Stream Ansicht in einem neuen Tab.<br><br>
+                Zahnrad Menü (oben rechts):<br>
+                Hier stellst du den Buzzer Sound und die Lautstärke ein (gilt nur für dich), öffnest die Hotkey Einstellungen, entfernst Spieler aus dem Raum und sperrst den Raum, damit niemand mehr beitreten kann.<br><br>
+                Control Panel:<br>
+                Der Reiter am Rand der Host Seite öffnet die Seitenleiste mit Fragen, Stream Slots und Audio Steuerung.
             </div>
         </details>
     </article>

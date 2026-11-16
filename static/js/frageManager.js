@@ -71,8 +71,8 @@
                 : '';
 
             const displayText = isPlaceholder
-                ? (card.question ? `[Notiz: ${card.question}] (Stream-Mitte ausgeblendet)` : '(Stream-Mitte ausgeblendet)')
-                : (card.question || (card.imageOnly ? '[Bild statt Fragetext]' : (card.audio ? '[Audio-Rätsel]' : '')));
+                ? (card.question ? `[Notiz: ${card.question}] (Stream Mitte ausgeblendet)` : '(Stream Mitte ausgeblendet)')
+                : (card.question || (card.imageOnly ? '[Bild statt Fragetext]' : (card.audio ? '[Audio Rätsel]' : '')));
 
             row.innerHTML = `
                 <div style="flex: 1; overflow: hidden; padding-right: 12px; cursor: pointer;" onclick="editCardInForm('${card.id}', ${idx})" title="Klicken um diese Frage zu bearbeiten und auszuwählen">
@@ -139,7 +139,7 @@
         const status = document.getElementById('cardImageStatus');
         if (status) {
             if (val && val.trim().length > 0) {
-                status.innerHTML = `Bild-Link aktiv &bull; <a href="javascript:void(0)" onclick="removeCardImage()" class="has-text-danger ml-1"><i class="fas fa-trash-alt"></i> Entfernen</a>`;
+                status.innerHTML = `Bild Link aktiv &bull; <a href="javascript:void(0)" onclick="removeCardImage()" class="has-text-danger ml-1"><i class="fas fa-trash-alt"></i> Entfernen</a>`;
             } else {
                 status.textContent = "";
             }
@@ -160,7 +160,7 @@
         }
         if (status) {
             if (hasVal) {
-                status.innerHTML = `Audio-Link aktiv &bull; <a href="javascript:void(0)" onclick="removeCardAudio()" class="has-text-danger ml-1"><i class="fas fa-trash-alt"></i> Entfernen</a>`;
+                status.innerHTML = `Audio Link aktiv &bull; <a href="javascript:void(0)" onclick="removeCardAudio()" class="has-text-danger ml-1"><i class="fas fa-trash-alt"></i> Entfernen</a>`;
             } else {
                 status.textContent = "";
             }
@@ -463,7 +463,7 @@
         const isPlaceholder = S.isCardPlaceholder({ title: title });
 
         if (imageOnly && !image) {
-            S.triggerErrorAlert("Bild fehlt", "Bitte wähle ein Bild aus (oder trage eine Bild-URL ein), da 'Bild statt Frage anzeigen' aktiviert ist.");
+            S.triggerErrorAlert("Bild fehlt", "Bitte wähle ein Bild aus (oder trage eine Bild URL ein), da 'Bild statt Frage anzeigen' aktiviert ist.");
             return;
         }
 
@@ -598,7 +598,7 @@
         if (file.size > MAX_UPLOAD_BYTES) {
             const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
             fileInput.value = "";
-            S.triggerErrorAlert("Datei zu groß", `Die ausgewählte Bilddatei ist ${sizeMb} MB groß. Das Upload-Limit beträgt maximal 10 MB.`);
+            S.triggerErrorAlert("Datei zu groß", `Die ausgewählte Bilddatei ist ${sizeMb} MB groß. Das Upload Limit beträgt maximal 10 MB.`);
             return;
         }
 
@@ -639,7 +639,7 @@
         } catch (err) {
             console.error("Fehler beim Hochladen:", err);
             if (status) status.textContent = "Fehler beim Upload.";
-            S.triggerErrorAlert("Upload-Fehler", err.message || "Fehler beim Hochladen des Bildes.");
+            S.triggerErrorAlert("Upload Fehler", err.message || "Fehler beim Hochladen des Bildes.");
         }
     };
 
@@ -651,7 +651,7 @@
         if (file.size > MAX_UPLOAD_BYTES) {
             const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
             fileInput.value = "";
-            S.triggerErrorAlert("Datei zu groß", `Die ausgewählte Audiodatei ist ${sizeMb} MB groß. Das Upload-Limit beträgt maximal 10 MB.`);
+            S.triggerErrorAlert("Datei zu groß", `Die ausgewählte Audiodatei ist ${sizeMb} MB groß. Das Upload Limit beträgt maximal 10 MB.`);
             return;
         }
 
@@ -695,7 +695,7 @@
         } catch (err) {
             console.error("Fehler beim Hochladen:", err);
             if (status) status.textContent = "Fehler beim Upload.";
-            S.triggerErrorAlert("Upload-Fehler", err.message || "Fehler beim Hochladen der Audiodatei.");
+            S.triggerErrorAlert("Upload Fehler", err.message || "Fehler beim Hochladen der Audiodatei.");
         }
     };
 
@@ -750,7 +750,7 @@
             downloadAnchor.remove();
 
             const msg = includeSlots
-                ? "Fragen sowie Stream-Slots & Links wurden erfolgreich exportiert!"
+                ? "Fragen sowie Stream Slots & Links wurden erfolgreich exportiert!"
                 : "Fragen wurden erfolgreich (ohne Slots) exportiert!";
             S.triggerSuccessAlert("Export erfolgreich", msg);
         }
@@ -758,7 +758,7 @@
         if (window.Swal) {
             Swal.fire({
                 title: "Quiz exportieren",
-                text: "Möchtest du die Stream-Slots (Spielerzuweisungen, Kamera- und Overlay-Links) mit in die Datei exportieren?",
+                text: "Möchtest du die Stream Slots (Spielerzuweisungen, Kamera- und Overlay Links) mit in die Datei exportieren?",
                 icon: "question",
                 showCancelButton: true,
                 showDenyButton: true,
@@ -814,8 +814,8 @@
                         const hasConfiguredSlots = importedData.slots.some(s => (s.username && s.username.trim()) || (s.reactiveUrl && s.reactiveUrl.trim()) || (s.overlayUrl && s.overlayUrl.trim()));
                         if (hasConfiguredSlots && window.Swal) {
                             Swal.fire({
-                                title: "Stream-Slots importieren?",
-                                text: "Die importierte Datei enthält auch gespeicherte Stream-Slots und Kamera-/Overlay-Links. Möchtest du diese ebenfalls übernehmen?",
+                                title: "Stream Slots importieren?",
+                                text: "Die importierte Datei enthält auch gespeicherte Stream Slots und Kamera/Overlay Links. Möchtest du diese ebenfalls übernehmen?",
                                 icon: "question",
                                 showCancelButton: true,
                                 confirmButtonText: "Slots übernehmen",
@@ -839,7 +839,7 @@
 
                 if (window.Swal) {
                     Swal.fire({
-                        title: "Import-Option wählen",
+                        title: "Import Option wählen",
                         text: `Die Datei enthält ${importedCards.length} Fragen. Möchtest du die aktuellen Fragen ersetzen oder die neuen Fragen hinten anhängen?`,
                         icon: "question",
                         showCancelButton: true,
@@ -861,7 +861,7 @@
                             renderCardManagerList();
                             S.renderMiddleCard();
                             S.updateControlBar();
-                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `Quiz-Paket mit ${importedCards.length} Fragen geladen!`);
+                            if (window.ShowSuccessAlert) ShowSuccessAlert("Erfolgreich", `Quiz Paket mit ${importedCards.length} Fragen geladen!`);
                             checkAndPromptSlots();
                         } else if (result.isDenied) {
                             const maxId = S.state.cards.reduce((max, c) => Math.max(max, c.id || 0), 0);

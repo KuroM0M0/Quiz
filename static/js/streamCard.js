@@ -185,7 +185,7 @@
                 catElem.classList.remove('unsichtbar');
             }
             if (textElem) {
-                textElem.textContent = "Noch keine Aufgaben vorhanden. Klicke unten auf 'Fragen & Aufgaben verwalten', um Aufgaben anzulegen oder ein Quiz-Paket zu importieren.";
+                textElem.textContent = "Noch keine Aufgaben vorhanden. Klicke unten auf 'Fragen & Aufgaben verwalten', um Aufgaben anzulegen oder ein Quiz Paket zu importieren.";
                 textElem.classList.remove('unsichtbar');
             }
             if (imgElem) {
@@ -309,7 +309,7 @@
                 // Im Host Drawer anzeigen, dass ein Bild statt Frage aktiv ist (inkl. Notiz wenn vorhanden)
                 if (catElem) catElem.classList.remove('unsichtbar');
                 if (textElem) {
-                    textElem.textContent = current.question ? `📷 [Bild-Frage] ${current.question}` : "📷 [Bild statt Frage aktiv]";
+                    textElem.textContent = current.question ? `📷 [Bild Frage] ${current.question}` : "📷 [Bild statt Frage aktiv]";
                     textElem.classList.remove('unsichtbar');
                 }
             }
@@ -327,7 +327,7 @@
                     textElem.textContent = "";
                     textElem.classList.add('unsichtbar');
                 } else {
-                    textElem.textContent = "🎵 [Reines Audio-Rätsel]";
+                    textElem.textContent = "🎵 [Reines Audio Rätsel]";
                     textElem.classList.remove('unsichtbar');
                 }
             }
@@ -546,7 +546,7 @@
         if (!targetRoom) return;
 
         const hostPlayer = document.getElementById('hostAudioPlayer');
-        const isAudioPlaying = !!(hostAudioPlaying && hostPlayer && !hostPlayer.paused);
+        const isAudioPlaying = !!(S.state.hostAudioPlaying && hostPlayer && !hostPlayer.paused);
         const currentSeek = (hostPlayer && typeof hostPlayer.currentTime === 'number') ? hostPlayer.currentTime : 0;
 
         const cardImage = current.image || "";
@@ -746,7 +746,7 @@
     window.openStreamView = function () {
         const targetRoom = S.state.activeRoomId || (typeof roomID !== 'undefined' ? roomID : '');
         if (!targetRoom || targetRoom === 'None') {
-            S.triggerErrorAlert("Kein Raum", "Es wurde noch kein Raum-Code geladen.");
+            S.triggerErrorAlert("Kein Raum", "Es wurde noch kein Raum Code geladen.");
             return;
         }
         window.open('/' + encodeURIComponent(targetRoom) + '/stream', '_blank');

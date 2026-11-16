@@ -73,7 +73,7 @@
                 <!-- Raum-Status Toggle -->
                 <div class="field has-addons is-justify-content-center">
                     <p class="control">
-                        <button class="button is-static is-small">Raum-Status:</button>
+                        <button class="button is-static is-small">Raum Status:</button>
                     </p>
                     <p class="control">
                         <button class="button is-success is-small" id="btn-toggle-join" onclick="toggleJoinability()">
@@ -116,7 +116,7 @@
         <br>
         <div class="buttons">
             <button class="button is-primary abstandLinks" onclick="openModal('bildModal')" id="imageButton"><span title="Sendet ein Bild an alle Spieler"><i class="fas fa-image"></i>&nbsp;Sende Bild</span></button>
-            <button class="button is-dark abstandLinks" onclick="openStreamView()" title="Stream-Ansicht in neuem Tab öffnen"><i class="fas fa-external-link-alt"></i>&nbsp;Stream öffnen</button>
+            <button class="button is-dark abstandLinks" onclick="openStreamView()" title="Stream Ansicht in neuem Tab öffnen"><i class="fas fa-external-link-alt"></i>&nbsp;Stream öffnen</button>
         </div>
     </div>
 </div>
@@ -206,7 +206,7 @@
         <div class="box panel-box p-4 mb-4">
             <div class="is-flex is-align-items-center is-justify-content-space-between mb-3">
                 <span class="tag is-info is-medium has-text-weight-bold">
-                    <i class="fas fa-tv mr-2"></i>Stream-Fragen
+                    <i class="fas fa-tv mr-2"></i>Stream Fragen
                 </span>
             </div>
 
@@ -263,7 +263,7 @@
                 <!-- Zeile 1: Titel und Zeit-Anzeige -->
                 <div class="is-flex is-align-items-center is-justify-content-space-between mb-2">
                     <span class="has-text-info has-text-weight-bold is-size-7">
-                        <i class="fas fa-music mr-1"></i> Audio-Track
+                        <i class="fas fa-music mr-1"></i> Audio Track
                     </span>
                     <span id="hostAudioTime" class="tag is-dark is-small" style="font-family: monospace; font-size: 0.75rem;">0:00 / 0:00</span>
                 </div>
@@ -272,7 +272,7 @@
                 <div class="mb-2 is-flex is-align-items-center" style="gap: 6px;">
                     <input type="range" id="hostAudioSeekSlider" class="audio-control-slider" min="0" max="100" step="0.1" value="0"
                            oninput="onHostAudioSeekInput(this.value)" onchange="onHostAudioSeekChange(this.value)"
-                           style="width: 100%;" title="Audio-Position: Klicken oder Ziehen zum Spulen">
+                           style="width: 100%;" title="Audio Position: Klicken oder Ziehen zum Spulen">
                 </div>
 
                 <!-- Zeile 3: Steuerungs-Buttons & Lautstärke -->
@@ -313,7 +313,7 @@
             </div>
         </div>
 
-        <!-- 2. Verwaltung (Fragen & Stream-Slots) -->
+        <!-- 2. Verwaltung (Fragen & Stream Slots) -->
         <div class="box panel-box p-4 mb-4">
             <h3 class="subtitle is-6 has-text-weight-bold has-text-grey-light mb-3">
                 <i class="fas fa-cogs mr-1"></i> Verwaltung & Setup
@@ -322,8 +322,8 @@
                 <button class="button is-success is-fullwidth" onclick="openCardManagerModal()" title="Fragen bearbeiten, erstellen, importieren oder exportieren">
                     <i class="fas fa-list mr-2"></i> Fragen & Aufgaben verwalten
                 </button>
-                <button class="button is-link is-fullwidth" onclick="openSlotOverviewModal()" title="Stream-Slots verwalten und Spieler/Kameras zuweisen">
-                    <i class="fas fa-th-large mr-2"></i> Stream-Slots verwalten (<span id="drawerSlotCountDisplay">8</span> Kacheln)
+                <button class="button is-link is-fullwidth" onclick="openSlotOverviewModal()" title="Stream Slots verwalten und Spieler/Kameras zuweisen">
+                    <i class="fas fa-th-large mr-2"></i> Stream Slots verwalten (<span id="drawerSlotCountDisplay">8</span> Kacheln)
                 </button>
                 <button class="button is-dark is-fullwidth" onclick="openHotkeySettingsModal()" title="Hotkeys für Buzzer und Quizfeld konfigurieren">
                     <i class="fas fa-keyboard mr-2"></i> Hotkeys einstellen
@@ -331,7 +331,7 @@
             </div>
             <div class="buttons are-small is-flex mb-3" style="gap: 8px;">
                 <button class="button is-dark" onclick="autoAssignSlots()" style="flex: 1;" title="Freie Kacheln automatisch mit beigetretenen Spielern füllen">
-                    <i class="fas fa-magic mr-1"></i> Auto-Slots
+                    <i class="fas fa-magic mr-1"></i> Auto Slots
                 </button>
                 <button class="button is-dark has-text-danger" onclick="clearAllSlots()" style="flex: 1; border: 1px solid rgba(241, 70, 104, 0.35);" title="Alle 8 Slots leeren">
                     <i class="fas fa-user-times mr-1"></i> Slots leeren
@@ -347,13 +347,13 @@
     </div>
 </aside>
 
-<!-- Modal: Übersicht aller 8 Stream-Slots -->
+<!-- Modal: Übersicht aller 8 Stream Slots -->
 <div class="modal" id="slotOverviewModal">
     <div class="modal-background" onclick="closeModal('slotOverviewModal')"></div>
     <div class="modal-content p-4" style="max-width: 780px; max-height: calc(100vh - 60px);">
         <div class="box p-5">
             <div class="is-flex is-justify-content-space-between is-align-items-center mb-4" style="gap: 12px; flex-wrap: wrap;">
-                <h1 class="title is-4 mb-0">Stream-Slots verwalten (<span id="slotCountDisplay">8</span> Kacheln)</h1>
+                <h1 class="title is-4 mb-0">Stream Slots verwalten (<span id="slotCountDisplay">8</span> Kacheln)</h1>
                 <div class="buttons mb-0">
                     <button class="button is-dark is-small" id="btnAddSlot" onclick="addSlot()" title="Einen weiteren Slot hinzufügen (max. 8)">
                         <i class="fas fa-plus mr-1 has-text-success"></i>&nbsp;Slot hinzufügen
@@ -362,14 +362,14 @@
                         <i class="fas fa-minus mr-1 has-text-danger"></i>&nbsp;Slot entfernen
                     </button>
                     <button class="button is-dark is-small" onclick="autoAssignSlots()" title="Freie Kacheln automatisch mit beigetretenen Spielern füllen">
-                        <i class="fas fa-magic mr-1"></i>&nbsp;Auto-Slots
+                        <i class="fas fa-magic mr-1"></i>&nbsp;Auto Slots
                     </button>
                     <button class="button is-dark is-small has-text-danger" onclick="clearAllSlots()" style="border: 1px solid rgba(241, 70, 104, 0.35);" title="Alle Slots leeren">
                         <i class="fas fa-user-times mr-1"></i>&nbsp;Alle leeren
                     </button>
                 </div>
             </div>
-            <p class="subtitle is-6 has-text-grey-light mb-4">Klicke auf einen Slot, um ihm einen Spieler und optional einen Discord-Reactive / Kamera-Link zuzuweisen.</p>
+            <p class="subtitle is-6 has-text-grey-light mb-4">Klicke auf einen Slot, um ihm einen Spieler und optional einen Discord Reactive / Kamera Link zuzuweisen.</p>
             <div class="slot-overview-grid mb-4" id="slotOverviewGrid">
                 <!-- Dynamisch durch stream.js befüllt -->
             </div>
@@ -397,11 +397,11 @@
                 </div>
             </div>
             <div class="field mb-4">
-                <label class="label">Discord-Reactive / Kamera URL (Optional)</label>
+                <label class="label">Discord Reactive / Kamera URL (Optional)</label>
                 <input class="input" type="text" id="slotReactiveInput" placeholder="https://reactive.fugi.tech/... oder https://vdo.ninja/...">
             </div>
             <div class="field mb-5">
-                <label class="label">Textfeld-Overlay URL (Optional)</label>
+                <label class="label">Textfeld Overlay URL (Optional)</label>
                 <input class="input" type="text" id="slotOverlayInput" placeholder="https://... (Wird über das Textfeld des Spielers gelegt)">
             </div>
             <div class="is-flex is-justify-content-space-between is-align-items-center pt-2" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
@@ -428,10 +428,10 @@
                     <i class="fas fa-tasks mr-2 has-text-info"></i>Fragen & Aufgaben verwalten
                 </h1>
                 <div class="is-flex is-align-items-center" style="gap: 10px; flex-shrink: 0; flex-wrap: nowrap;">
-                    <button class="button is-info is-small" onclick="exportQuizPackage()" title="Fragen und Slot-Belegung als Datei herunterladen" style="white-space: nowrap;">
+                    <button class="button is-info is-small" onclick="exportQuizPackage()" title="Fragen und Slot Belegung als Datei herunterladen" style="white-space: nowrap;">
                         <i class="fas fa-file-export mr-1"></i>&nbsp;Export
                     </button>
-                    <label class="button is-warning is-small mb-0" title="Quiz-Paket aus Datei laden" style="white-space: nowrap; cursor: pointer;">
+                    <label class="button is-warning is-small mb-0" title="Quiz Paket aus Datei laden" style="white-space: nowrap; cursor: pointer;">
                         <i class="fas fa-file-import mr-1"></i>&nbsp;Import
                         <input type="file" id="quizPackageFileInput" accept=".json,application/json" style="display: none;" onchange="importQuizPackage(this)">
                     </label>
@@ -485,10 +485,10 @@
                     </div>
 
                     <div class="field mb-4">
-                        <label class="label is-small">Bild für diese Frage (Datei-Upload oder Bild-URL)</label>
+                        <label class="label is-small">Bild für diese Frage (Datei Upload oder Bild URL)</label>
                         <div class="field has-addons mb-2">
                             <div class="control is-expanded">
-                                <input class="input is-small" type="text" id="cardImageInput" placeholder="Bild-URL (https://...) oder Datei auswählen..." oninput="onCardImageUrlChange(this.value)">
+                                <input class="input is-small" type="text" id="cardImageInput" placeholder="Bild URL (https://...) oder Datei auswählen..." oninput="onCardImageUrlChange(this.value)">
                             </div>
                             <div class="control">
                                 <label class="button is-dark is-small" style="cursor: pointer;" title="Bild vom Computer hochladen">
@@ -508,10 +508,10 @@
 
                     <!-- Audio für diese Frage -->
                     <div class="field mb-4">
-                        <label class="label is-small">Audio für diese Frage (Datei-Upload oder Audio-URL)</label>
+                        <label class="label is-small">Audio für diese Frage (Datei Upload oder Audio URL)</label>
                         <div class="field has-addons mb-2">
                             <div class="control is-expanded">
-                                <input class="input is-small" type="text" id="cardAudioInput" placeholder="Audio-URL (https://...) oder Audiodatei auswählen..." oninput="onCardAudioUrlChange(this.value)">
+                                <input class="input is-small" type="text" id="cardAudioInput" placeholder="Audio URL (https://...) oder Audiodatei auswählen..." oninput="onCardAudioUrlChange(this.value)">
                             </div>
                             <div class="control">
                                 <label class="button is-dark is-small" style="cursor: pointer;" title="Audiodatei vom Computer hochladen (.mp3, .wav, .ogg, .m4a)">

@@ -460,7 +460,7 @@
             renderSlots();
             renderSlotOverviewGrid();
             updateSlotUI();
-            S.triggerSuccessAlert("Slots geleert", "Alle Spieler-Slots wurden geleert.");
+            S.triggerSuccessAlert("Slots geleert", "Alle Spieler Slots wurden geleert.");
         };
 
         S.triggerQuestionAlert("Slots leeren", `Möchtest du wirklich alle ${S.state.slots.length} Slots leeren?`).then((res) => {
