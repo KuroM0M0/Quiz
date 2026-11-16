@@ -15,7 +15,10 @@ window.StreamApp = window.StreamApp || {
         cards: [],
         activeCardIndex: 0,
         isMiddleCardHidden: false,
-        lastSentCardId: null
+        lastSentCardId: null,
+        hostAudioPlaying: false,
+        lastReceivedAudioLevels: null,
+        lastReceivedAudioLevelsTime: 0
     }
 };
 
@@ -330,8 +333,8 @@ window.StreamApp = window.StreamApp || {
             S.setStreamAudioVisualState(msg.state, msg);
         } else if (msg.type === 'stream_audio_levels') {
             if (Array.isArray(msg.levels) && msg.levels.length === 5) {
-                lastReceivedAudioLevels = msg.levels;
-                lastReceivedAudioLevelsTime = performance.now();
+                S.state.lastReceivedAudioLevels = msg.levels;
+                S.state.lastReceivedAudioLevelsTime = performance.now();
             }
         } else if (msg.type === 'stream_audio_seek') {
             const streamAudio = document.getElementById('streamQuestionAudio');
@@ -586,8 +589,8 @@ window.StreamApp = window.StreamApp || {
 
     socket.on('streamAudioLevels', function (data) {
         if (data && Array.isArray(data.levels) && data.levels.length === 5) {
-            lastReceivedAudioLevels = data.levels;
-            lastReceivedAudioLevelsTime = performance.now();
+            S.state.lastReceivedAudioLevels = data.levels;
+            S.state.lastReceivedAudioLevelsTime = performance.now();
         }
     });
 

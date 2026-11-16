@@ -3,8 +3,6 @@
     // Host Audio-Steuerung
     // =========================================================================
 
-    let hostAudioPlaying = false;
-
     function formatAudioTime(seconds) {
         if (isNaN(seconds) || seconds < 0) return '0:00';
         const m = Math.floor(seconds / 60);
@@ -13,7 +11,7 @@
     }
 
     function updateHostAudioButtons(isPlaying) {
-        hostAudioPlaying = isPlaying;
+        S.state.hostAudioPlaying = isPlaying;
         const playIcon = document.getElementById('hostAudioPlayIcon');
         const playBtn = document.getElementById('hostAudioPlayBtn');
         if (playIcon) {
@@ -92,7 +90,7 @@
 
         const isSent = (S.state.lastSentCardId === current.id);
 
-        if (hostAudioPlaying && !player.paused) {
+        if (S.state.hostAudioPlaying && !player.paused) {
             // Pausieren
             player.pause();
             updateHostAudioButtons(false);
@@ -143,7 +141,7 @@
                 console.warn("Host Audio Playback Fehler:", err);
                 updateHostAudioButtons(false);
                 stopHostAudioAnalyzerLoop();
-                S.triggerErrorAlert("Audio-Wiedergabe", "Die Audiodatei konnte nicht abgespielt werden. Bitte prüfe, ob die Datei auf dem Server existiert (404) oder lade sie für diese Frage neu hoch.");
+                S.triggerErrorAlert("Audio Wiedergabe", "Die Audiodatei konnte nicht abgespielt werden. Bitte prüfe, ob die Datei auf dem Server existiert (404) oder lade sie für diese Frage neu hoch.");
             });
 
             // Wellen-Animation auf Stream anzeigen (auch im Vorhörmodus laut Benutzerauswahl)
@@ -376,8 +374,6 @@
     }
 
     // Stream-seitiger Visualizer-Status
-    let lastReceivedAudioLevels = null;
-    let lastReceivedAudioLevelsTime = 0;
     let streamAudioCtx = null;
     let streamAnalyser = null;
     let streamAudioSource = null;
@@ -433,10 +429,10 @@
             const now = performance.now();
 
             // 1. Höchste Priorität: Echte Live-Audiopegel vom Host
-            if (lastReceivedAudioLevels && (now - lastReceivedAudioLevelsTime) < 800) {
+            if (S.state.lastReceivedAudioLevels && (now - S.state.lastReceivedAudioLevelsTime) < 800) {
                 const maxScale = [0.82, 0.92, 1.0, 0.92, 0.82];
                 for (let i = 0; i < 5; i++) {
-                    const norm = Math.max(0, Math.min(1, lastReceivedAudioLevels[i]));
+                    const norm = Math.max(0, Math.min(1, S.state.lastReceivedAudioLevels[i]));
                     targetHeights[i] = minH + norm * (maxH - minH) * maxScale[i];
                 }
             } else if (streamAnalyser) {

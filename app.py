@@ -783,5 +783,4 @@ def notify_bugreport_discord(name, text):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5500))
-    debug = os.environ.get('FLASK_DEBUG', 'true').lower() in ('true', '1')
-    socketio.run(app, host='0.0.0.0', port=port, debug=debug)
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)
